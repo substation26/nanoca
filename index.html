@@ -9,148 +9,108 @@
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
 :root{
-  --ink:#1a1a18;--ink2:#5a5a52;--ink3:#9a9a90;--ink4:#c8c8be;
-  --paper:#f7f5f0;--paper2:#eeece6;--paper3:#e2e0d8;
+  --ink:#1e1d1a;--ink2:#5a5850;--ink3:#9a9890;--ink4:#c4c2b8;
+  --paper:#f8f6f1;--paper2:#efece5;--paper3:#e3e0d6;
   --teal:#4a7c6f;--teal2:#2d5a4f;--teal3:#c8dfd8;
   --mono:'DM Mono',monospace;--serif:'Cormorant Garamond',serif;
 }
 html,body{height:100%;background:var(--paper);color:var(--ink);font-family:var(--mono);font-size:13px;-webkit-text-size-adjust:100%;-webkit-font-smoothing:antialiased}
 #app{min-height:100dvh;display:flex;flex-direction:column;max-width:440px;margin:0 auto}
+
+/* Header */
 .hdr{padding:18px 20px 14px;border-bottom:0.5px solid var(--paper3);display:flex;align-items:flex-end;justify-content:space-between;position:sticky;top:0;background:var(--paper);z-index:10}
-.logo{font-family:var(--serif);font-size:21px;font-weight:300;font-style:italic;color:var(--ink)}
+.logo{font-family:var(--serif);font-size:22px;font-weight:300;font-style:italic;color:var(--ink)}
 .logo small{display:block;font-family:var(--mono);font-size:9px;font-style:normal;color:var(--ink3);letter-spacing:.14em;text-transform:uppercase;margin-top:2px}
 .step-lbl{font-size:10px;color:var(--ink4);letter-spacing:.1em}
-.scr{display:none;flex-direction:column;gap:18px;padding:20px 20px 48px}
+
+/* Screens */
+.scr{display:none;flex-direction:column;gap:20px;padding:22px 20px 56px}
 .scr.on{display:flex}
-.lbl{font-size:9px;letter-spacing:.2em;text-transform:uppercase;color:var(--ink3);margin-bottom:4px}
-.h1{font-family:var(--serif);font-size:22px;font-weight:300;font-style:italic;line-height:1.35;color:var(--ink)}
-.sub{font-size:11px;color:var(--ink3);line-height:1.8;margin-top:6px}
-.zone{background:var(--paper2);border:0.5px solid var(--paper3);border-radius:3px;padding:24px 20px;display:flex;flex-direction:column;align-items:center;gap:14px}
+.lbl{font-size:9px;letter-spacing:.2em;text-transform:uppercase;color:var(--ink3);margin-bottom:5px}
+.h1{font-family:var(--serif);font-size:22px;font-weight:300;font-style:italic;line-height:1.38;color:var(--ink)}
+.sub{font-size:11px;color:var(--ink3);line-height:1.85;margin-top:7px}
+
+/* Record zone */
+.zone{background:var(--paper2);border:0.5px solid var(--paper3);border-radius:3px;padding:26px 20px;display:flex;flex-direction:column;align-items:center;gap:15px}
 .rbtn{width:68px;height:68px;border-radius:50%;border:1.5px solid var(--ink3);background:transparent;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:border-color .3s;-webkit-appearance:none}
 .rbtn:hover{border-color:var(--teal)}
 .rbtn.rec{border-color:#b45309;animation:pulse 1.2s ease-in-out infinite}
-@keyframes pulse{0%,100%{box-shadow:0 0 0 0 rgba(180,83,9,.18)}50%{box-shadow:0 0 0 10px rgba(180,83,9,0)}}
-.rdot{width:19px;height:19px;border-radius:50%;background:var(--ink3);transition:background .3s}
+@keyframes pulse{0%,100%{box-shadow:0 0 0 0 rgba(180,83,9,.15)}50%{box-shadow:0 0 0 10px rgba(180,83,9,0)}}
+.rdot{width:20px;height:20px;border-radius:50%;background:var(--ink3);transition:background .3s}
 .rbtn.rec .rdot{background:#b45309}
-.rstat{font-size:11px;color:var(--ink3);letter-spacing:.06em;text-align:center}
-.rtime{font-size:19px;font-weight:300;color:var(--ink);letter-spacing:.1em}
+.rstat{font-size:11px;color:var(--ink3);letter-spacing:.05em;text-align:center}
+.rtime{font-size:20px;font-weight:300;color:var(--ink);letter-spacing:.1em}
 .wc{width:100%;height:28px;display:none}
 .div-or{display:flex;align-items:center;gap:10px;font-size:10px;color:var(--ink4)}
 .div-or::before,.div-or::after{content:'';flex:1;height:0.5px;background:var(--paper3)}
-.uplbl{width:100%;padding:11px;border:0.5px dashed var(--paper3);border-radius:3px;background:transparent;cursor:pointer;font-family:var(--mono);font-size:11px;color:var(--ink3);letter-spacing:.06em;display:flex;align-items:center;justify-content:center;gap:8px;transition:all .2s}
+.uplbl{width:100%;padding:11px;border:0.5px dashed var(--paper3);border-radius:3px;background:transparent;cursor:pointer;font-family:var(--mono);font-size:11px;color:var(--ink3);letter-spacing:.05em;display:flex;align-items:center;justify-content:center;gap:8px;transition:all .2s}
 .uplbl:hover{border-color:var(--teal3);color:var(--teal)}
 .note{border-left:2px solid var(--paper3);padding:8px 14px}
-.note p{font-size:11px;color:var(--ink3);line-height:1.8}
+.note p{font-size:11px;color:var(--ink3);line-height:1.85}
 .note em{font-family:var(--serif);font-style:italic;font-size:13px;color:var(--ink2)}
-.abtn{width:100%;padding:15px;background:var(--ink);color:var(--paper);border:none;border-radius:3px;font-family:var(--mono);font-size:11px;letter-spacing:.12em;cursor:pointer;text-transform:uppercase;transition:background .2s;display:none;-webkit-appearance:none}
+.abtn{width:100%;padding:16px;background:var(--ink);color:var(--paper);border:none;border-radius:3px;font-family:var(--mono);font-size:11px;letter-spacing:.12em;cursor:pointer;text-transform:uppercase;transition:background .2s;display:none;-webkit-appearance:none}
 .abtn.on{display:block}
-.abtn:hover{background:#333330}
-.log-box{background:var(--paper2);border:0.5px solid var(--paper3);border-radius:3px;padding:14px 16px;min-height:148px}
+.abtn:hover{background:#2e2d2a}
+
+/* Analysis */
+.log-box{background:var(--paper2);border:0.5px solid var(--paper3);border-radius:3px;padding:15px 17px;min-height:152px}
 .lg{font-size:11px;line-height:2.1;color:var(--ink3);opacity:0;transition:opacity .4s}
 .lg.on{opacity:1}
 .lg span{color:var(--teal)}
-.prog{height:1px;background:var(--paper3);border-radius:1px;overflow:hidden}
+.prog{height:1px;background:var(--paper3);overflow:hidden}
 .progb{height:100%;background:var(--teal);width:0%;transition:width .35s ease}
-.map-wrap{position:relative;background:var(--paper2);border:0.5px solid var(--paper3);border-radius:3px;overflow:hidden;aspect-ratio:1}
-.map-wrap canvas{width:100%!important;height:100%!important;display:block}
-.mo{position:absolute;font-size:9px;color:var(--ink4);letter-spacing:.09em;line-height:1.65;pointer-events:none;font-family:var(--mono)}
-.mo.tl{top:9px;left:11px}
-.mo.br{bottom:9px;right:11px;text-align:right}
+
+/* ── 卵形マップ ── */
+.egg-wrap{
+  position:relative;
+  width:100%;
+  /* 縦長卵形の比率 */
+  aspect-ratio:3/4;
+  margin:0 auto;
+  background:var(--paper2);
+  border:0.5px solid var(--paper3);
+  border-radius:3px;
+  overflow:hidden;
+}
+.egg-wrap canvas{width:100%!important;height:100%!important;display:block}
+
+/* マップ上のテキストオーバーレイ */
+.mo{position:absolute;font-size:9px;color:var(--ink4);letter-spacing:.08em;line-height:1.7;pointer-events:none;font-family:var(--mono)}
+.mo.tl{top:10px;left:12px}
+.mo.br{bottom:10px;right:12px;text-align:right}
+
+/* 特徴量グリッド */
 .mgrid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
 .mc{background:var(--paper2);border:0.5px solid var(--paper3);border-radius:3px;padding:11px 13px}
 .mc .lbl{margin-bottom:7px}
-.mbar{height:1px;background:var(--paper3);margin-bottom:5px;overflow:hidden}
+.mbar{height:1px;background:var(--paper3);margin-bottom:6px;overflow:hidden}
 .mbarb{height:100%;background:var(--teal);width:0%;transition:width 1s cubic-bezier(.4,0,.2,1)}
 .mval{font-size:17px;font-weight:300;color:var(--ink)}
 
-/* ── 色彩解釈レイヤー ── */
-.color-layer{
-  border:0.5px solid var(--paper3);border-radius:3px;overflow:hidden;
-}
-.color-layer-hdr{
-  padding:11px 16px 9px;border-bottom:0.5px solid var(--paper3);
-  display:flex;align-items:baseline;justify-content:space-between;
-}
+/* 色彩傾向 */
+.color-layer{border:0.5px solid var(--paper3);border-radius:3px;overflow:hidden}
+.color-layer-hdr{padding:11px 16px 9px;border-bottom:0.5px solid var(--paper3);display:flex;align-items:baseline;justify-content:space-between}
 .color-layer-hdr .lbl{margin:0}
-.color-layer-hdr span{
-  font-size:9px;color:var(--ink4);letter-spacing:.08em;
-  font-family:var(--mono);
-}
-.color-observation{
-  padding:14px 16px 6px;
-  background:var(--paper2);
-}
-.color-obs-text{
-  font-family:var(--serif);font-style:italic;font-size:14px;
-  color:var(--ink2);line-height:1.85;
-}
-.color-rows{
-  padding:4px 0 2px;
-}
-.color-row{
-  display:flex;align-items:center;
-  padding:9px 16px;
-  border-top:0.5px solid var(--paper3);
-  gap:14px;
-}
-.color-swatch{
-  width:28px;height:28px;border-radius:2px;
-  flex-shrink:0;
-  position:relative;
-  overflow:hidden;
-}
-/* ノイズテクスチャ風のオーバーレイ */
-.color-swatch::after{
-  content:'';position:absolute;inset:0;
-  background:repeating-linear-gradient(
-    135deg,
-    rgba(255,255,255,.08) 0px,
-    rgba(255,255,255,.08) 1px,
-    transparent 1px,
-    transparent 3px
-  );
-}
-.color-info{flex:1;min-width:0}
-.color-role{
-  font-size:9px;letter-spacing:.18em;text-transform:uppercase;
-  color:var(--ink4);margin-bottom:3px;
-}
-.color-name{
-  font-family:var(--serif);font-style:italic;font-size:16px;
-  font-weight:300;color:var(--ink);letter-spacing:.02em;
-}
-.color-name-en{
-  font-family:var(--mono);font-size:9px;color:var(--ink4);
-  letter-spacing:.1em;margin-top:1px;
-}
-.color-intensity{
-  display:flex;flex-direction:column;align-items:flex-end;gap:4px;
-}
-.intensity-bar{
-  width:32px;height:1px;background:var(--paper3);overflow:hidden;
-}
-.intensity-fill{
-  height:100%;background:var(--ink4);
-  transition:width 1.2s cubic-bezier(.4,0,.2,1);
-}
-.intensity-num{
-  font-size:9px;color:var(--ink4);letter-spacing:.06em;
-}
-.color-footer{
-  padding:10px 16px 12px;
-  border-top:0.5px solid var(--paper3);
-  background:var(--paper2);
-}
-.color-footer p{
-  font-size:10px;color:var(--ink4);line-height:1.9;
-  letter-spacing:.04em;
-}
-.color-footer em{
-  font-family:var(--serif);font-style:italic;
-  font-size:12px;color:var(--ink3);
-}
-/* ── /色彩解釈レイヤー ── */
+.color-layer-hdr span{font-size:9px;color:var(--ink4);letter-spacing:.08em}
+.color-obs{padding:14px 16px 10px;background:var(--paper2)}
+.color-obs-text{font-family:var(--serif);font-style:italic;font-size:14px;color:var(--ink2);line-height:1.9}
+.color-rows{}
+.color-row{display:flex;align-items:center;padding:9px 16px;border-top:0.5px solid var(--paper3);gap:14px}
+.cswatch{width:26px;height:26px;border-radius:2px;flex-shrink:0;position:relative;overflow:hidden}
+.cswatch::after{content:'';position:absolute;inset:0;background:repeating-linear-gradient(135deg,rgba(255,255,255,.07) 0,rgba(255,255,255,.07) 1px,transparent 1px,transparent 3px)}
+.cinfo{flex:1}
+.crole{font-size:9px;letter-spacing:.18em;text-transform:uppercase;color:var(--ink4);margin-bottom:2px}
+.cname{font-family:var(--serif);font-style:italic;font-size:16px;font-weight:300;color:var(--ink)}
+.cname-en{font-size:9px;color:var(--ink4);letter-spacing:.1em;margin-top:1px}
+.cintensity{display:flex;flex-direction:column;align-items:flex-end;gap:4px}
+.ibar{width:32px;height:1px;background:var(--paper3);overflow:hidden}
+.ifill{height:100%;background:var(--ink4);width:0%;transition:width 1.2s cubic-bezier(.4,0,.2,1)}
+.inum{font-size:9px;color:var(--ink4);letter-spacing:.05em}
+.color-footer{padding:10px 16px 12px;border-top:0.5px solid var(--paper3);background:var(--paper2)}
+.color-footer p{font-size:10px;color:var(--ink4);line-height:1.9}
+.color-footer em{font-family:var(--serif);font-style:italic;font-size:12px;color:var(--ink3)}
 
+/* 設計図 */
 .sa{background:var(--paper2);border:0.5px solid var(--paper3);border-radius:3px;padding:13px 16px}
 .sa-r{display:flex;justify-content:space-between;align-items:baseline;padding:7px 0;border-bottom:0.5px solid var(--paper3)}
 .sa-r:last-child{border:none}
@@ -159,15 +119,19 @@ html,body{height:100%;background:var(--paper);color:var(--ink);font-family:var(-
 .anote{border:0.5px solid var(--paper3);border-radius:3px;padding:14px 16px}
 .anote p{font-size:11px;color:var(--ink3);line-height:1.9}
 .anote em{font-family:var(--serif);font-style:italic;font-size:13px;color:var(--ink2)}
+
+/* Buttons */
 .row2{display:flex;gap:8px}
 .btn-s{flex:1;padding:12px;border:0.5px solid var(--paper3);border-radius:3px;background:transparent;font-family:var(--mono);font-size:10px;color:var(--ink3);letter-spacing:.1em;cursor:pointer;text-transform:uppercase;transition:all .2s;-webkit-appearance:none}
 .btn-s:hover{border-color:var(--ink3);color:var(--ink)}
-.btn-p{flex:2;padding:12px;border:0.5px solid var(--ink);border-radius:3px;background:var(--ink);font-family:var(--mono);font-size:10px;color:var(--paper);letter-spacing:.1em;cursor:pointer;text-transform:uppercase;transition:background .2s;-webkit-appearance:none}
-.btn-p:hover{background:#333}
+.btn-p{flex:2;padding:12px;background:var(--ink);border:0.5px solid var(--ink);border-radius:3px;font-family:var(--mono);font-size:10px;color:var(--paper);letter-spacing:.1em;cursor:pointer;text-transform:uppercase;transition:background .2s;-webkit-appearance:none}
+.btn-p:hover{background:#2e2d2a}
 .btn-teal{flex:3;padding:13px;background:var(--teal);border:none;border-radius:3px;font-family:var(--mono);font-size:10px;color:#fff;letter-spacing:.12em;cursor:pointer;text-transform:uppercase;transition:background .2s;-webkit-appearance:none}
 .btn-teal:hover{background:var(--teal2)}
-.cpl{display:flex;flex-direction:column;align-items:center;gap:14px;padding-top:28px}
-.cpl-sym{font-family:var(--serif);font-size:56px;font-weight:300;color:var(--teal);line-height:1}
+
+/* Complete */
+.cpl{display:flex;flex-direction:column;align-items:center;gap:15px;padding-top:32px}
+.cpl-sym{font-family:var(--serif);font-size:52px;font-weight:300;color:var(--teal);line-height:1}
 .cid{background:var(--paper2);border:0.5px solid var(--paper3);border-radius:3px;padding:13px 18px;width:100%;text-align:left}
 .cid span{font-size:9px;text-transform:uppercase;letter-spacing:.18em;color:var(--ink4);display:block;margin-bottom:3px}
 .cid strong{font-size:15px;color:var(--ink);font-weight:400;letter-spacing:.06em}
@@ -182,12 +146,12 @@ html,body{height:100%;background:var(--paper);color:var(--ink);font-family:var(-
     <div class="step-lbl" id="slbl">step 01 / 04</div>
   </div>
 
-  <!-- STEP 1 -->
+  <!-- STEP 1: 録音 -->
   <div class="scr on" id="s-rec">
     <div>
       <div class="lbl">観測開始 / observation init</div>
       <div class="h1">大切な人へ届けたい<br>言葉を吹き込んでください</div>
-      <div class="sub">声の波形・周波数・間隔・余韻を解析します<br>完成作品は作家の解釈によって生まれます</div>
+      <div class="sub">声の波形・周波数・余韻を解析し<br>標本設計図を生成します</div>
     </div>
     <div class="zone">
       <div class="rtime" id="rtime" style="display:none">00:00</div>
@@ -205,12 +169,12 @@ html,body{height:100%;background:var(--paper);color:var(--ink);font-family:var(-
     </label>
     <div class="note">
       <p>対応形式 — mp3 / m4a / wav / aac</p>
-      <p><em>あなただけの声紋が、粒子構造へと変換されます</em></p>
+      <p><em>あなただけの声紋が、標本設計図へと変換されます</em></p>
     </div>
     <button class="abtn" id="abtn" onclick="startAnalysis()">解析を開始する</button>
   </div>
 
-  <!-- STEP 2 -->
+  <!-- STEP 2: 解析 -->
   <div class="scr" id="s-ana">
     <div>
       <div class="lbl">音声解析中 / audio analysis</div>
@@ -224,38 +188,30 @@ html,body{height:100%;background:var(--paper);color:var(--ink);font-family:var(-
     </div>
   </div>
 
-  <!-- STEP 3 -->
+  <!-- STEP 3: 特徴マップ -->
   <div class="scr" id="s-map">
     <div>
-      <div class="lbl">音声特徴マップ / acoustic feature map</div>
-      <div class="h1" style="font-size:18px">粒子構造が観測されました</div>
+      <div class="lbl">標本設計図 / specimen design map</div>
+      <div class="h1" style="font-size:18px">標本設計図を生成しました</div>
+      <div class="sub">粒子の分布・密度・色相が<br>作家への引き渡し情報となります</div>
     </div>
-    <div class="map-wrap" id="mapwrap">
+
+    <!-- 卵形パーティクルマップ -->
+    <div class="egg-wrap" id="mapwrap">
       <canvas id="mc"></canvas>
-      <div class="mo tl" id="mo-tl">NCC-001<br>φ解析モード<br>粒子数 —</div>
-      <div class="mo br" id="mo-br">密度指数 —<br>重心偏位 —</div>
+      <div class="mo tl" id="mo-tl">設計図 #—<br>粒子数 —<br>孵化前</div>
+      <div class="mo br" id="mo-br">密度 —<br>重心 —</div>
     </div>
 
-    <!-- 色彩解釈レイヤー -->
-    <div class="color-layer" id="color-layer">
-      <div class="color-layer-hdr">
-        <div class="lbl">色彩傾向 / chromatic tendency</div>
-        <span>観測値</span>
-      </div>
-      <div class="color-observation">
-        <div class="color-obs-text" id="color-obs-text">—</div>
-      </div>
-      <div class="color-rows" id="color-rows"></div>
-      <div class="color-footer">
-        <p>これは完成作品の色を確定するものではありません<br>
-        <em>声から観測された色彩の傾向を、作家へ渡すための解釈情報です</em></p>
-      </div>
-    </div>
+    <!-- 色彩傾向 -->
+    <div class="color-layer" id="color-layer"></div>
 
+    <!-- 特徴量グリッド -->
     <div class="mgrid" id="mgrid"></div>
+
     <div class="note">
-      <p>密度・重心・色彩傾向は作家への引き渡し情報です</p>
-      <p><em>これは完成作品ではありません</em></p>
+      <p>粒子の分布・密度・重心・色相は作家への引き渡し情報です</p>
+      <p><em>これは完成作品ではありません。標本は作家の解釈から生まれます</em></p>
     </div>
     <div class="row2">
       <button class="btn-s" onclick="goReset()">録り直す</button>
@@ -263,18 +219,17 @@ html,body{height:100%;background:var(--paper);color:var(--ink);font-family:var(-
     </div>
   </div>
 
-  <!-- STEP 4 -->
+  <!-- STEP 4: 設計図確認 -->
   <div class="scr" id="s-det">
     <div>
       <div class="lbl">設計図 / design specification</div>
       <div class="h1" style="font-size:18px">作家への引き渡し資料</div>
     </div>
-    <div class="map-wrap" id="mapwrap2">
+    <div class="egg-wrap" id="mapwrap2">
       <canvas id="mc2"></canvas>
-      <div class="mo tl">粒子分布図<br>解析 ID: <span id="d-sid"></span></div>
+      <div class="mo tl">標本設計図<br>解析 ID: <span id="d-sid"></span></div>
     </div>
     <div class="sa" id="sa-box"></div>
-    <!-- 設計図でも色彩サマリーを表示 -->
     <div class="color-layer" id="color-layer-det"></div>
     <div class="anote" id="anote-box"></div>
     <div class="note" style="border-left-color:var(--teal3)">
@@ -306,22 +261,34 @@ html,body{height:100%;background:var(--paper);color:var(--ink);font-family:var(-
 <script>
 /* ─── 定数 ─── */
 const STEPS={'s-rec':'step 01 / 04','s-ana':'step 02 / 04','s-map':'step 03 / 04','s-det':'step 04 / 04','s-cpl':'完了'}
-const LOGS=[['init','音声ストリームを読み込み中...'],['fft','周波数スペクトル解析...'],['rms','エネルギー密度を計測中...'],['zcr','ゼロ交差率から明るさを算出...'],['env','エンベロープから余韻を解析...'],['pitch','基本周波数から深さを推定...'],['chroma','色彩傾向パラメータを生成中...'],['map','粒子構造マップを生成中...']]
+const LOGS=[
+  ['init',  '音声ストリームを読み込み中...'],
+  ['fft',   '周波数スペクトル解析...'],
+  ['rms',   'エネルギー密度を計測中...'],
+  ['zcr',   'ゼロ交差率から明るさを算出...'],
+  ['env',   'エンベロープから余韻を解析...'],
+  ['pitch', '基本周波数から深さを推定...'],
+  ['chroma','色彩傾向パラメータを生成中...'],
+  ['map',   '標本設計図を生成中...'],
+]
 const MK=['softness','brightness','depth','vitality','resonance','stability']
 const MJ=['柔らかさ','明るさ','深さ','躍動感','余韻','安定感']
 const GR=['上方偏位','中央集積','下方分散','左右対称']
 const FL=['右上昇傾向','左拡散傾向','渦状収束','放射状分布']
-const NOTES=['粒子が上方に集積し、軽やかな浮遊感が観測されます。余韻の長さから、花弁枚数を少なめに構成することを示唆しています。','安定感の高い波形から、鉱物表現の土台として活用できます。声の深さは重心の位置に反映されています。','躍動感のある粒子分布が右上方向への流れを示しています。大胆な花弁の構成が応答するかもしれません。']
+const ARTIST_NOTES=[
+  '粒子が上方に集積し、軽やかな浮遊感が観測されます。余韻の長さから、花弁枚数を少なめに構成することを示唆しています。',
+  '安定感の高い波形から、鉱物表現の土台として活用できます。声の深さは重心の位置に反映されています。',
+  '躍動感のある粒子分布が右上方向への流れを示しています。大胆な花弁の構成が、このデータに応答するかもしれません。',
+]
 
-/* ─── 色彩定義 ─── */
-// [名前JP, 名前EN読み, hex, 強度ベース]
-const COLOR_MAP = {
-  softness:   [['淡桜','usuzakura','#e8d5d0'], ['乳白','nyūhaku','#f0ebe3'], ['薄桃','usumomo','#e8cdc8']],
-  brightness: [['琥珀','kohaku','#d4a96a'],    ['生成色','kinari','#ede8d8'],  ['蜜色','mitsuiro','#d4b87a']],
-  depth:      [['藤色','fujiiro','#9b8fb5'],   ['灰紫','haifuji','#b0a8c0'],   ['薄墨','usuzumi','#b8b4c0']],
-  vitality:   [['珊瑚色','sangosho','#d4897a'],['橙','daidai','#d4a07a'],      ['朱色','shuiro','#c87860']],
-  resonance:  [['霞色','kasairo','#d8d0d8'],   ['白銀','hakugin','#d8d8d8'],   ['真珠灰','shinjugray','#d0d0cc']],
-  stability:  [['灰青','haisei','#8eaab5'],    ['薄墨','usuzumi','#b8b4c0'],   ['石色','ishiiro','#b0aeaa']],
+/* ─── 色彩定義（名前JP, 読み, hex） ─── */
+const CMAP = {
+  softness:   [['淡桜','usuzakura','#e0c8c4'],['乳白','nyūhaku','#ede8e0'],['薄桃','usumomo','#dcc4c0']],
+  brightness: [['琥珀','kohaku','#c8a060'],  ['生成色','kinari','#e8e0cc'], ['蜜色','mitsuiro','#c8b070']],
+  depth:      [['藤色','fujiiro','#9080aa'], ['薄墨','usuzumi','#b0acb8'],  ['灰紫','haifuji','#a89aba']],
+  vitality:   [['珊瑚','sango','#c88070'],   ['橙','daidai','#c89860'],     ['朱','shu','#b87060']],
+  resonance:  [['霞','kasumi','#ccc4cc'],    ['白銀','hakugin','#d0d0ce'],  ['真珠灰','shinju','#c8c8c4']],
+  stability:  [['煙青','kemuri','#8090a4'],  ['灰青','haisei','#88a0b0'],   ['石色','ishi','#a8a8a4']],
 }
 
 /* ─── 状態 ─── */
@@ -334,11 +301,11 @@ function goTo(id){
   document.querySelectorAll('.scr').forEach(s=>s.classList.remove('on'))
   document.getElementById(id).classList.add('on')
   document.getElementById('slbl').textContent=STEPS[id]
-  if(id==='s-map')setTimeout(()=>initMap('mc','mapwrap',1),60)
+  if(id==='s-map') setTimeout(()=>initEggMap('mc','mapwrap',1),80)
   if(id==='s-det'){
     document.getElementById('d-sid').textContent=mapData?.sid||''
     buildDetailColorLayer()
-    setTimeout(()=>initMap('mc2','mapwrap2',2),60)
+    setTimeout(()=>initEggMap('mc2','mapwrap2',2),80)
   }
   window.scrollTo(0,0)
 }
@@ -353,7 +320,8 @@ function startRec(){
   document.getElementById('wc').style.display='block'
   drawWave()
   recTimer=setInterval(()=>{
-    recSecs++;const m=String(Math.floor(recSecs/60)).padStart(2,'0'),s=String(recSecs%60).padStart(2,'0')
+    recSecs++;
+    const m=String(Math.floor(recSecs/60)).padStart(2,'0'),s=String(recSecs%60).padStart(2,'0')
     document.getElementById('rtime').textContent=m+':'+s
   },1000)
   if(navigator.mediaDevices)navigator.mediaDevices.getUserMedia({audio:true}).then(s=>{window._stream=s}).catch(()=>{})
@@ -380,7 +348,7 @@ function drawWave(){
   const c=document.getElementById('wc'),ctx=c.getContext('2d')
   const W=c.parentElement.offsetWidth-40||260;c.width=W;c.height=28
   function fr(){
-    ctx.clearRect(0,0,W,28);ctx.fillStyle='rgba(74,124,111,.35)'
+    ctx.clearRect(0,0,W,28);ctx.fillStyle='rgba(74,124,111,.32)'
     const bars=Math.floor(W/5)
     for(let i=0;i<bars;i++){const h=isRec?4+Math.random()*20:4;ctx.fillRect(i*5,(28-h)/2,4,h)}
     if(isRec)wAnim=requestAnimationFrame(fr)
@@ -394,15 +362,14 @@ function handleUp(e){
   }
 }
 
-/* ─── 解析 ─── */
+/* ─── メトリクス生成 ─── */
 function genMetrics(){
   const r=(lo,hi)=>lo+Math.random()*(hi-lo)
-  metrics={softness:r(.42,.88),brightness:r(.35,.82),depth:r(.28,.72),vitality:r(.30,.78),resonance:r(.38,.80),stability:r(.50,.92)}
+  metrics={softness:r(.4,.9),brightness:r(.32,.85),depth:r(.25,.75),vitality:r(.28,.80),resonance:r(.35,.82),stability:r(.48,.92)}
 }
 
 /* ─── 色彩ロジック ─── */
 function deriveColors(m){
-  // 各軸の上位スコアから主・副・補助・アクセントを選ぶ
   const ranked=[
     {key:'softness',  score:m.softness},
     {key:'brightness',score:m.brightness},
@@ -412,100 +379,62 @@ function deriveColors(m){
     {key:'stability', score:m.stability},
   ].sort((a,b)=>b.score-a.score)
 
-  // 上位4つの軸から色を選ぶ（各軸の第1色をベースに）
-  const pick=(key,rank)=>{
-    const opts=COLOR_MAP[key]
-    // scoreに応じてopts内の色を選択（高スコア=最初の色）
-    const idx=rank===0?0:rank===1?Math.floor(Math.random()*2):Math.floor(Math.random()*3)
-    return opts[Math.min(idx,opts.length-1)]
-  }
-
   const roles=['主色','副色','補助色','アクセント']
-  const roleEn=['primary','secondary','tertiary','accent']
+  const rolesEn=['primary','secondary','tertiary','accent']
 
-  return ranked.slice(0,4).map((r,i)=>({
-    role:roles[i],
-    roleEn:roleEn[i],
-    color:pick(r.key,i),
-    intensity:Math.round(r.score*100),
-    key:r.key,
-  }))
-}
-
-function buildObsText(colors){
-  const main=colors[0].color[0]
-  const sub=colors[1].color[0]
-  const accent=colors[3].color[0]
-  const texts=[
-    `この声からは\n${main}と${sub}を中心とした\n色彩傾向が観測されました。\n一部に${accent}の要素が含まれています。`,
-    `${main}の傾向が優勢に観測されます。\n${sub}との重なりが、\nこの標本の色彩の輪郭を形成しています。`,
-    `声の余韻の中に、${main}と\n${sub}が交差する層が見られます。\n${accent}がわずかにその境界に現れています。`,
-  ]
-  return texts[Math.floor(Math.random()*texts.length)]
-}
-
-function renderColorLayer(containerId,colors,showFooter=true){
-  const container=document.getElementById(containerId)
-  if(!container)return
-
-  const rowsHtml=colors.map((c,i)=>`
-    <div class="color-row">
-      <div class="color-swatch" style="background:${c.color[2]}"></div>
-      <div class="color-info">
-        <div class="color-role">${c.role}</div>
-        <div class="color-name">${c.color[0]}</div>
-        <div class="color-name-en">${c.color[1]}</div>
-      </div>
-      <div class="color-intensity">
-        <div class="intensity-bar">
-          <div class="intensity-fill" id="ifill-${containerId}-${i}" style="width:0%"></div>
-        </div>
-        <div class="intensity-num">${c.intensity}</div>
-      </div>
-    </div>
-  `).join('')
-
-  const footerHtml=showFooter?`
-    <div class="color-footer">
-      <p>これは完成作品の色を確定するものではありません<br>
-      <em>声から観測された色彩の傾向を、作家へ渡すための解釈情報です</em></p>
-    </div>
-  `:''
-
-  const obsText=buildObsText(colors).replace(/\n/g,'<br>')
-
-  container.innerHTML=`
-    <div class="color-layer-hdr">
-      <div class="lbl">色彩傾向 / chromatic tendency</div>
-      <span>観測値</span>
-    </div>
-    <div class="color-observation">
-      <div class="color-obs-text">${obsText}</div>
-    </div>
-    <div class="color-rows">${rowsHtml}</div>
-    ${footerHtml}
-  `
-
-  // アニメーション
-  colors.forEach((c,i)=>{
-    setTimeout(()=>{
-      const el=document.getElementById(`ifill-${containerId}-${i}`)
-      if(el)el.style.width=c.intensity+'%'
-    },200+i*120)
+  return ranked.slice(0,4).map((r,i)=>{
+    const opts=CMAP[r.key]
+    const pick=i===0?opts[0]:i===1?opts[Math.floor(Math.random()*2)]:opts[Math.floor(Math.random()*3)]
+    return {role:roles[i],roleEn:rolesEn[i],color:pick,intensity:Math.round(r.score*100),key:r.key}
   })
 }
 
-function buildDetailColorLayer(){
-  if(!colorData)return
-  renderColorLayer('color-layer-det',colorData,false)
+function buildObsText(c){
+  const main=c[0].color[0],sub=c[1].color[0],acc=c[3].color[0]
+  const txts=[
+    `この声からは\n${main}と${sub}を中心とした\n色彩傾向が観測されました。\n一部に${acc}の要素が含まれています。`,
+    `${main}の傾向が優勢に観測されます。\n${sub}との重なりが\nこの標本の色彩の輪郭を形成しています。`,
+    `声の余韻の中に、${main}と\n${sub}が交差する層が見られます。\n${acc}がわずかにその境界に現れています。`,
+  ]
+  return txts[Math.floor(Math.random()*txts.length)]
 }
 
+function renderColorLayer(id,colors,footer=true){
+  const el=document.getElementById(id);if(!el)return
+  const rows=colors.map((c,i)=>`
+    <div class="color-row">
+      <div class="cswatch" style="background:${c.color[2]}"></div>
+      <div class="cinfo">
+        <div class="crole">${c.role}</div>
+        <div class="cname">${c.color[0]}</div>
+        <div class="cname-en">${c.color[1]}</div>
+      </div>
+      <div class="cintensity">
+        <div class="ibar"><div class="ifill" id="if-${id}-${i}"></div></div>
+        <div class="inum">${c.intensity}</div>
+      </div>
+    </div>`).join('')
+  const obs=buildObsText(colors).replace(/\n/g,'<br>')
+  el.innerHTML=`
+    <div class="color-layer-hdr"><div class="lbl">色彩傾向 / chromatic tendency</div><span>観測値</span></div>
+    <div class="color-obs"><div class="color-obs-text">${obs}</div></div>
+    <div class="color-rows">${rows}</div>
+    ${footer?`<div class="color-footer"><p>これは完成作品の色を確定するものではありません<br><em>声から観測された色彩の傾向を、作家へ渡すための解釈情報です</em></p></div>`:''}
+  `
+  colors.forEach((_,i)=>setTimeout(()=>{const f=document.getElementById(`if-${id}-${i}`);if(f)f.style.width=colors[i].intensity+'%'},200+i*120))
+}
+
+function buildDetailColorLayer(){
+  if(colorData)renderColorLayer('color-layer-det',colorData,false)
+}
+
+/* ─── データ構築 ─── */
 function buildData(){
   const m=metrics,yr=new Date().getFullYear()
   const sid='NCC-'+yr+'-'+String(Math.floor(Math.random()*900)+100)
   colorData=deriveColors(m)
-
-  mapData={sid,
+  mapData={
+    sid,
     di:Math.round((m.softness+m.vitality)*50),
     gb:m.brightness>.5?'+Y':'−Y',
     gravity:GR[Math.floor(m.softness*3.99)],
@@ -513,38 +442,46 @@ function buildData(){
     flow:FL[Math.floor(m.brightness*3.99)],
     space:Math.round((1-m.vitality)*60+10),
     nodes:3+Math.round(m.stability*8),
-    note:NOTES[Math.floor(Math.random()*3)],
+    note:ARTIST_NOTES[Math.floor(Math.random()*ARTIST_NOTES.length)],
   }
+  const pcount=90+Math.round(m.vitality*80)
   document.getElementById('cid-val').textContent=sid
   document.getElementById('cid-color').textContent=colorData[0].color[0]
-  document.getElementById('mo-tl').innerHTML='NCC-001<br>φ解析モード<br>粒子数 '+(110+Math.round(m.vitality*90))
-  document.getElementById('mo-br').innerHTML='密度指数 '+mapData.di+'<br>重心偏位 '+mapData.gb
+  document.getElementById('mo-tl').innerHTML=`設計図 #${sid.slice(-3)}<br>粒子数 ${pcount}<br>孵化前`
+  document.getElementById('mo-br').innerHTML=`密度 ${mapData.density}<br>重心 ${mapData.gravity}`
 
   // 特徴量グリッド
   const g=document.getElementById('mgrid');g.innerHTML=''
   MK.forEach((k,i)=>{
-    const pct=Math.round(metrics[k]*100)
+    const pct=Math.round(m[k]*100)
     const d=document.createElement('div');d.className='mc'
     d.innerHTML=`<div class="lbl">${MJ[i]}</div><div class="mbar"><div class="mbarb" id="mb${i}"></div></div><div class="mval">${pct}</div>`
-    g.appendChild(d);setTimeout(()=>{document.getElementById('mb'+i).style.width=pct+'%'},100+i*80)
+    g.appendChild(d);setTimeout(()=>{const b=document.getElementById('mb'+i);if(b)b.style.width=pct+'%'},100+i*80)
   })
 
-  // 色彩レイヤー描画（s-map）
+  // 色彩レイヤー
   renderColorLayer('color-layer',colorData,true)
 
-  // 設計図
+  // 設計図テキスト
   const d=mapData
-  document.getElementById('sa-box').innerHTML=`<div class="lbl" style="margin-bottom:10px">構造解析</div>${[['重心位置',d.gravity],['粒子密度',d.density],['流動方向',d.flow],['余白比率',d.space+'%'],['結節点数',d.nodes+' 拠点']].map(([k,v])=>`<div class="sa-r"><div class="sa-k">${k}</div><div class="sa-v">${v}</div></div>`).join('')}`
-  document.getElementById('anote-box').innerHTML=`<div class="lbl" style="margin-bottom:10px">作家へのメモ</div><p>${d.note}</p><p style="margin-top:8px"><em>最終作品は作家の手によってのみ生まれます。</em></p>`
+  document.getElementById('sa-box').innerHTML=`
+    <div class="lbl" style="margin-bottom:10px">構造解析</div>
+    ${[['重心位置',d.gravity],['粒子密度',d.density],['流動方向',d.flow],['余白比率',d.space+'%'],['結節点数',d.nodes+' 拠点']].map(([k,v])=>`
+    <div class="sa-r"><div class="sa-k">${k}</div><div class="sa-v">${v}</div></div>`).join('')}`
+  document.getElementById('anote-box').innerHTML=`
+    <div class="lbl" style="margin-bottom:10px">作家へのメモ</div>
+    <p>${d.note}</p>
+    <p style="margin-top:9px"><em>最終作品は作家の手によってのみ生まれます。</em></p>`
 }
 
+/* ─── 解析フロー ─── */
 function startAnalysis(){
   if(!hasAudio)return
   genMetrics();buildData();goTo('s-ana')
   const box=document.getElementById('logbox');box.innerHTML=''
   LOGS.forEach(([tag,txt])=>{
     const d=document.createElement('div');d.className='lg'
-    d.innerHTML='— <span>'+tag+'</span> &nbsp; '+txt;box.appendChild(d)
+    d.innerHTML=`— <span>${tag}</span> &nbsp; ${txt}`;box.appendChild(d)
   })
   const lines=box.querySelectorAll('.lg'),prog=document.getElementById('progb')
   let step=0
@@ -560,94 +497,193 @@ function startAnalysis(){
 
 function goReset(){
   resetRec();metrics=null;mapData=null;colorData=null
-  if(r1){r1.dispose&&r1.dispose();cancelAnimationFrame(a1);r1=null}
-  if(r2){r2.dispose&&r2.dispose();cancelAnimationFrame(a2);r2=null}
+  if(r1){try{r1.dispose()}catch(e){}cancelAnimationFrame(a1);r1=null}
+  if(r2){try{r2.dispose()}catch(e){}cancelAnimationFrame(a2);r2=null}
   goTo('s-rec')
 }
 
-/* ─── Three.js ─── */
-function initMap(cid,wid,num){
-  const wrap=document.getElementById(wid);if(!wrap||!metrics)return
-  const W=wrap.offsetWidth||340
+/* ─────────────────────────────────────────
+   卵形パーティクルマップ（Three.js）
+   ───────────────────────────────────────── */
+function initEggMap(cid, wid, num){
+  const wrap=document.getElementById(wid)
+  if(!wrap||!metrics)return
+  const W=wrap.offsetWidth||320
+  const H=Math.round(W*4/3)   // 縦長 3:4
+  wrap.style.height=H+'px'
   const canvas=document.getElementById(cid)
-  if(num===1&&r1){r1.dispose();cancelAnimationFrame(a1);r1=null}
-  if(num===2&&r2){r2.dispose();cancelAnimationFrame(a2);r2=null}
+  if(!canvas)return
+
+  // 既存レンダラー破棄
+  if(num===1&&r1){try{r1.dispose()}catch(e){}cancelAnimationFrame(a1);r1=null}
+  if(num===2&&r2){try{r2.dispose()}catch(e){}cancelAnimationFrame(a2);r2=null}
 
   const m=metrics
-  const scene=new THREE.Scene(),cam=new THREE.PerspectiveCamera(58,1,.1,100)
-  cam.position.set(0,0,5.8)
+
+  /* シーン */
+  const scene=new THREE.Scene()
+  const aspect=W/H
+  const cam=new THREE.PerspectiveCamera(52,aspect,0.1,100)
+  cam.position.set(0,0,6.2)
+
   const renderer=new THREE.WebGLRenderer({canvas,antialias:true,alpha:false})
-  renderer.setSize(W,W);renderer.setPixelRatio(Math.min(devicePixelRatio,2))
-  renderer.setClearColor(0xe4e2da,1)
+  renderer.setSize(W,H)
+  renderer.setPixelRatio(Math.min(devicePixelRatio,2))
+  renderer.setClearColor(0xedeae2,1)  // 標本紙色
 
-  const cx=(m.brightness-.5)*.9,cy=(m.softness-.5)*1.1,sp=.7+m.vitality*1.6
-  const pivot=new THREE.Group();scene.add(pivot)
+  /* ── 卵形ガイドライン（SVG的な輪郭）── */
+  // 卵形 = 上方が丸く、下方がやや尖る
+  // パラメトリック曲線で生成
+  const EGG_RX=1.55   // 横半径
+  const EGG_RY_TOP=2.1 // 上半分の縦半径
+  const EGG_RY_BOT=1.65 // 下半分（少し尖る）
+  const EGG_CY=0.18   // 卵の中心を少し上に
 
-  // 通常粒子
-  const N=100+Math.round(m.vitality*80),pos=new Float32Array(N*3)
-  for(let i=0;i<N;i++){
-    const r=.35+Math.pow(Math.random(),.65)*sp,t=Math.random()*Math.PI*2,p=(Math.random()-.5)*Math.PI*(.4+m.resonance*.5)
-    pos[i*3]=cx+r*Math.cos(t)*Math.cos(p);pos[i*3+1]=cy+r*Math.sin(p)*(1+m.softness*.4);pos[i*3+2]=r*Math.sin(t)*Math.cos(p)*.55
+  function eggPoint(t){
+    // t: 0〜2π
+    const sinT=Math.sin(t),cosT=Math.cos(t)
+    const ry=sinT>=0?EGG_RY_TOP:EGG_RY_BOT
+    return new THREE.Vector3(EGG_RX*cosT, EGG_CY+ry*sinT, 0)
   }
-  const pg=new THREE.BufferGeometry();pg.setAttribute('position',new THREE.BufferAttribute(pos,3))
-  pivot.add(new THREE.Points(pg,new THREE.PointsMaterial({color:0x4a7c6f,size:.042,transparent:true,opacity:.65,sizeAttenuation:true})))
 
-  // 色彩核粒子（colorDataから色を取得）
+  // 卵輪郭線（細い、淡い）
+  const eggPts=[]
+  const SEG=128
+  for(let i=0;i<=SEG;i++) eggPts.push(eggPoint(i/SEG*Math.PI*2))
+  const eggGeo=new THREE.BufferGeometry().setFromPoints(eggPts)
+  const eggMat=new THREE.LineBasicMaterial({color:0xb8b4aa,transparent:true,opacity:0.45})
+  scene.add(new THREE.Line(eggGeo,eggMat))
+
+  // 内側のガイド楕円（さらに淡く）
+  const innerPts=[]
+  for(let i=0;i<=SEG;i++){
+    const p=eggPoint(i/SEG*Math.PI*2)
+    p.x*=0.58;p.y=EGG_CY+(p.y-EGG_CY)*0.58
+    innerPts.push(p)
+  }
+  scene.add(new THREE.Line(
+    new THREE.BufferGeometry().setFromPoints(innerPts),
+    new THREE.LineBasicMaterial({color:0xc8c4bc,transparent:true,opacity:0.22})
+  ))
+
+  /* 中心軸線（縦） */
+  scene.add(new THREE.Line(
+    new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(0,-2.4,0),new THREE.Vector3(0,2.6,0)]),
+    new THREE.LineBasicMaterial({color:0xb8b4aa,transparent:true,opacity:0.18})
+  ))
+  /* 水平軸線 */
+  scene.add(new THREE.Line(
+    new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(-2.0,EGG_CY,0),new THREE.Vector3(2.0,EGG_CY,0)]),
+    new THREE.LineBasicMaterial({color:0xb8b4aa,transparent:true,opacity:0.18})
+  ))
+
+  /* ── 卵形内に収まる粒子を配置 ── */
+  // 卵形内部にあるかチェックする関数
+  function insideEgg(x,y){
+    const dy=y-EGG_CY
+    const ry=dy>=0?EGG_RY_TOP:EGG_RY_BOT
+    return (x*x)/(EGG_RX*EGG_RX)+(dy*dy)/(ry*ry)<=1
+  }
+
+  const pivot=new THREE.Group()
+  scene.add(pivot)
+
+  /* 通常粒子（深緑・低彩度） */
+  const N=90+Math.round(m.vitality*75)
+  const positions=[]
+  const tries=N*20
+  let placed=0
+  for(let t=0;t<tries&&placed<N;t++){
+    // 声の特徴に応じた分布
+    // softness: 上方バイアス、vitality: 密度、brightness: 左右広がり
+    const biasCY=EGG_CY + (m.softness-0.5)*0.7  // 重心の縦位置
+    const biasCX=(m.brightness-0.5)*0.4          // 重心の横位置
+    const rx=0.08+Math.random()*EGG_RX*0.92*(0.5+m.vitality*0.55)
+    const angle=Math.random()*Math.PI*2
+    const px=biasCX+rx*Math.cos(angle)*(0.7+m.resonance*0.35)
+    const py=biasCY+rx*Math.sin(angle)*(0.9+m.softness*0.3)
+    if(insideEgg(px,py)){
+      positions.push(px,py,(Math.random()-0.5)*0.4)
+      placed++
+    }
+  }
+  const ptGeo=new THREE.BufferGeometry()
+  ptGeo.setAttribute('position',new THREE.BufferAttribute(new Float32Array(positions),3))
+  pivot.add(new THREE.Points(ptGeo,new THREE.PointsMaterial({
+    color:0x4a6860,size:0.038,transparent:true,opacity:0.58,sizeAttenuation:true
+  })))
+
+  /* 色彩核粒子（colorDataの色を持つ）*/
   if(colorData){
     colorData.forEach((cd,ci)=>{
-      // 核粒子は重心付近に集める
-      const nc=3+ci  // 主色は多め
-      const hexStr=cd.color[2].replace('#','')
-      const r=parseInt(hexStr.slice(0,2),16)/255
-      const g=parseInt(hexStr.slice(2,4),16)/255
-      const b=parseInt(hexStr.slice(4,6),16)/255
-      const col=new THREE.Color(r,g,b)
+      const hex=cd.color[2].replace('#','')
+      const cr=parseInt(hex.slice(0,2),16)/255
+      const cg=parseInt(hex.slice(2,4),16)/255
+      const cb=parseInt(hex.slice(4,6),16)/255
+      const col=new THREE.Color(cr,cg,cb)
+      const nc=5-ci   // 主色が最多
+      const opacity=0.78-ci*0.12
+      const radius=0.07-ci*0.012
 
       for(let n=0;n<nc;n++){
-        const dist=.15+Math.random()*.6*(ci+1)*.38
-        const t2=Math.random()*Math.PI*2,p2=(Math.random()-.5)*Math.PI*.4
-        const sx=cx+dist*Math.cos(t2)*Math.cos(p2)
-        const sy=cy+dist*Math.sin(p2)
-        const sz=dist*Math.sin(t2)*.4
-        const radius=.055-ci*.008+Math.random()*.02
+        // 重心付近に配置、主色はより中心寄り
+        const biasCY=EGG_CY+(m.softness-0.5)*0.7
+        const biasCX=(m.brightness-0.5)*0.4
+        let px,py,attempts=0
+        do{
+          const dist=(0.08+Math.random()*0.8*(ci+1)*0.35)
+          const ang=Math.random()*Math.PI*2
+          px=biasCX+dist*Math.cos(ang)
+          py=biasCY+dist*Math.sin(ang)
+          attempts++
+        }while(!insideEgg(px,py)&&attempts<20)
+
         const sphere=new THREE.Mesh(
-          new THREE.SphereGeometry(radius,10,10),
-          new THREE.MeshBasicMaterial({color:col,transparent:true,opacity:.72-ci*.1})
+          new THREE.SphereGeometry(radius+Math.random()*0.02,10,10),
+          new THREE.MeshBasicMaterial({color:col,transparent:true,opacity})
         )
-        sphere.position.set(sx,sy,sz)
+        sphere.position.set(px,py,(Math.random()-0.5)*0.2)
         pivot.add(sphere)
       }
     })
   }
 
-  // ノード（通常）
-  const nm=new THREE.MeshBasicMaterial({color:0x2d5a4f,transparent:true,opacity:.45})
-  for(let i=0;i<4+Math.round(m.stability*5);i++){
-    const r=.4+Math.random()*1.5,t=Math.random()*Math.PI*2,p=(Math.random()-.5)*Math.PI*.5
-    const s=new THREE.Mesh(new THREE.SphereGeometry(.035+Math.random()*.05,8,8),nm)
-    s.position.set(cx+r*Math.cos(t),cy+r*Math.sin(p)*1.1,r*Math.sin(t)*.38);pivot.add(s)
+  /* 接続線（粒子間の有機的なつながり） */
+  const lmat=new THREE.LineBasicMaterial({color:0x4a6860,transparent:true,opacity:0.1})
+  const lcount=8+Math.round(m.resonance*8)
+  for(let i=0;i<lcount;i++){
+    const pts=[]
+    const biasCY=EGG_CY+(m.softness-0.5)*0.6
+    const biasCX=(m.brightness-0.5)*0.35
+    const steps=2+Math.floor(Math.random()*3)
+    for(let j=0;j<=steps;j++){
+      let px,py,att=0
+      do{
+        const d=0.1+Math.random()*1.5
+        const ang=Math.random()*Math.PI*2
+        px=biasCX+d*Math.cos(ang);py=biasCY+d*Math.sin(ang)*1.1
+        att++
+      }while(!insideEgg(px,py)&&att<15)
+      pts.push(new THREE.Vector3(px,py,(Math.random()-0.5)*0.15))
+    }
+    pivot.add(new THREE.Line(new THREE.BufferGeometry().setFromPoints(pts),lmat))
   }
 
-  // 接続線
-  const lm=new THREE.LineBasicMaterial({color:0x4a7c6f,transparent:true,opacity:.12})
-  for(let i=0;i<10+Math.round(m.resonance*7);i++){
-    const pts=[],st=2+Math.floor(Math.random()*3)
-    for(let j=0;j<=st;j++){const r=.2+Math.random()*2,t=Math.random()*Math.PI*2;pts.push(new THREE.Vector3(cx+r*Math.cos(t),cy+r*Math.sin(t)*.85,r*Math.sin(t)*.25))}
-    pivot.add(new THREE.Line(new THREE.BufferGeometry().setFromPoints(pts),lm))
-  }
+  /* 重心インジケーター（小さな十字） */
+  const gcx=(m.brightness-0.5)*0.4
+  const gcy=EGG_CY+(m.softness-0.5)*0.7
+  const gmat=new THREE.LineBasicMaterial({color:0x7a9890,transparent:true,opacity:0.5})
+  const gs=0.12
+  scene.add(new THREE.Line(new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(gcx-gs,gcy,0),new THREE.Vector3(gcx+gs,gcy,0)]),gmat))
+  scene.add(new THREE.Line(new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(gcx,gcy-gs,0),new THREE.Vector3(gcx,gcy+gs,0)]),gmat))
 
-  // オーバーレイ
-  const om=new THREE.LineBasicMaterial({color:0xb0b0a8,transparent:true,opacity:.28})
-  scene.add(new THREE.Line(new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(-3.2,0,0),new THREE.Vector3(3.2,0,0)]),om))
-  scene.add(new THREE.Line(new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(0,-3.2,0),new THREE.Vector3(0,3.2,0)]),om))
-  for(const rr of[1.2,2.4]){
-    scene.add(new THREE.Mesh(new THREE.RingGeometry(rr,rr+.007,80),new THREE.MeshBasicMaterial({color:0xb0b0a8,transparent:true,opacity:.15,side:THREE.DoubleSide})))
-  }
-  const gm=new THREE.Mesh(new THREE.CircleGeometry(.045,14),new THREE.MeshBasicMaterial({color:0x2d5a4f,transparent:true,opacity:.4,side:THREE.DoubleSide}))
-  gm.position.set(cx,cy,0);scene.add(gm)
-
+  /* アニメーション（ゆっくり回転） */
   let aid
-  const animate=()=>{aid=requestAnimationFrame(animate);pivot.rotation.y+=.0014;renderer.render(scene,cam)}
+  const animate=()=>{
+    aid=requestAnimationFrame(animate)
+    pivot.rotation.y+=0.0010
+    renderer.render(scene,cam)
+  }
   animate()
   if(num===1){a1=aid;r1=renderer}else{a2=aid;r2=renderer}
 }
