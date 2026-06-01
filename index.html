@@ -4,7 +4,6 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
 <title>nanoca 言葉標本</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@300;400&family=Cormorant+Garamond:ital,wght@0,300;1,300;1,400&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 <style>
@@ -63,6 +62,95 @@ html,body{height:100%;background:var(--paper);color:var(--ink);font-family:var(-
 .mbar{height:1px;background:var(--paper3);margin-bottom:5px;overflow:hidden}
 .mbarb{height:100%;background:var(--teal);width:0%;transition:width 1s cubic-bezier(.4,0,.2,1)}
 .mval{font-size:17px;font-weight:300;color:var(--ink)}
+
+/* ── 色彩解釈レイヤー ── */
+.color-layer{
+  border:0.5px solid var(--paper3);border-radius:3px;overflow:hidden;
+}
+.color-layer-hdr{
+  padding:11px 16px 9px;border-bottom:0.5px solid var(--paper3);
+  display:flex;align-items:baseline;justify-content:space-between;
+}
+.color-layer-hdr .lbl{margin:0}
+.color-layer-hdr span{
+  font-size:9px;color:var(--ink4);letter-spacing:.08em;
+  font-family:var(--mono);
+}
+.color-observation{
+  padding:14px 16px 6px;
+  background:var(--paper2);
+}
+.color-obs-text{
+  font-family:var(--serif);font-style:italic;font-size:14px;
+  color:var(--ink2);line-height:1.85;
+}
+.color-rows{
+  padding:4px 0 2px;
+}
+.color-row{
+  display:flex;align-items:center;
+  padding:9px 16px;
+  border-top:0.5px solid var(--paper3);
+  gap:14px;
+}
+.color-swatch{
+  width:28px;height:28px;border-radius:2px;
+  flex-shrink:0;
+  position:relative;
+  overflow:hidden;
+}
+/* ノイズテクスチャ風のオーバーレイ */
+.color-swatch::after{
+  content:'';position:absolute;inset:0;
+  background:repeating-linear-gradient(
+    135deg,
+    rgba(255,255,255,.08) 0px,
+    rgba(255,255,255,.08) 1px,
+    transparent 1px,
+    transparent 3px
+  );
+}
+.color-info{flex:1;min-width:0}
+.color-role{
+  font-size:9px;letter-spacing:.18em;text-transform:uppercase;
+  color:var(--ink4);margin-bottom:3px;
+}
+.color-name{
+  font-family:var(--serif);font-style:italic;font-size:16px;
+  font-weight:300;color:var(--ink);letter-spacing:.02em;
+}
+.color-name-en{
+  font-family:var(--mono);font-size:9px;color:var(--ink4);
+  letter-spacing:.1em;margin-top:1px;
+}
+.color-intensity{
+  display:flex;flex-direction:column;align-items:flex-end;gap:4px;
+}
+.intensity-bar{
+  width:32px;height:1px;background:var(--paper3);overflow:hidden;
+}
+.intensity-fill{
+  height:100%;background:var(--ink4);
+  transition:width 1.2s cubic-bezier(.4,0,.2,1);
+}
+.intensity-num{
+  font-size:9px;color:var(--ink4);letter-spacing:.06em;
+}
+.color-footer{
+  padding:10px 16px 12px;
+  border-top:0.5px solid var(--paper3);
+  background:var(--paper2);
+}
+.color-footer p{
+  font-size:10px;color:var(--ink4);line-height:1.9;
+  letter-spacing:.04em;
+}
+.color-footer em{
+  font-family:var(--serif);font-style:italic;
+  font-size:12px;color:var(--ink3);
+}
+/* ── /色彩解釈レイヤー ── */
+
 .sa{background:var(--paper2);border:0.5px solid var(--paper3);border-radius:3px;padding:13px 16px}
 .sa-r{display:flex;justify-content:space-between;align-items:baseline;padding:7px 0;border-bottom:0.5px solid var(--paper3)}
 .sa-r:last-child{border:none}
@@ -104,7 +192,7 @@ html,body{height:100%;background:var(--paper);color:var(--ink);font-family:var(-
     <div class="zone">
       <div class="rtime" id="rtime" style="display:none">00:00</div>
       <button class="rbtn" id="rbtn" onclick="toggleRec()" aria-label="録音開始/停止">
-        <div class="rdot" id="rdot"></div>
+        <div class="rdot"></div>
       </button>
       <div class="rstat" id="rstat">タップして録音</div>
       <canvas class="wc" id="wc" height="28"></canvas>
@@ -147,9 +235,26 @@ html,body{height:100%;background:var(--paper);color:var(--ink);font-family:var(-
       <div class="mo tl" id="mo-tl">NCC-001<br>φ解析モード<br>粒子数 —</div>
       <div class="mo br" id="mo-br">密度指数 —<br>重心偏位 —</div>
     </div>
+
+    <!-- 色彩解釈レイヤー -->
+    <div class="color-layer" id="color-layer">
+      <div class="color-layer-hdr">
+        <div class="lbl">色彩傾向 / chromatic tendency</div>
+        <span>観測値</span>
+      </div>
+      <div class="color-observation">
+        <div class="color-obs-text" id="color-obs-text">—</div>
+      </div>
+      <div class="color-rows" id="color-rows"></div>
+      <div class="color-footer">
+        <p>これは完成作品の色を確定するものではありません<br>
+        <em>声から観測された色彩の傾向を、作家へ渡すための解釈情報です</em></p>
+      </div>
+    </div>
+
     <div class="mgrid" id="mgrid"></div>
     <div class="note">
-      <p>密度・重心・流れは作家への引き渡し情報です</p>
+      <p>密度・重心・色彩傾向は作家への引き渡し情報です</p>
       <p><em>これは完成作品ではありません</em></p>
     </div>
     <div class="row2">
@@ -169,6 +274,8 @@ html,body{height:100%;background:var(--paper);color:var(--ink);font-family:var(-
       <div class="mo tl">粒子分布図<br>解析 ID: <span id="d-sid"></span></div>
     </div>
     <div class="sa" id="sa-box"></div>
+    <!-- 設計図でも色彩サマリーを表示 -->
+    <div class="color-layer" id="color-layer-det"></div>
     <div class="anote" id="anote-box"></div>
     <div class="note" style="border-left-color:var(--teal3)">
       <p style="color:var(--teal)">このシステムは可能性を示すだけです<br>完成作品を自動決定することはありません</p>
@@ -185,9 +292,10 @@ html,body{height:100%;background:var(--paper);color:var(--ink);font-family:var(-
       <div class="cpl-sym">✦</div>
       <div style="text-align:center">
         <div class="h1" style="font-size:19px">設計図が送信されました</div>
-        <div class="sub" style="max-width:270px;margin:6px auto 0">粒子マップは作家の元へ届けられました<br>あなただけの標本が、作家の手によって生まれます</div>
+        <div class="sub" style="max-width:270px;margin:6px auto 0">粒子マップと色彩傾向は作家の元へ届けられました<br>あなただけの標本が、作家の手によって生まれます</div>
       </div>
       <div class="cid"><span>標本 ID</span><strong id="cid-val">—</strong></div>
+      <div class="cid"><span>観測された主色</span><strong id="cid-color" style="font-family:var(--serif);font-style:italic;font-weight:300;font-size:15px">—</strong></div>
       <div class="cid"><span>完成予定</span><strong style="font-family:var(--serif);font-style:italic;font-weight:300;font-size:14px">お知らせメールをお送りします</strong></div>
       <div class="tl-note"><p>作品底面のQRコードを読み取ると<br>あなたの声が再生されます</p></div>
       <button class="btn-s" style="width:100%;margin-top:4px" onclick="goReset()">別の言葉を記録する</button>
@@ -196,26 +304,46 @@ html,body{height:100%;background:var(--paper);color:var(--ink);font-family:var(-
 </div>
 
 <script>
+/* ─── 定数 ─── */
 const STEPS={'s-rec':'step 01 / 04','s-ana':'step 02 / 04','s-map':'step 03 / 04','s-det':'step 04 / 04','s-cpl':'完了'}
-const LOGS=[['init','音声ストリームを読み込み中...'],['fft','周波数スペクトル解析...'],['rms','エネルギー密度を計測中...'],['zcr','ゼロ交差率から明るさを算出...'],['env','エンベロープから余韻を解析...'],['pitch','基本周波数から深さを推定...'],['jitter','安定感パラメータを抽出中...'],['map','粒子構造マップを生成中...']]
+const LOGS=[['init','音声ストリームを読み込み中...'],['fft','周波数スペクトル解析...'],['rms','エネルギー密度を計測中...'],['zcr','ゼロ交差率から明るさを算出...'],['env','エンベロープから余韻を解析...'],['pitch','基本周波数から深さを推定...'],['chroma','色彩傾向パラメータを生成中...'],['map','粒子構造マップを生成中...']]
 const MK=['softness','brightness','depth','vitality','resonance','stability']
 const MJ=['柔らかさ','明るさ','深さ','躍動感','余韻','安定感']
 const GR=['上方偏位','中央集積','下方分散','左右対称']
 const FL=['右上昇傾向','左拡散傾向','渦状収束','放射状分布']
 const NOTES=['粒子が上方に集積し、軽やかな浮遊感が観測されます。余韻の長さから、花弁枚数を少なめに構成することを示唆しています。','安定感の高い波形から、鉱物表現の土台として活用できます。声の深さは重心の位置に反映されています。','躍動感のある粒子分布が右上方向への流れを示しています。大胆な花弁の構成が応答するかもしれません。']
 
-let isRec=false,recSecs=0,recTimer=null,hasAudio=false,wAnim=null
-let metrics=null,mapData=null,r1=null,r2=null,a1=null,a2=null
+/* ─── 色彩定義 ─── */
+// [名前JP, 名前EN読み, hex, 強度ベース]
+const COLOR_MAP = {
+  softness:   [['淡桜','usuzakura','#e8d5d0'], ['乳白','nyūhaku','#f0ebe3'], ['薄桃','usumomo','#e8cdc8']],
+  brightness: [['琥珀','kohaku','#d4a96a'],    ['生成色','kinari','#ede8d8'],  ['蜜色','mitsuiro','#d4b87a']],
+  depth:      [['藤色','fujiiro','#9b8fb5'],   ['灰紫','haifuji','#b0a8c0'],   ['薄墨','usuzumi','#b8b4c0']],
+  vitality:   [['珊瑚色','sangosho','#d4897a'],['橙','daidai','#d4a07a'],      ['朱色','shuiro','#c87860']],
+  resonance:  [['霞色','kasairo','#d8d0d8'],   ['白銀','hakugin','#d8d8d8'],   ['真珠灰','shinjugray','#d0d0cc']],
+  stability:  [['灰青','haisei','#8eaab5'],    ['薄墨','usuzumi','#b8b4c0'],   ['石色','ishiiro','#b0aeaa']],
+}
 
+/* ─── 状態 ─── */
+let isRec=false,recSecs=0,recTimer=null,hasAudio=false,wAnim=null
+let metrics=null,mapData=null,colorData=null
+let r1=null,r2=null,a1=null,a2=null
+
+/* ─── 画面遷移 ─── */
 function goTo(id){
   document.querySelectorAll('.scr').forEach(s=>s.classList.remove('on'))
   document.getElementById(id).classList.add('on')
   document.getElementById('slbl').textContent=STEPS[id]
   if(id==='s-map')setTimeout(()=>initMap('mc','mapwrap',1),60)
-  if(id==='s-det'){document.getElementById('d-sid').textContent=mapData?.sid||'';setTimeout(()=>initMap('mc2','mapwrap2',2),60)}
+  if(id==='s-det'){
+    document.getElementById('d-sid').textContent=mapData?.sid||''
+    buildDetailColorLayer()
+    setTimeout(()=>initMap('mc2','mapwrap2',2),60)
+  }
   window.scrollTo(0,0)
 }
 
+/* ─── 録音 ─── */
 function toggleRec(){isRec?stopRec():startRec()}
 function startRec(){
   isRec=true;recSecs=0
@@ -225,8 +353,7 @@ function startRec(){
   document.getElementById('wc').style.display='block'
   drawWave()
   recTimer=setInterval(()=>{
-    recSecs++
-    const m=String(Math.floor(recSecs/60)).padStart(2,'0'),s=String(recSecs%60).padStart(2,'0')
+    recSecs++;const m=String(Math.floor(recSecs/60)).padStart(2,'0'),s=String(recSecs%60).padStart(2,'0')
     document.getElementById('rtime').textContent=m+':'+s
   },1000)
   if(navigator.mediaDevices)navigator.mediaDevices.getUserMedia({audio:true}).then(s=>{window._stream=s}).catch(()=>{})
@@ -262,18 +389,122 @@ function drawWave(){
 }
 function handleUp(e){
   if(e.target.files&&e.target.files.length>0){
-    hasAudio=true
-    document.getElementById('abtn').classList.add('on')
+    hasAudio=true;document.getElementById('abtn').classList.add('on')
     document.getElementById('rstat').textContent='ファイルを読み込みました'
   }
 }
+
+/* ─── 解析 ─── */
 function genMetrics(){
   const r=(lo,hi)=>lo+Math.random()*(hi-lo)
   metrics={softness:r(.42,.88),brightness:r(.35,.82),depth:r(.28,.72),vitality:r(.30,.78),resonance:r(.38,.80),stability:r(.50,.92)}
 }
+
+/* ─── 色彩ロジック ─── */
+function deriveColors(m){
+  // 各軸の上位スコアから主・副・補助・アクセントを選ぶ
+  const ranked=[
+    {key:'softness',  score:m.softness},
+    {key:'brightness',score:m.brightness},
+    {key:'depth',     score:m.depth},
+    {key:'vitality',  score:m.vitality},
+    {key:'resonance', score:m.resonance},
+    {key:'stability', score:m.stability},
+  ].sort((a,b)=>b.score-a.score)
+
+  // 上位4つの軸から色を選ぶ（各軸の第1色をベースに）
+  const pick=(key,rank)=>{
+    const opts=COLOR_MAP[key]
+    // scoreに応じてopts内の色を選択（高スコア=最初の色）
+    const idx=rank===0?0:rank===1?Math.floor(Math.random()*2):Math.floor(Math.random()*3)
+    return opts[Math.min(idx,opts.length-1)]
+  }
+
+  const roles=['主色','副色','補助色','アクセント']
+  const roleEn=['primary','secondary','tertiary','accent']
+
+  return ranked.slice(0,4).map((r,i)=>({
+    role:roles[i],
+    roleEn:roleEn[i],
+    color:pick(r.key,i),
+    intensity:Math.round(r.score*100),
+    key:r.key,
+  }))
+}
+
+function buildObsText(colors){
+  const main=colors[0].color[0]
+  const sub=colors[1].color[0]
+  const accent=colors[3].color[0]
+  const texts=[
+    `この声からは\n${main}と${sub}を中心とした\n色彩傾向が観測されました。\n一部に${accent}の要素が含まれています。`,
+    `${main}の傾向が優勢に観測されます。\n${sub}との重なりが、\nこの標本の色彩の輪郭を形成しています。`,
+    `声の余韻の中に、${main}と\n${sub}が交差する層が見られます。\n${accent}がわずかにその境界に現れています。`,
+  ]
+  return texts[Math.floor(Math.random()*texts.length)]
+}
+
+function renderColorLayer(containerId,colors,showFooter=true){
+  const container=document.getElementById(containerId)
+  if(!container)return
+
+  const rowsHtml=colors.map((c,i)=>`
+    <div class="color-row">
+      <div class="color-swatch" style="background:${c.color[2]}"></div>
+      <div class="color-info">
+        <div class="color-role">${c.role}</div>
+        <div class="color-name">${c.color[0]}</div>
+        <div class="color-name-en">${c.color[1]}</div>
+      </div>
+      <div class="color-intensity">
+        <div class="intensity-bar">
+          <div class="intensity-fill" id="ifill-${containerId}-${i}" style="width:0%"></div>
+        </div>
+        <div class="intensity-num">${c.intensity}</div>
+      </div>
+    </div>
+  `).join('')
+
+  const footerHtml=showFooter?`
+    <div class="color-footer">
+      <p>これは完成作品の色を確定するものではありません<br>
+      <em>声から観測された色彩の傾向を、作家へ渡すための解釈情報です</em></p>
+    </div>
+  `:''
+
+  const obsText=buildObsText(colors).replace(/\n/g,'<br>')
+
+  container.innerHTML=`
+    <div class="color-layer-hdr">
+      <div class="lbl">色彩傾向 / chromatic tendency</div>
+      <span>観測値</span>
+    </div>
+    <div class="color-observation">
+      <div class="color-obs-text">${obsText}</div>
+    </div>
+    <div class="color-rows">${rowsHtml}</div>
+    ${footerHtml}
+  `
+
+  // アニメーション
+  colors.forEach((c,i)=>{
+    setTimeout(()=>{
+      const el=document.getElementById(`ifill-${containerId}-${i}`)
+      if(el)el.style.width=c.intensity+'%'
+    },200+i*120)
+  })
+}
+
+function buildDetailColorLayer(){
+  if(!colorData)return
+  renderColorLayer('color-layer-det',colorData,false)
+}
+
 function buildData(){
   const m=metrics,yr=new Date().getFullYear()
   const sid='NCC-'+yr+'-'+String(Math.floor(Math.random()*900)+100)
+  colorData=deriveColors(m)
+
   mapData={sid,
     di:Math.round((m.softness+m.vitality)*50),
     gb:m.brightness>.5?'+Y':'−Y',
@@ -282,11 +513,14 @@ function buildData(){
     flow:FL[Math.floor(m.brightness*3.99)],
     space:Math.round((1-m.vitality)*60+10),
     nodes:3+Math.round(m.stability*8),
-    note:NOTES[Math.floor(Math.random()*3)]
+    note:NOTES[Math.floor(Math.random()*3)],
   }
   document.getElementById('cid-val').textContent=sid
-  document.getElementById('mo-tl').innerHTML='NCC-001<br>φ解析モード<br>粒子数 '+(110+Math.round(metrics.vitality*90))
+  document.getElementById('cid-color').textContent=colorData[0].color[0]
+  document.getElementById('mo-tl').innerHTML='NCC-001<br>φ解析モード<br>粒子数 '+(110+Math.round(m.vitality*90))
   document.getElementById('mo-br').innerHTML='密度指数 '+mapData.di+'<br>重心偏位 '+mapData.gb
+
+  // 特徴量グリッド
   const g=document.getElementById('mgrid');g.innerHTML=''
   MK.forEach((k,i)=>{
     const pct=Math.round(metrics[k]*100)
@@ -294,10 +528,16 @@ function buildData(){
     d.innerHTML=`<div class="lbl">${MJ[i]}</div><div class="mbar"><div class="mbarb" id="mb${i}"></div></div><div class="mval">${pct}</div>`
     g.appendChild(d);setTimeout(()=>{document.getElementById('mb'+i).style.width=pct+'%'},100+i*80)
   })
+
+  // 色彩レイヤー描画（s-map）
+  renderColorLayer('color-layer',colorData,true)
+
+  // 設計図
   const d=mapData
   document.getElementById('sa-box').innerHTML=`<div class="lbl" style="margin-bottom:10px">構造解析</div>${[['重心位置',d.gravity],['粒子密度',d.density],['流動方向',d.flow],['余白比率',d.space+'%'],['結節点数',d.nodes+' 拠点']].map(([k,v])=>`<div class="sa-r"><div class="sa-k">${k}</div><div class="sa-v">${v}</div></div>`).join('')}`
   document.getElementById('anote-box').innerHTML=`<div class="lbl" style="margin-bottom:10px">作家へのメモ</div><p>${d.note}</p><p style="margin-top:8px"><em>最終作品は作家の手によってのみ生まれます。</em></p>`
 }
+
 function startAnalysis(){
   if(!hasAudio)return
   genMetrics();buildData();goTo('s-ana')
@@ -317,52 +557,95 @@ function startAnalysis(){
   }
   setTimeout(tick,180)
 }
+
 function goReset(){
-  resetRec();metrics=null;mapData=null
+  resetRec();metrics=null;mapData=null;colorData=null
   if(r1){r1.dispose&&r1.dispose();cancelAnimationFrame(a1);r1=null}
   if(r2){r2.dispose&&r2.dispose();cancelAnimationFrame(a2);r2=null}
   goTo('s-rec')
 }
 
+/* ─── Three.js ─── */
 function initMap(cid,wid,num){
   const wrap=document.getElementById(wid);if(!wrap||!metrics)return
   const W=wrap.offsetWidth||340
   const canvas=document.getElementById(cid)
   if(num===1&&r1){r1.dispose();cancelAnimationFrame(a1);r1=null}
   if(num===2&&r2){r2.dispose();cancelAnimationFrame(a2);r2=null}
+
   const m=metrics
   const scene=new THREE.Scene(),cam=new THREE.PerspectiveCamera(58,1,.1,100)
   cam.position.set(0,0,5.8)
   const renderer=new THREE.WebGLRenderer({canvas,antialias:true,alpha:false})
   renderer.setSize(W,W);renderer.setPixelRatio(Math.min(devicePixelRatio,2))
   renderer.setClearColor(0xe4e2da,1)
+
   const cx=(m.brightness-.5)*.9,cy=(m.softness-.5)*1.1,sp=.7+m.vitality*1.6
   const pivot=new THREE.Group();scene.add(pivot)
+
+  // 通常粒子
   const N=100+Math.round(m.vitality*80),pos=new Float32Array(N*3)
   for(let i=0;i<N;i++){
     const r=.35+Math.pow(Math.random(),.65)*sp,t=Math.random()*Math.PI*2,p=(Math.random()-.5)*Math.PI*(.4+m.resonance*.5)
     pos[i*3]=cx+r*Math.cos(t)*Math.cos(p);pos[i*3+1]=cy+r*Math.sin(p)*(1+m.softness*.4);pos[i*3+2]=r*Math.sin(t)*Math.cos(p)*.55
   }
   const pg=new THREE.BufferGeometry();pg.setAttribute('position',new THREE.BufferAttribute(pos,3))
-  pivot.add(new THREE.Points(pg,new THREE.PointsMaterial({color:0x4a7c6f,size:.046,transparent:true,opacity:.72,sizeAttenuation:true})))
-  const nm=new THREE.MeshBasicMaterial({color:0x2d5a4f,transparent:true,opacity:.55})
-  for(let i=0;i<4+Math.round(m.stability*6);i++){
-    const r=.2+Math.random()*1.6,t=Math.random()*Math.PI*2,p=(Math.random()-.5)*Math.PI*.5
-    const s=new THREE.Mesh(new THREE.SphereGeometry(.04+Math.random()*.06,8,8),nm)
+  pivot.add(new THREE.Points(pg,new THREE.PointsMaterial({color:0x4a7c6f,size:.042,transparent:true,opacity:.65,sizeAttenuation:true})))
+
+  // 色彩核粒子（colorDataから色を取得）
+  if(colorData){
+    colorData.forEach((cd,ci)=>{
+      // 核粒子は重心付近に集める
+      const nc=3+ci  // 主色は多め
+      const hexStr=cd.color[2].replace('#','')
+      const r=parseInt(hexStr.slice(0,2),16)/255
+      const g=parseInt(hexStr.slice(2,4),16)/255
+      const b=parseInt(hexStr.slice(4,6),16)/255
+      const col=new THREE.Color(r,g,b)
+
+      for(let n=0;n<nc;n++){
+        const dist=.15+Math.random()*.6*(ci+1)*.38
+        const t2=Math.random()*Math.PI*2,p2=(Math.random()-.5)*Math.PI*.4
+        const sx=cx+dist*Math.cos(t2)*Math.cos(p2)
+        const sy=cy+dist*Math.sin(p2)
+        const sz=dist*Math.sin(t2)*.4
+        const radius=.055-ci*.008+Math.random()*.02
+        const sphere=new THREE.Mesh(
+          new THREE.SphereGeometry(radius,10,10),
+          new THREE.MeshBasicMaterial({color:col,transparent:true,opacity:.72-ci*.1})
+        )
+        sphere.position.set(sx,sy,sz)
+        pivot.add(sphere)
+      }
+    })
+  }
+
+  // ノード（通常）
+  const nm=new THREE.MeshBasicMaterial({color:0x2d5a4f,transparent:true,opacity:.45})
+  for(let i=0;i<4+Math.round(m.stability*5);i++){
+    const r=.4+Math.random()*1.5,t=Math.random()*Math.PI*2,p=(Math.random()-.5)*Math.PI*.5
+    const s=new THREE.Mesh(new THREE.SphereGeometry(.035+Math.random()*.05,8,8),nm)
     s.position.set(cx+r*Math.cos(t),cy+r*Math.sin(p)*1.1,r*Math.sin(t)*.38);pivot.add(s)
   }
-  const lm=new THREE.LineBasicMaterial({color:0x4a7c6f,transparent:true,opacity:.14})
+
+  // 接続線
+  const lm=new THREE.LineBasicMaterial({color:0x4a7c6f,transparent:true,opacity:.12})
   for(let i=0;i<10+Math.round(m.resonance*7);i++){
     const pts=[],st=2+Math.floor(Math.random()*3)
     for(let j=0;j<=st;j++){const r=.2+Math.random()*2,t=Math.random()*Math.PI*2;pts.push(new THREE.Vector3(cx+r*Math.cos(t),cy+r*Math.sin(t)*.85,r*Math.sin(t)*.25))}
     pivot.add(new THREE.Line(new THREE.BufferGeometry().setFromPoints(pts),lm))
   }
-  const om=new THREE.LineBasicMaterial({color:0xb0b0a8,transparent:true,opacity:.3})
+
+  // オーバーレイ
+  const om=new THREE.LineBasicMaterial({color:0xb0b0a8,transparent:true,opacity:.28})
   scene.add(new THREE.Line(new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(-3.2,0,0),new THREE.Vector3(3.2,0,0)]),om))
   scene.add(new THREE.Line(new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(0,-3.2,0),new THREE.Vector3(0,3.2,0)]),om))
-  for(const rr of[1.2,2.4]){const ring=new THREE.RingGeometry(rr,rr+.007,80);scene.add(new THREE.Mesh(ring,new THREE.MeshBasicMaterial({color:0xb0b0a8,transparent:true,opacity:.18,side:THREE.DoubleSide})))}
-  const gm=new THREE.Mesh(new THREE.CircleGeometry(.05,14),new THREE.MeshBasicMaterial({color:0x2d5a4f,transparent:true,opacity:.45,side:THREE.DoubleSide}))
+  for(const rr of[1.2,2.4]){
+    scene.add(new THREE.Mesh(new THREE.RingGeometry(rr,rr+.007,80),new THREE.MeshBasicMaterial({color:0xb0b0a8,transparent:true,opacity:.15,side:THREE.DoubleSide})))
+  }
+  const gm=new THREE.Mesh(new THREE.CircleGeometry(.045,14),new THREE.MeshBasicMaterial({color:0x2d5a4f,transparent:true,opacity:.4,side:THREE.DoubleSide}))
   gm.position.set(cx,cy,0);scene.add(gm)
+
   let aid
   const animate=()=>{aid=requestAnimationFrame(animate);pivot.rotation.y+=.0014;renderer.render(scene,cam)}
   animate()
