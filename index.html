@@ -16,21 +16,15 @@
 }
 html,body{height:100%;background:var(--paper);color:var(--ink);font-family:var(--mono);font-size:13px;-webkit-text-size-adjust:100%;-webkit-font-smoothing:antialiased}
 #app{min-height:100dvh;display:flex;flex-direction:column;max-width:440px;margin:0 auto}
-
-/* Header */
 .hdr{padding:18px 20px 14px;border-bottom:0.5px solid var(--paper3);display:flex;align-items:flex-end;justify-content:space-between;position:sticky;top:0;background:var(--paper);z-index:10}
 .logo{font-family:var(--serif);font-size:22px;font-weight:300;font-style:italic;color:var(--ink)}
 .logo small{display:block;font-family:var(--mono);font-size:9px;font-style:normal;color:var(--ink3);letter-spacing:.14em;text-transform:uppercase;margin-top:2px}
 .step-lbl{font-size:10px;color:var(--ink4);letter-spacing:.1em}
-
-/* Screens */
 .scr{display:none;flex-direction:column;gap:20px;padding:22px 20px 56px}
 .scr.on{display:flex}
 .lbl{font-size:9px;letter-spacing:.2em;text-transform:uppercase;color:var(--ink3);margin-bottom:5px}
 .h1{font-family:var(--serif);font-size:22px;font-weight:300;font-style:italic;line-height:1.38;color:var(--ink)}
 .sub{font-size:11px;color:var(--ink3);line-height:1.85;margin-top:7px}
-
-/* Record zone */
 .zone{background:var(--paper2);border:0.5px solid var(--paper3);border-radius:3px;padding:26px 20px;display:flex;flex-direction:column;align-items:center;gap:15px}
 .rbtn{width:68px;height:68px;border-radius:50%;border:1.5px solid var(--ink3);background:transparent;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:border-color .3s;-webkit-appearance:none}
 .rbtn:hover{border-color:var(--teal)}
@@ -51,8 +45,6 @@ html,body{height:100%;background:var(--paper);color:var(--ink);font-family:var(-
 .abtn{width:100%;padding:16px;background:var(--ink);color:var(--paper);border:none;border-radius:3px;font-family:var(--mono);font-size:11px;letter-spacing:.12em;cursor:pointer;text-transform:uppercase;transition:background .2s;display:none;-webkit-appearance:none}
 .abtn.on{display:block}
 .abtn:hover{background:#2e2d2a}
-
-/* Analysis */
 .log-box{background:var(--paper2);border:0.5px solid var(--paper3);border-radius:3px;padding:15px 17px;min-height:152px}
 .lg{font-size:11px;line-height:2.1;color:var(--ink3);opacity:0;transition:opacity .4s}
 .lg.on{opacity:1}
@@ -64,20 +56,16 @@ html,body{height:100%;background:var(--paper);color:var(--ink);font-family:var(-
 .egg-wrap{
   position:relative;
   width:100%;
-  /* 縦長卵形の比率 */
   aspect-ratio:3/4;
-  margin:0 auto;
-  background:var(--paper2);
+  background:#f0ede5;
   border:0.5px solid var(--paper3);
   border-radius:3px;
   overflow:hidden;
 }
 .egg-wrap canvas{width:100%!important;height:100%!important;display:block}
-
-/* マップ上のテキストオーバーレイ */
-.mo{position:absolute;font-size:9px;color:var(--ink4);letter-spacing:.08em;line-height:1.7;pointer-events:none;font-family:var(--mono)}
-.mo.tl{top:10px;left:12px}
-.mo.br{bottom:10px;right:12px;text-align:right}
+.mo{position:absolute;font-size:9px;color:rgba(180,176,165,0.9);letter-spacing:.08em;line-height:1.7;pointer-events:none;font-family:var(--mono)}
+.mo.tl{top:10px;left:13px}
+.mo.br{bottom:10px;right:13px;text-align:right}
 
 /* 特徴量グリッド */
 .mgrid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
@@ -94,7 +82,6 @@ html,body{height:100%;background:var(--paper);color:var(--ink);font-family:var(-
 .color-layer-hdr span{font-size:9px;color:var(--ink4);letter-spacing:.08em}
 .color-obs{padding:14px 16px 10px;background:var(--paper2)}
 .color-obs-text{font-family:var(--serif);font-style:italic;font-size:14px;color:var(--ink2);line-height:1.9}
-.color-rows{}
 .color-row{display:flex;align-items:center;padding:9px 16px;border-top:0.5px solid var(--paper3);gap:14px}
 .cswatch{width:26px;height:26px;border-radius:2px;flex-shrink:0;position:relative;overflow:hidden}
 .cswatch::after{content:'';position:absolute;inset:0;background:repeating-linear-gradient(135deg,rgba(255,255,255,.07) 0,rgba(255,255,255,.07) 1px,transparent 1px,transparent 3px)}
@@ -119,8 +106,6 @@ html,body{height:100%;background:var(--paper);color:var(--ink);font-family:var(-
 .anote{border:0.5px solid var(--paper3);border-radius:3px;padding:14px 16px}
 .anote p{font-size:11px;color:var(--ink3);line-height:1.9}
 .anote em{font-family:var(--serif);font-style:italic;font-size:13px;color:var(--ink2)}
-
-/* Buttons */
 .row2{display:flex;gap:8px}
 .btn-s{flex:1;padding:12px;border:0.5px solid var(--paper3);border-radius:3px;background:transparent;font-family:var(--mono);font-size:10px;color:var(--ink3);letter-spacing:.1em;cursor:pointer;text-transform:uppercase;transition:all .2s;-webkit-appearance:none}
 .btn-s:hover{border-color:var(--ink3);color:var(--ink)}
@@ -128,8 +113,6 @@ html,body{height:100%;background:var(--paper);color:var(--ink);font-family:var(-
 .btn-p:hover{background:#2e2d2a}
 .btn-teal{flex:3;padding:13px;background:var(--teal);border:none;border-radius:3px;font-family:var(--mono);font-size:10px;color:#fff;letter-spacing:.12em;cursor:pointer;text-transform:uppercase;transition:background .2s;-webkit-appearance:none}
 .btn-teal:hover{background:var(--teal2)}
-
-/* Complete */
 .cpl{display:flex;flex-direction:column;align-items:center;gap:15px;padding-top:32px}
 .cpl-sym{font-family:var(--serif);font-size:52px;font-weight:300;color:var(--teal);line-height:1}
 .cid{background:var(--paper2);border:0.5px solid var(--paper3);border-radius:3px;padding:13px 18px;width:100%;text-align:left}
@@ -146,7 +129,7 @@ html,body{height:100%;background:var(--paper);color:var(--ink);font-family:var(-
     <div class="step-lbl" id="slbl">step 01 / 04</div>
   </div>
 
-  <!-- STEP 1: 録音 -->
+  <!-- STEP 1 -->
   <div class="scr on" id="s-rec">
     <div>
       <div class="lbl">観測開始 / observation init</div>
@@ -155,18 +138,13 @@ html,body{height:100%;background:var(--paper);color:var(--ink);font-family:var(-
     </div>
     <div class="zone">
       <div class="rtime" id="rtime" style="display:none">00:00</div>
-      <button class="rbtn" id="rbtn" onclick="toggleRec()" aria-label="録音開始/停止">
-        <div class="rdot"></div>
-      </button>
+      <button class="rbtn" id="rbtn" onclick="toggleRec()" aria-label="録音開始/停止"><div class="rdot"></div></button>
       <div class="rstat" id="rstat">タップして録音</div>
       <canvas class="wc" id="wc" height="28"></canvas>
       <button id="retake-rec" style="display:none;font-size:10px;color:var(--ink4);letter-spacing:.12em;text-transform:uppercase;background:none;border:none;cursor:pointer;font-family:var(--mono);padding:0" onclick="resetRec()">録り直す</button>
     </div>
     <div class="div-or">または</div>
-    <label class="uplbl">
-      ↑ &nbsp;音声ファイルをアップロード
-      <input type="file" accept="audio/*" style="display:none" onchange="handleUp(event)">
-    </label>
+    <label class="uplbl">↑ &nbsp;音声ファイルをアップロード<input type="file" accept="audio/*" style="display:none" onchange="handleUp(event)"></label>
     <div class="note">
       <p>対応形式 — mp3 / m4a / wav / aac</p>
       <p><em>あなただけの声紋が、標本設計図へと変換されます</em></p>
@@ -174,7 +152,7 @@ html,body{height:100%;background:var(--paper);color:var(--ink);font-family:var(-
     <button class="abtn" id="abtn" onclick="startAnalysis()">解析を開始する</button>
   </div>
 
-  <!-- STEP 2: 解析 -->
+  <!-- STEP 2 -->
   <div class="scr" id="s-ana">
     <div>
       <div class="lbl">音声解析中 / audio analysis</div>
@@ -188,27 +166,20 @@ html,body{height:100%;background:var(--paper);color:var(--ink);font-family:var(-
     </div>
   </div>
 
-  <!-- STEP 3: 特徴マップ -->
+  <!-- STEP 3 -->
   <div class="scr" id="s-map">
     <div>
       <div class="lbl">標本設計図 / specimen design map</div>
       <div class="h1" style="font-size:18px">標本設計図を生成しました</div>
       <div class="sub">粒子の分布・密度・色相が<br>作家への引き渡し情報となります</div>
     </div>
-
-    <!-- 卵形パーティクルマップ -->
     <div class="egg-wrap" id="mapwrap">
       <canvas id="mc"></canvas>
       <div class="mo tl" id="mo-tl">設計図 #—<br>粒子数 —<br>孵化前</div>
       <div class="mo br" id="mo-br">密度 —<br>重心 —</div>
     </div>
-
-    <!-- 色彩傾向 -->
     <div class="color-layer" id="color-layer"></div>
-
-    <!-- 特徴量グリッド -->
     <div class="mgrid" id="mgrid"></div>
-
     <div class="note">
       <p>粒子の分布・密度・重心・色相は作家への引き渡し情報です</p>
       <p><em>これは完成作品ではありません。標本は作家の解釈から生まれます</em></p>
@@ -219,7 +190,7 @@ html,body{height:100%;background:var(--paper);color:var(--ink);font-family:var(-
     </div>
   </div>
 
-  <!-- STEP 4: 設計図確認 -->
+  <!-- STEP 4 -->
   <div class="scr" id="s-det">
     <div>
       <div class="lbl">設計図 / design specification</div>
@@ -259,7 +230,6 @@ html,body{height:100%;background:var(--paper);color:var(--ink);font-family:var(-
 </div>
 
 <script>
-/* ─── 定数 ─── */
 const STEPS={'s-rec':'step 01 / 04','s-ana':'step 02 / 04','s-map':'step 03 / 04','s-det':'step 04 / 04','s-cpl':'完了'}
 const LOGS=[
   ['init',  '音声ストリームを読み込み中...'],
@@ -275,28 +245,26 @@ const MK=['softness','brightness','depth','vitality','resonance','stability']
 const MJ=['柔らかさ','明るさ','深さ','躍動感','余韻','安定感']
 const GR=['上方偏位','中央集積','下方分散','左右対称']
 const FL=['右上昇傾向','左拡散傾向','渦状収束','放射状分布']
-const ARTIST_NOTES=[
+const ANOTES=[
   '粒子が上方に集積し、軽やかな浮遊感が観測されます。余韻の長さから、花弁枚数を少なめに構成することを示唆しています。',
   '安定感の高い波形から、鉱物表現の土台として活用できます。声の深さは重心の位置に反映されています。',
   '躍動感のある粒子分布が右上方向への流れを示しています。大胆な花弁の構成が、このデータに応答するかもしれません。',
 ]
 
-/* ─── 色彩定義（名前JP, 読み, hex） ─── */
-const CMAP = {
-  softness:   [['淡桜','usuzakura','#e0c8c4'],['乳白','nyūhaku','#ede8e0'],['薄桃','usumomo','#dcc4c0']],
-  brightness: [['琥珀','kohaku','#c8a060'],  ['生成色','kinari','#e8e0cc'], ['蜜色','mitsuiro','#c8b070']],
-  depth:      [['藤色','fujiiro','#9080aa'], ['薄墨','usuzumi','#b0acb8'],  ['灰紫','haifuji','#a89aba']],
-  vitality:   [['珊瑚','sango','#c88070'],   ['橙','daidai','#c89860'],     ['朱','shu','#b87060']],
-  resonance:  [['霞','kasumi','#ccc4cc'],    ['白銀','hakugin','#d0d0ce'],  ['真珠灰','shinju','#c8c8c4']],
-  stability:  [['煙青','kemuri','#8090a4'],  ['灰青','haisei','#88a0b0'],   ['石色','ishi','#a8a8a4']],
+// 色彩定義 — 彩度低め、透明感重視
+const CMAP={
+  softness:   [['淡桜','usuzakura','#dfc8c2',0.55],['乳白','nyūhaku','#ede8e0',0.45],['薄桃','usumomo','#d8c0bc',0.50]],
+  brightness: [['琥珀','kohaku','#c8a45a',0.60],   ['生成色','kinari','#e5ddc8',0.42], ['蜜色','mitsuiro','#c4aa62',0.55]],
+  depth:      [['藤色','fujiiro','#9b8db5',0.58],  ['灰紫','haifuji','#b0a8c0',0.50],  ['薄墨','usuzumi','#b2aec0',0.45]],
+  vitality:   [['珊瑚','sango','#c88878',0.58],    ['橙','daidai','#c8a070',0.52],      ['朱','shu','#b87868',0.55]],
+  resonance:  [['霞','kasumi','#ccc0cc',0.48],     ['白銀','hakugin','#d0d0cc',0.42],   ['真珠灰','shinju','#c8c4c0',0.45]],
+  stability:  [['煙青','kemuri','#7a90a8',0.58],   ['灰青','haisei','#86a0b0',0.55],    ['石色','ishi','#a8a8a4',0.45]],
 }
 
-/* ─── 状態 ─── */
 let isRec=false,recSecs=0,recTimer=null,hasAudio=false,wAnim=null
 let metrics=null,mapData=null,colorData=null
 let r1=null,r2=null,a1=null,a2=null
 
-/* ─── 画面遷移 ─── */
 function goTo(id){
   document.querySelectorAll('.scr').forEach(s=>s.classList.remove('on'))
   document.getElementById(id).classList.add('on')
@@ -310,7 +278,6 @@ function goTo(id){
   window.scrollTo(0,0)
 }
 
-/* ─── 録音 ─── */
 function toggleRec(){isRec?stopRec():startRec()}
 function startRec(){
   isRec=true;recSecs=0
@@ -319,11 +286,7 @@ function startRec(){
   document.getElementById('rstat').textContent='録音中 — もう一度タップで停止'
   document.getElementById('wc').style.display='block'
   drawWave()
-  recTimer=setInterval(()=>{
-    recSecs++;
-    const m=String(Math.floor(recSecs/60)).padStart(2,'0'),s=String(recSecs%60).padStart(2,'0')
-    document.getElementById('rtime').textContent=m+':'+s
-  },1000)
+  recTimer=setInterval(()=>{recSecs++;const m=String(Math.floor(recSecs/60)).padStart(2,'0'),s=String(recSecs%60).padStart(2,'0');document.getElementById('rtime').textContent=m+':'+s},1000)
   if(navigator.mediaDevices)navigator.mediaDevices.getUserMedia({audio:true}).then(s=>{window._stream=s}).catch(()=>{})
 }
 function stopRec(){
@@ -347,56 +310,40 @@ function resetRec(){
 function drawWave(){
   const c=document.getElementById('wc'),ctx=c.getContext('2d')
   const W=c.parentElement.offsetWidth-40||260;c.width=W;c.height=28
-  function fr(){
-    ctx.clearRect(0,0,W,28);ctx.fillStyle='rgba(74,124,111,.32)'
-    const bars=Math.floor(W/5)
-    for(let i=0;i<bars;i++){const h=isRec?4+Math.random()*20:4;ctx.fillRect(i*5,(28-h)/2,4,h)}
-    if(isRec)wAnim=requestAnimationFrame(fr)
-  }
+  function fr(){ctx.clearRect(0,0,W,28);ctx.fillStyle='rgba(74,124,111,.32)';const bars=Math.floor(W/5);for(let i=0;i<bars;i++){const h=isRec?4+Math.random()*20:4;ctx.fillRect(i*5,(28-h)/2,4,h)}if(isRec)wAnim=requestAnimationFrame(fr)}
   fr()
 }
 function handleUp(e){
-  if(e.target.files&&e.target.files.length>0){
-    hasAudio=true;document.getElementById('abtn').classList.add('on')
-    document.getElementById('rstat').textContent='ファイルを読み込みました'
-  }
+  if(e.target.files&&e.target.files.length>0){hasAudio=true;document.getElementById('abtn').classList.add('on');document.getElementById('rstat').textContent='ファイルを読み込みました'}
 }
 
-/* ─── メトリクス生成 ─── */
 function genMetrics(){
   const r=(lo,hi)=>lo+Math.random()*(hi-lo)
   metrics={softness:r(.4,.9),brightness:r(.32,.85),depth:r(.25,.75),vitality:r(.28,.80),resonance:r(.35,.82),stability:r(.48,.92)}
 }
 
-/* ─── 色彩ロジック ─── */
 function deriveColors(m){
   const ranked=[
-    {key:'softness',  score:m.softness},
-    {key:'brightness',score:m.brightness},
-    {key:'depth',     score:m.depth},
-    {key:'vitality',  score:m.vitality},
-    {key:'resonance', score:m.resonance},
-    {key:'stability', score:m.stability},
+    {key:'softness',score:m.softness},{key:'brightness',score:m.brightness},
+    {key:'depth',score:m.depth},{key:'vitality',score:m.vitality},
+    {key:'resonance',score:m.resonance},{key:'stability',score:m.stability},
   ].sort((a,b)=>b.score-a.score)
-
   const roles=['主色','副色','補助色','アクセント']
-  const rolesEn=['primary','secondary','tertiary','accent']
-
   return ranked.slice(0,4).map((r,i)=>{
     const opts=CMAP[r.key]
-    const pick=i===0?opts[0]:i===1?opts[Math.floor(Math.random()*2)]:opts[Math.floor(Math.random()*3)]
-    return {role:roles[i],roleEn:rolesEn[i],color:pick,intensity:Math.round(r.score*100),key:r.key}
+    const c=i===0?opts[0]:i===1?opts[Math.floor(Math.random()*2)]:opts[Math.floor(Math.random()*3)]
+    return{role:roles[i],color:c,intensity:Math.round(r.score*100),key:r.key}
   })
 }
 
 function buildObsText(c){
-  const main=c[0].color[0],sub=c[1].color[0],acc=c[3].color[0]
-  const txts=[
-    `この声からは\n${main}と${sub}を中心とした\n色彩傾向が観測されました。\n一部に${acc}の要素が含まれています。`,
-    `${main}の傾向が優勢に観測されます。\n${sub}との重なりが\nこの標本の色彩の輪郭を形成しています。`,
-    `声の余韻の中に、${main}と\n${sub}が交差する層が見られます。\n${acc}がわずかにその境界に現れています。`,
+  const mn=c[0].color[0],sb=c[1].color[0],ac=c[3].color[0]
+  const t=[
+    `この声からは\n${mn}と${sb}を中心とした\n色彩傾向が観測されました。\n一部に${ac}の要素が含まれています。`,
+    `${mn}の傾向が優勢に観測されます。\n${sb}との重なりが\nこの標本の色彩の輪郭を形成しています。`,
+    `声の余韻の中に、${mn}と\n${sb}が交差する層が見られます。\n${ac}がわずかにその境界に現れています。`,
   ]
-  return txts[Math.floor(Math.random()*txts.length)]
+  return t[Math.floor(Math.random()*t.length)]
 }
 
 function renderColorLayer(id,colors,footer=true){
@@ -404,37 +351,25 @@ function renderColorLayer(id,colors,footer=true){
   const rows=colors.map((c,i)=>`
     <div class="color-row">
       <div class="cswatch" style="background:${c.color[2]}"></div>
-      <div class="cinfo">
-        <div class="crole">${c.role}</div>
-        <div class="cname">${c.color[0]}</div>
-        <div class="cname-en">${c.color[1]}</div>
-      </div>
-      <div class="cintensity">
-        <div class="ibar"><div class="ifill" id="if-${id}-${i}"></div></div>
-        <div class="inum">${c.intensity}</div>
-      </div>
+      <div class="cinfo"><div class="crole">${c.role}</div><div class="cname">${c.color[0]}</div><div class="cname-en">${c.color[1]}</div></div>
+      <div class="cintensity"><div class="ibar"><div class="ifill" id="if-${id}-${i}"></div></div><div class="inum">${c.intensity}</div></div>
     </div>`).join('')
   const obs=buildObsText(colors).replace(/\n/g,'<br>')
   el.innerHTML=`
     <div class="color-layer-hdr"><div class="lbl">色彩傾向 / chromatic tendency</div><span>観測値</span></div>
     <div class="color-obs"><div class="color-obs-text">${obs}</div></div>
-    <div class="color-rows">${rows}</div>
-    ${footer?`<div class="color-footer"><p>これは完成作品の色を確定するものではありません<br><em>声から観測された色彩の傾向を、作家へ渡すための解釈情報です</em></p></div>`:''}
-  `
+    <div>${rows}</div>
+    ${footer?`<div class="color-footer"><p>これは完成作品の色を確定するものではありません<br><em>声から観測された色彩の傾向を、作家へ渡すための解釈情報です</em></p></div>`:''}`
   colors.forEach((_,i)=>setTimeout(()=>{const f=document.getElementById(`if-${id}-${i}`);if(f)f.style.width=colors[i].intensity+'%'},200+i*120))
 }
 
-function buildDetailColorLayer(){
-  if(colorData)renderColorLayer('color-layer-det',colorData,false)
-}
+function buildDetailColorLayer(){if(colorData)renderColorLayer('color-layer-det',colorData,false)}
 
-/* ─── データ構築 ─── */
 function buildData(){
   const m=metrics,yr=new Date().getFullYear()
   const sid='NCC-'+yr+'-'+String(Math.floor(Math.random()*900)+100)
   colorData=deriveColors(m)
-  mapData={
-    sid,
+  mapData={sid,
     di:Math.round((m.softness+m.vitality)*50),
     gb:m.brightness>.5?'+Y':'−Y',
     gravity:GR[Math.floor(m.softness*3.99)],
@@ -442,56 +377,32 @@ function buildData(){
     flow:FL[Math.floor(m.brightness*3.99)],
     space:Math.round((1-m.vitality)*60+10),
     nodes:3+Math.round(m.stability*8),
-    note:ARTIST_NOTES[Math.floor(Math.random()*ARTIST_NOTES.length)],
+    note:ANOTES[Math.floor(Math.random()*ANOTES.length)],
   }
-  const pcount=90+Math.round(m.vitality*80)
+  const pcount=60+Math.round(m.vitality*50)
   document.getElementById('cid-val').textContent=sid
   document.getElementById('cid-color').textContent=colorData[0].color[0]
   document.getElementById('mo-tl').innerHTML=`設計図 #${sid.slice(-3)}<br>粒子数 ${pcount}<br>孵化前`
   document.getElementById('mo-br').innerHTML=`密度 ${mapData.density}<br>重心 ${mapData.gravity}`
 
-  // 特徴量グリッド
   const g=document.getElementById('mgrid');g.innerHTML=''
   MK.forEach((k,i)=>{
-    const pct=Math.round(m[k]*100)
-    const d=document.createElement('div');d.className='mc'
+    const pct=Math.round(m[k]*100),d=document.createElement('div');d.className='mc'
     d.innerHTML=`<div class="lbl">${MJ[i]}</div><div class="mbar"><div class="mbarb" id="mb${i}"></div></div><div class="mval">${pct}</div>`
     g.appendChild(d);setTimeout(()=>{const b=document.getElementById('mb'+i);if(b)b.style.width=pct+'%'},100+i*80)
   })
-
-  // 色彩レイヤー
   renderColorLayer('color-layer',colorData,true)
-
-  // 設計図テキスト
-  const d=mapData
-  document.getElementById('sa-box').innerHTML=`
-    <div class="lbl" style="margin-bottom:10px">構造解析</div>
-    ${[['重心位置',d.gravity],['粒子密度',d.density],['流動方向',d.flow],['余白比率',d.space+'%'],['結節点数',d.nodes+' 拠点']].map(([k,v])=>`
-    <div class="sa-r"><div class="sa-k">${k}</div><div class="sa-v">${v}</div></div>`).join('')}`
-  document.getElementById('anote-box').innerHTML=`
-    <div class="lbl" style="margin-bottom:10px">作家へのメモ</div>
-    <p>${d.note}</p>
-    <p style="margin-top:9px"><em>最終作品は作家の手によってのみ生まれます。</em></p>`
+  document.getElementById('sa-box').innerHTML=`<div class="lbl" style="margin-bottom:10px">構造解析</div>${[['重心位置',mapData.gravity],['粒子密度',mapData.density],['流動方向',mapData.flow],['余白比率',mapData.space+'%'],['結節点数',mapData.nodes+' 拠点']].map(([k,v])=>`<div class="sa-r"><div class="sa-k">${k}</div><div class="sa-v">${v}</div></div>`).join('')}`
+  document.getElementById('anote-box').innerHTML=`<div class="lbl" style="margin-bottom:10px">作家へのメモ</div><p>${mapData.note}</p><p style="margin-top:9px"><em>最終作品は作家の手によってのみ生まれます。</em></p>`
 }
 
-/* ─── 解析フロー ─── */
 function startAnalysis(){
   if(!hasAudio)return
   genMetrics();buildData();goTo('s-ana')
   const box=document.getElementById('logbox');box.innerHTML=''
-  LOGS.forEach(([tag,txt])=>{
-    const d=document.createElement('div');d.className='lg'
-    d.innerHTML=`— <span>${tag}</span> &nbsp; ${txt}`;box.appendChild(d)
-  })
-  const lines=box.querySelectorAll('.lg'),prog=document.getElementById('progb')
-  let step=0
-  function tick(){
-    if(step<lines.length){
-      lines[step].classList.add('on')
-      prog.style.width=Math.round((step+1)/lines.length*100)+'%'
-      step++;setTimeout(tick,240+Math.random()*160)
-    }else{setTimeout(()=>goTo('s-map'),500)}
-  }
+  LOGS.forEach(([tag,txt])=>{const d=document.createElement('div');d.className='lg';d.innerHTML=`— <span>${tag}</span> &nbsp; ${txt}`;box.appendChild(d)})
+  const lines=box.querySelectorAll('.lg'),prog=document.getElementById('progb');let step=0
+  function tick(){if(step<lines.length){lines[step].classList.add('on');prog.style.width=Math.round((step+1)/lines.length*100)+'%';step++;setTimeout(tick,240+Math.random()*160)}else{setTimeout(()=>goTo('s-map'),500)}}
   setTimeout(tick,180)
 }
 
@@ -502,186 +413,183 @@ function goReset(){
   goTo('s-rec')
 }
 
-/* ─────────────────────────────────────────
-   卵形パーティクルマップ（Three.js）
-   ───────────────────────────────────────── */
-function initEggMap(cid, wid, num){
-  const wrap=document.getElementById(wid)
-  if(!wrap||!metrics)return
+/* ═══════════════════════════════════════
+   卵形パーティクルマップ — 再設計版
+   目標：「何かが生まれそう」な有機的な塊
+   ═══════════════════════════════════════ */
+function initEggMap(cid,wid,num){
+  const wrap=document.getElementById(wid);if(!wrap||!metrics)return
   const W=wrap.offsetWidth||320
-  const H=Math.round(W*4/3)   // 縦長 3:4
+  const H=Math.round(W*4/3)
   wrap.style.height=H+'px'
-  const canvas=document.getElementById(cid)
-  if(!canvas)return
+  const canvas=document.getElementById(cid);if(!canvas)return
 
-  // 既存レンダラー破棄
   if(num===1&&r1){try{r1.dispose()}catch(e){}cancelAnimationFrame(a1);r1=null}
   if(num===2&&r2){try{r2.dispose()}catch(e){}cancelAnimationFrame(a2);r2=null}
 
   const m=metrics
-
-  /* シーン */
   const scene=new THREE.Scene()
-  const aspect=W/H
-  const cam=new THREE.PerspectiveCamera(52,aspect,0.1,100)
-  cam.position.set(0,0,6.2)
-
   const renderer=new THREE.WebGLRenderer({canvas,antialias:true,alpha:false})
   renderer.setSize(W,H)
   renderer.setPixelRatio(Math.min(devicePixelRatio,2))
-  renderer.setClearColor(0xedeae2,1)  // 標本紙色
+  // 標本紙：温かみのある白
+  renderer.setClearColor(0xf0ede5,1)
 
-  /* ── 卵形ガイドライン（SVG的な輪郭）── */
-  // 卵形 = 上方が丸く、下方がやや尖る
-  // パラメトリック曲線で生成
-  const EGG_RX=1.55   // 横半径
-  const EGG_RY_TOP=2.1 // 上半分の縦半径
-  const EGG_RY_BOT=1.65 // 下半分（少し尖る）
-  const EGG_CY=0.18   // 卵の中心を少し上に
+  const aspect=W/H
+  const cam=new THREE.OrthographicCamera(-2.2*aspect,2.2*aspect,2.2,-2.2,0.1,50)
+  cam.position.set(0,0,8)
+  cam.lookAt(0,0,0)
 
-  function eggPoint(t){
-    // t: 0〜2π
-    const sinT=Math.sin(t),cosT=Math.cos(t)
-    const ry=sinT>=0?EGG_RY_TOP:EGG_RY_BOT
-    return new THREE.Vector3(EGG_RX*cosT, EGG_CY+ry*sinT, 0)
+  /* ── 卵形パラメータ ── */
+  // 上方が丸く、下方がやや絞れる卵型
+  // 中心を少し上寄りにして、下の余白を広めに取る（標本ラベル的な余白）
+  const EX=1.55     // 横半径
+  const EY_T=1.85   // 上半径
+  const EY_B=1.55   // 下半径（やや絞る）
+  const ECY=0.12    // 卵の中心（わずかに上）
+
+  function eggPt(t){
+    const s=Math.sin(t),c=Math.cos(t)
+    return new THREE.Vector3(EX*c, ECY+(s>=0?EY_T:EY_B)*s, 0)
+  }
+  function inEgg(x,y){
+    const dy=y-ECY,ry=dy>=0?EY_T:EY_B
+    return x*x/(EX*EX)+dy*dy/(ry*ry)<=1
   }
 
-  // 卵輪郭線（細い、淡い）
-  const eggPts=[]
-  const SEG=128
-  for(let i=0;i<=SEG;i++) eggPts.push(eggPoint(i/SEG*Math.PI*2))
-  const eggGeo=new THREE.BufferGeometry().setFromPoints(eggPts)
-  const eggMat=new THREE.LineBasicMaterial({color:0xb8b4aa,transparent:true,opacity:0.45})
-  scene.add(new THREE.Line(eggGeo,eggMat))
-
-  // 内側のガイド楕円（さらに淡く）
-  const innerPts=[]
-  for(let i=0;i<=SEG;i++){
-    const p=eggPoint(i/SEG*Math.PI*2)
-    p.x*=0.58;p.y=EGG_CY+(p.y-EGG_CY)*0.58
-    innerPts.push(p)
-  }
+  /* ── 卵輪郭：細くて淡い線一本 ── */
+  const ePts=[],SEG=120
+  for(let i=0;i<=SEG;i++) ePts.push(eggPt(i/SEG*Math.PI*2))
   scene.add(new THREE.Line(
-    new THREE.BufferGeometry().setFromPoints(innerPts),
-    new THREE.LineBasicMaterial({color:0xc8c4bc,transparent:true,opacity:0.22})
+    new THREE.BufferGeometry().setFromPoints(ePts),
+    new THREE.LineBasicMaterial({color:0xc0bbb0,transparent:true,opacity:0.5})
   ))
 
-  /* 中心軸線（縦） */
+  /* ── 軸インジケーター（最小限）── */
+  // 縦の中心線だけ、極めて淡く
   scene.add(new THREE.Line(
-    new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(0,-2.4,0),new THREE.Vector3(0,2.6,0)]),
-    new THREE.LineBasicMaterial({color:0xb8b4aa,transparent:true,opacity:0.18})
-  ))
-  /* 水平軸線 */
-  scene.add(new THREE.Line(
-    new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(-2.0,EGG_CY,0),new THREE.Vector3(2.0,EGG_CY,0)]),
-    new THREE.LineBasicMaterial({color:0xb8b4aa,transparent:true,opacity:0.18})
+    new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(0,-1.7,0),new THREE.Vector3(0,2.1,0)]),
+    new THREE.LineBasicMaterial({color:0xc8c3b8,transparent:true,opacity:0.18})
   ))
 
-  /* ── 卵形内に収まる粒子を配置 ── */
-  // 卵形内部にあるかチェックする関数
-  function insideEgg(x,y){
-    const dy=y-EGG_CY
-    const ry=dy>=0?EGG_RY_TOP:EGG_RY_BOT
-    return (x*x)/(EGG_RX*EGG_RX)+(dy*dy)/(ry*ry)<=1
-  }
-
+  /* ── pivot：ゆっくり呼吸するように回転 ── */
   const pivot=new THREE.Group()
   scene.add(pivot)
 
-  /* 通常粒子（深緑・低彩度） */
-  const N=90+Math.round(m.vitality*75)
-  const positions=[]
-  const tries=N*20
-  let placed=0
-  for(let t=0;t<tries&&placed<N;t++){
-    // 声の特徴に応じた分布
-    // softness: 上方バイアス、vitality: 密度、brightness: 左右広がり
-    const biasCY=EGG_CY + (m.softness-0.5)*0.7  // 重心の縦位置
-    const biasCX=(m.brightness-0.5)*0.4          // 重心の横位置
-    const rx=0.08+Math.random()*EGG_RX*0.92*(0.5+m.vitality*0.55)
-    const angle=Math.random()*Math.PI*2
-    const px=biasCX+rx*Math.cos(angle)*(0.7+m.resonance*0.35)
-    const py=biasCY+rx*Math.sin(angle)*(0.9+m.softness*0.3)
-    if(insideEgg(px,py)){
-      positions.push(px,py,(Math.random()-0.5)*0.4)
-      placed++
-    }
-  }
-  const ptGeo=new THREE.BufferGeometry()
-  ptGeo.setAttribute('position',new THREE.BufferAttribute(new Float32Array(positions),3))
-  pivot.add(new THREE.Points(ptGeo,new THREE.PointsMaterial({
-    color:0x4a6860,size:0.038,transparent:true,opacity:0.58,sizeAttenuation:true
-  })))
+  /* ── 粒子配置のパラメータ ── */
+  // 声の特徴を空間に翻訳
+  const gravX=(m.brightness-0.5)*0.55   // 明るさ→左右
+  const gravY=ECY+(m.softness-0.5)*0.65 // 柔らかさ→上下
+  const spread=0.55+m.vitality*0.75     // 躍動感→広がり
 
-  /* 色彩核粒子（colorDataの色を持つ）*/
+  /* ── 大粒子（主役）── */
+  // colorDataの主色・副色を使い、比較的大きめに配置
+  // 花や鉱物の「種」として機能する
   if(colorData){
-    colorData.forEach((cd,ci)=>{
+    colorData.slice(0,3).forEach((cd,ci)=>{
       const hex=cd.color[2].replace('#','')
       const cr=parseInt(hex.slice(0,2),16)/255
       const cg=parseInt(hex.slice(2,4),16)/255
       const cb=parseInt(hex.slice(4,6),16)/255
       const col=new THREE.Color(cr,cg,cb)
-      const nc=5-ci   // 主色が最多
-      const opacity=0.78-ci*0.12
-      const radius=0.07-ci*0.012
+      const baseOpacity=cd.color[3]||0.55  // 色定義の透明度を使用
 
-      for(let n=0;n<nc;n++){
-        // 重心付近に配置、主色はより中心寄り
-        const biasCY=EGG_CY+(m.softness-0.5)*0.7
-        const biasCX=(m.brightness-0.5)*0.4
-        let px,py,attempts=0
+      // 大粒子の数：主色が最多
+      const bigCount=ci===0?8:ci===1?5:3
+
+      for(let n=0;n<bigCount;n++){
+        let px,py,att=0
         do{
-          const dist=(0.08+Math.random()*0.8*(ci+1)*0.35)
+          // 重心周囲にクラスター状に配置
+          const clusterR=0.08+Math.random()*(spread*(1-ci*0.22))
           const ang=Math.random()*Math.PI*2
-          px=biasCX+dist*Math.cos(ang)
-          py=biasCY+dist*Math.sin(ang)
-          attempts++
-        }while(!insideEgg(px,py)&&attempts<20)
+          const jitterX=(Math.random()-0.5)*0.3
+          const jitterY=(Math.random()-0.5)*0.3
+          px=gravX+clusterR*Math.cos(ang)+jitterX
+          py=gravY+clusterR*Math.sin(ang)*(0.9+m.resonance*0.2)+jitterY
+          att++
+        }while(!inEgg(px,py)&&att<30)
+
+        // サイズ：主色は大きく。ci=0: 0.12〜0.20、ci=1: 0.08〜0.14、ci=2: 0.06〜0.10
+        const rMin=[0.11,0.07,0.055][ci]
+        const rMax=[0.20,0.14,0.10][ci]
+        const radius=rMin+Math.random()*(rMax-rMin)
 
         const sphere=new THREE.Mesh(
-          new THREE.SphereGeometry(radius+Math.random()*0.02,10,10),
-          new THREE.MeshBasicMaterial({color:col,transparent:true,opacity})
+          new THREE.SphereGeometry(radius,12,12),
+          new THREE.MeshBasicMaterial({
+            color:col,
+            transparent:true,
+            opacity:baseOpacity-Math.random()*0.12
+          })
         )
-        sphere.position.set(px,py,(Math.random()-0.5)*0.2)
+        sphere.position.set(px,py,(Math.random()-0.5)*0.18)
         pivot.add(sphere)
       }
     })
   }
 
-  /* 接続線（粒子間の有機的なつながり） */
-  const lmat=new THREE.LineBasicMaterial({color:0x4a6860,transparent:true,opacity:0.1})
-  const lcount=8+Math.round(m.resonance*8)
+  /* ── 小粒子（背景的存在）── */
+  // 全体の雰囲気を作る細かい粒子。深緑系、小さめ、薄め
+  const smCount=35+Math.round(m.vitality*30)
+  const smPositions=[]
+  let smPlaced=0
+  for(let t=0;t<smCount*15&&smPlaced<smCount;t++){
+    const r=0.1+Math.pow(Math.random(),0.7)*spread*1.1
+    const ang=Math.random()*Math.PI*2
+    const px=gravX+r*Math.cos(ang)*(0.8+m.brightness*0.25)
+    const py=gravY+r*Math.sin(ang)*(0.95+m.softness*0.15)
+    if(inEgg(px,py)){
+      smPositions.push(px,py,(Math.random()-0.5)*0.3)
+      smPlaced++
+    }
+  }
+  const smGeo=new THREE.BufferGeometry()
+  smGeo.setAttribute('position',new THREE.BufferAttribute(new Float32Array(smPositions),3))
+  pivot.add(new THREE.Points(smGeo,new THREE.PointsMaterial({
+    color:0x6a8880,
+    size:0.025,
+    transparent:true,
+    opacity:0.42,
+    sizeAttenuation:true
+  })))
+
+  /* ── 接続線（大幅削減：2〜3本のみ）── */
+  // 粒子間の有機的なつながりをほのめかす。主役は粒子。
+  const lcount=2+Math.round(m.resonance*1.5)|0  // 最大3〜4本
+  const lmat=new THREE.LineBasicMaterial({color:0x8a9890,transparent:true,opacity:0.14})
   for(let i=0;i<lcount;i++){
     const pts=[]
-    const biasCY=EGG_CY+(m.softness-0.5)*0.6
-    const biasCX=(m.brightness-0.5)*0.35
-    const steps=2+Math.floor(Math.random()*3)
+    const steps=2+Math.floor(Math.random()*2)  // 短め
     for(let j=0;j<=steps;j++){
       let px,py,att=0
       do{
-        const d=0.1+Math.random()*1.5
+        const d=0.05+Math.random()*spread*0.8
         const ang=Math.random()*Math.PI*2
-        px=biasCX+d*Math.cos(ang);py=biasCY+d*Math.sin(ang)*1.1
+        px=gravX+d*Math.cos(ang);py=gravY+d*Math.sin(ang)*1.05
         att++
-      }while(!insideEgg(px,py)&&att<15)
-      pts.push(new THREE.Vector3(px,py,(Math.random()-0.5)*0.15))
+      }while(!inEgg(px,py)&&att<15)
+      pts.push(new THREE.Vector3(px,py,(Math.random()-0.5)*0.1))
     }
     pivot.add(new THREE.Line(new THREE.BufferGeometry().setFromPoints(pts),lmat))
   }
 
-  /* 重心インジケーター（小さな十字） */
-  const gcx=(m.brightness-0.5)*0.4
-  const gcy=EGG_CY+(m.softness-0.5)*0.7
-  const gmat=new THREE.LineBasicMaterial({color:0x7a9890,transparent:true,opacity:0.5})
-  const gs=0.12
-  scene.add(new THREE.Line(new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(gcx-gs,gcy,0),new THREE.Vector3(gcx+gs,gcy,0)]),gmat))
-  scene.add(new THREE.Line(new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(gcx,gcy-gs,0),new THREE.Vector3(gcx,gcy+gs,0)]),gmat))
+  /* ── 重心マーク（極小、目立たない）── */
+  // 作家向けの参考点。ユーザーには「中心がある」ことをさりげなく示す
+  const gMat=new THREE.MeshBasicMaterial({color:0x9ab0a8,transparent:true,opacity:0.35,side:THREE.DoubleSide})
+  scene.add(new THREE.Mesh(new THREE.CircleGeometry(0.04,12),gMat).translateX(gravX).translateY(gravY))
 
-  /* アニメーション（ゆっくり回転） */
+  /* ── アニメーション ── */
+  // ゆっくりした回転 + わずかな呼吸スケール
+  let t=0
   let aid
   const animate=()=>{
     aid=requestAnimationFrame(animate)
-    pivot.rotation.y+=0.0010
+    t+=0.008
+    pivot.rotation.y=Math.sin(t*0.18)*0.08   // 左右に揺らぐ（回転ではなく揺らぎ）
+    pivot.rotation.x=Math.sin(t*0.12)*0.025  // 前後にもわずかに
+    const breathe=1+Math.sin(t*0.22)*0.008   // 呼吸するようなスケール変化
+    pivot.scale.set(breathe,breathe,breathe)
     renderer.render(scene,cam)
   }
   animate()
