@@ -1,0 +1,373 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>nanoca 言葉標本</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@300;400&family=Cormorant+Garamond:ital,wght@0,300;1,300;1,400&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --ink:#1a1a18;--ink2:#5a5a52;--ink3:#9a9a90;--ink4:#c8c8be;
+  --paper:#f7f5f0;--paper2:#eeece6;--paper3:#e2e0d8;
+  --teal:#4a7c6f;--teal2:#2d5a4f;--teal3:#c8dfd8;
+  --mono:'DM Mono',monospace;--serif:'Cormorant Garamond',serif;
+}
+html,body{height:100%;background:var(--paper);color:var(--ink);font-family:var(--mono);font-size:13px;-webkit-text-size-adjust:100%;-webkit-font-smoothing:antialiased}
+#app{min-height:100dvh;display:flex;flex-direction:column;max-width:440px;margin:0 auto}
+.hdr{padding:18px 20px 14px;border-bottom:0.5px solid var(--paper3);display:flex;align-items:flex-end;justify-content:space-between;position:sticky;top:0;background:var(--paper);z-index:10}
+.logo{font-family:var(--serif);font-size:21px;font-weight:300;font-style:italic;color:var(--ink)}
+.logo small{display:block;font-family:var(--mono);font-size:9px;font-style:normal;color:var(--ink3);letter-spacing:.14em;text-transform:uppercase;margin-top:2px}
+.step-lbl{font-size:10px;color:var(--ink4);letter-spacing:.1em}
+.scr{display:none;flex-direction:column;gap:18px;padding:20px 20px 48px}
+.scr.on{display:flex}
+.lbl{font-size:9px;letter-spacing:.2em;text-transform:uppercase;color:var(--ink3);margin-bottom:4px}
+.h1{font-family:var(--serif);font-size:22px;font-weight:300;font-style:italic;line-height:1.35;color:var(--ink)}
+.sub{font-size:11px;color:var(--ink3);line-height:1.8;margin-top:6px}
+.zone{background:var(--paper2);border:0.5px solid var(--paper3);border-radius:3px;padding:24px 20px;display:flex;flex-direction:column;align-items:center;gap:14px}
+.rbtn{width:68px;height:68px;border-radius:50%;border:1.5px solid var(--ink3);background:transparent;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:border-color .3s;-webkit-appearance:none}
+.rbtn:hover{border-color:var(--teal)}
+.rbtn.rec{border-color:#b45309;animation:pulse 1.2s ease-in-out infinite}
+@keyframes pulse{0%,100%{box-shadow:0 0 0 0 rgba(180,83,9,.18)}50%{box-shadow:0 0 0 10px rgba(180,83,9,0)}}
+.rdot{width:19px;height:19px;border-radius:50%;background:var(--ink3);transition:background .3s}
+.rbtn.rec .rdot{background:#b45309}
+.rstat{font-size:11px;color:var(--ink3);letter-spacing:.06em;text-align:center}
+.rtime{font-size:19px;font-weight:300;color:var(--ink);letter-spacing:.1em}
+.wc{width:100%;height:28px;display:none}
+.div-or{display:flex;align-items:center;gap:10px;font-size:10px;color:var(--ink4)}
+.div-or::before,.div-or::after{content:'';flex:1;height:0.5px;background:var(--paper3)}
+.uplbl{width:100%;padding:11px;border:0.5px dashed var(--paper3);border-radius:3px;background:transparent;cursor:pointer;font-family:var(--mono);font-size:11px;color:var(--ink3);letter-spacing:.06em;display:flex;align-items:center;justify-content:center;gap:8px;transition:all .2s}
+.uplbl:hover{border-color:var(--teal3);color:var(--teal)}
+.note{border-left:2px solid var(--paper3);padding:8px 14px}
+.note p{font-size:11px;color:var(--ink3);line-height:1.8}
+.note em{font-family:var(--serif);font-style:italic;font-size:13px;color:var(--ink2)}
+.abtn{width:100%;padding:15px;background:var(--ink);color:var(--paper);border:none;border-radius:3px;font-family:var(--mono);font-size:11px;letter-spacing:.12em;cursor:pointer;text-transform:uppercase;transition:background .2s;display:none;-webkit-appearance:none}
+.abtn.on{display:block}
+.abtn:hover{background:#333330}
+.log-box{background:var(--paper2);border:0.5px solid var(--paper3);border-radius:3px;padding:14px 16px;min-height:148px}
+.lg{font-size:11px;line-height:2.1;color:var(--ink3);opacity:0;transition:opacity .4s}
+.lg.on{opacity:1}
+.lg span{color:var(--teal)}
+.prog{height:1px;background:var(--paper3);border-radius:1px;overflow:hidden}
+.progb{height:100%;background:var(--teal);width:0%;transition:width .35s ease}
+.map-wrap{position:relative;background:var(--paper2);border:0.5px solid var(--paper3);border-radius:3px;overflow:hidden;aspect-ratio:1}
+.map-wrap canvas{width:100%!important;height:100%!important;display:block}
+.mo{position:absolute;font-size:9px;color:var(--ink4);letter-spacing:.09em;line-height:1.65;pointer-events:none;font-family:var(--mono)}
+.mo.tl{top:9px;left:11px}
+.mo.br{bottom:9px;right:11px;text-align:right}
+.mgrid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.mc{background:var(--paper2);border:0.5px solid var(--paper3);border-radius:3px;padding:11px 13px}
+.mc .lbl{margin-bottom:7px}
+.mbar{height:1px;background:var(--paper3);margin-bottom:5px;overflow:hidden}
+.mbarb{height:100%;background:var(--teal);width:0%;transition:width 1s cubic-bezier(.4,0,.2,1)}
+.mval{font-size:17px;font-weight:300;color:var(--ink)}
+.sa{background:var(--paper2);border:0.5px solid var(--paper3);border-radius:3px;padding:13px 16px}
+.sa-r{display:flex;justify-content:space-between;align-items:baseline;padding:7px 0;border-bottom:0.5px solid var(--paper3)}
+.sa-r:last-child{border:none}
+.sa-k{font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--ink3)}
+.sa-v{font-family:var(--serif);font-style:italic;font-size:15px;color:var(--ink2)}
+.anote{border:0.5px solid var(--paper3);border-radius:3px;padding:14px 16px}
+.anote p{font-size:11px;color:var(--ink3);line-height:1.9}
+.anote em{font-family:var(--serif);font-style:italic;font-size:13px;color:var(--ink2)}
+.row2{display:flex;gap:8px}
+.btn-s{flex:1;padding:12px;border:0.5px solid var(--paper3);border-radius:3px;background:transparent;font-family:var(--mono);font-size:10px;color:var(--ink3);letter-spacing:.1em;cursor:pointer;text-transform:uppercase;transition:all .2s;-webkit-appearance:none}
+.btn-s:hover{border-color:var(--ink3);color:var(--ink)}
+.btn-p{flex:2;padding:12px;border:0.5px solid var(--ink);border-radius:3px;background:var(--ink);font-family:var(--mono);font-size:10px;color:var(--paper);letter-spacing:.1em;cursor:pointer;text-transform:uppercase;transition:background .2s;-webkit-appearance:none}
+.btn-p:hover{background:#333}
+.btn-teal{flex:3;padding:13px;background:var(--teal);border:none;border-radius:3px;font-family:var(--mono);font-size:10px;color:#fff;letter-spacing:.12em;cursor:pointer;text-transform:uppercase;transition:background .2s;-webkit-appearance:none}
+.btn-teal:hover{background:var(--teal2)}
+.cpl{display:flex;flex-direction:column;align-items:center;gap:14px;padding-top:28px}
+.cpl-sym{font-family:var(--serif);font-size:56px;font-weight:300;color:var(--teal);line-height:1}
+.cid{background:var(--paper2);border:0.5px solid var(--paper3);border-radius:3px;padding:13px 18px;width:100%;text-align:left}
+.cid span{font-size:9px;text-transform:uppercase;letter-spacing:.18em;color:var(--ink4);display:block;margin-bottom:3px}
+.cid strong{font-size:15px;color:var(--ink);font-weight:400;letter-spacing:.06em}
+.tl-note{border-left:2px solid var(--teal3);padding:8px 13px;width:100%}
+.tl-note p{font-size:11px;color:var(--teal);line-height:1.9}
+</style>
+</head>
+<body>
+<div id="app">
+  <div class="hdr">
+    <div class="logo">nanoca<small>言葉標本 / kotoba hyōhon</small></div>
+    <div class="step-lbl" id="slbl">step 01 / 04</div>
+  </div>
+
+  <!-- STEP 1 -->
+  <div class="scr on" id="s-rec">
+    <div>
+      <div class="lbl">観測開始 / observation init</div>
+      <div class="h1">大切な人へ届けたい<br>言葉を吹き込んでください</div>
+      <div class="sub">声の波形・周波数・間隔・余韻を解析します<br>完成作品は作家の解釈によって生まれます</div>
+    </div>
+    <div class="zone">
+      <div class="rtime" id="rtime" style="display:none">00:00</div>
+      <button class="rbtn" id="rbtn" onclick="toggleRec()" aria-label="録音開始/停止">
+        <div class="rdot" id="rdot"></div>
+      </button>
+      <div class="rstat" id="rstat">タップして録音</div>
+      <canvas class="wc" id="wc" height="28"></canvas>
+      <button id="retake-rec" style="display:none;font-size:10px;color:var(--ink4);letter-spacing:.12em;text-transform:uppercase;background:none;border:none;cursor:pointer;font-family:var(--mono);padding:0" onclick="resetRec()">録り直す</button>
+    </div>
+    <div class="div-or">または</div>
+    <label class="uplbl">
+      ↑ &nbsp;音声ファイルをアップロード
+      <input type="file" accept="audio/*" style="display:none" onchange="handleUp(event)">
+    </label>
+    <div class="note">
+      <p>対応形式 — mp3 / m4a / wav / aac</p>
+      <p><em>あなただけの声紋が、粒子構造へと変換されます</em></p>
+    </div>
+    <button class="abtn" id="abtn" onclick="startAnalysis()">解析を開始する</button>
+  </div>
+
+  <!-- STEP 2 -->
+  <div class="scr" id="s-ana">
+    <div>
+      <div class="lbl">音声解析中 / audio analysis</div>
+      <div class="h1" style="font-size:19px">声の特徴量を<br>抽出しています</div>
+    </div>
+    <div class="log-box" id="logbox"></div>
+    <div class="prog"><div class="progb" id="progb"></div></div>
+    <div class="note">
+      <p>解析は声の特徴を数値化するプロセスです</p>
+      <p><em>完成作品の形をこの段階で決定することはありません</em></p>
+    </div>
+  </div>
+
+  <!-- STEP 3 -->
+  <div class="scr" id="s-map">
+    <div>
+      <div class="lbl">音声特徴マップ / acoustic feature map</div>
+      <div class="h1" style="font-size:18px">粒子構造が観測されました</div>
+    </div>
+    <div class="map-wrap" id="mapwrap">
+      <canvas id="mc"></canvas>
+      <div class="mo tl" id="mo-tl">NCC-001<br>φ解析モード<br>粒子数 —</div>
+      <div class="mo br" id="mo-br">密度指数 —<br>重心偏位 —</div>
+    </div>
+    <div class="mgrid" id="mgrid"></div>
+    <div class="note">
+      <p>密度・重心・流れは作家への引き渡し情報です</p>
+      <p><em>これは完成作品ではありません</em></p>
+    </div>
+    <div class="row2">
+      <button class="btn-s" onclick="goReset()">録り直す</button>
+      <button class="btn-p" onclick="goTo('s-det')">設計図を確認する</button>
+    </div>
+  </div>
+
+  <!-- STEP 4 -->
+  <div class="scr" id="s-det">
+    <div>
+      <div class="lbl">設計図 / design specification</div>
+      <div class="h1" style="font-size:18px">作家への引き渡し資料</div>
+    </div>
+    <div class="map-wrap" id="mapwrap2">
+      <canvas id="mc2"></canvas>
+      <div class="mo tl">粒子分布図<br>解析 ID: <span id="d-sid"></span></div>
+    </div>
+    <div class="sa" id="sa-box"></div>
+    <div class="anote" id="anote-box"></div>
+    <div class="note" style="border-left-color:var(--teal3)">
+      <p style="color:var(--teal)">このシステムは可能性を示すだけです<br>完成作品を自動決定することはありません</p>
+    </div>
+    <div class="row2">
+      <button class="btn-s" onclick="goTo('s-map')">← 戻る</button>
+      <button class="btn-teal" onclick="goTo('s-cpl')">設計図を確定する</button>
+    </div>
+  </div>
+
+  <!-- COMPLETE -->
+  <div class="scr" id="s-cpl">
+    <div class="cpl">
+      <div class="cpl-sym">✦</div>
+      <div style="text-align:center">
+        <div class="h1" style="font-size:19px">設計図が送信されました</div>
+        <div class="sub" style="max-width:270px;margin:6px auto 0">粒子マップは作家の元へ届けられました<br>あなただけの標本が、作家の手によって生まれます</div>
+      </div>
+      <div class="cid"><span>標本 ID</span><strong id="cid-val">—</strong></div>
+      <div class="cid"><span>完成予定</span><strong style="font-family:var(--serif);font-style:italic;font-weight:300;font-size:14px">お知らせメールをお送りします</strong></div>
+      <div class="tl-note"><p>作品底面のQRコードを読み取ると<br>あなたの声が再生されます</p></div>
+      <button class="btn-s" style="width:100%;margin-top:4px" onclick="goReset()">別の言葉を記録する</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const STEPS={'s-rec':'step 01 / 04','s-ana':'step 02 / 04','s-map':'step 03 / 04','s-det':'step 04 / 04','s-cpl':'完了'}
+const LOGS=[['init','音声ストリームを読み込み中...'],['fft','周波数スペクトル解析...'],['rms','エネルギー密度を計測中...'],['zcr','ゼロ交差率から明るさを算出...'],['env','エンベロープから余韻を解析...'],['pitch','基本周波数から深さを推定...'],['jitter','安定感パラメータを抽出中...'],['map','粒子構造マップを生成中...']]
+const MK=['softness','brightness','depth','vitality','resonance','stability']
+const MJ=['柔らかさ','明るさ','深さ','躍動感','余韻','安定感']
+const GR=['上方偏位','中央集積','下方分散','左右対称']
+const FL=['右上昇傾向','左拡散傾向','渦状収束','放射状分布']
+const NOTES=['粒子が上方に集積し、軽やかな浮遊感が観測されます。余韻の長さから、花弁枚数を少なめに構成することを示唆しています。','安定感の高い波形から、鉱物表現の土台として活用できます。声の深さは重心の位置に反映されています。','躍動感のある粒子分布が右上方向への流れを示しています。大胆な花弁の構成が応答するかもしれません。']
+
+let isRec=false,recSecs=0,recTimer=null,hasAudio=false,wAnim=null
+let metrics=null,mapData=null,r1=null,r2=null,a1=null,a2=null
+
+function goTo(id){
+  document.querySelectorAll('.scr').forEach(s=>s.classList.remove('on'))
+  document.getElementById(id).classList.add('on')
+  document.getElementById('slbl').textContent=STEPS[id]
+  if(id==='s-map')setTimeout(()=>initMap('mc','mapwrap',1),60)
+  if(id==='s-det'){document.getElementById('d-sid').textContent=mapData?.sid||'';setTimeout(()=>initMap('mc2','mapwrap2',2),60)}
+  window.scrollTo(0,0)
+}
+
+function toggleRec(){isRec?stopRec():startRec()}
+function startRec(){
+  isRec=true;recSecs=0
+  document.getElementById('rbtn').classList.add('rec')
+  document.getElementById('rtime').style.display='block'
+  document.getElementById('rstat').textContent='録音中 — もう一度タップで停止'
+  document.getElementById('wc').style.display='block'
+  drawWave()
+  recTimer=setInterval(()=>{
+    recSecs++
+    const m=String(Math.floor(recSecs/60)).padStart(2,'0'),s=String(recSecs%60).padStart(2,'0')
+    document.getElementById('rtime').textContent=m+':'+s
+  },1000)
+  if(navigator.mediaDevices)navigator.mediaDevices.getUserMedia({audio:true}).then(s=>{window._stream=s}).catch(()=>{})
+}
+function stopRec(){
+  isRec=false;clearInterval(recTimer);cancelAnimationFrame(wAnim)
+  if(window._stream)window._stream.getTracks().forEach(t=>t.stop())
+  document.getElementById('rbtn').classList.remove('rec')
+  document.getElementById('rstat').textContent='録音完了 ('+document.getElementById('rtime').textContent+')'
+  document.getElementById('retake-rec').style.display='block'
+  hasAudio=true;document.getElementById('abtn').classList.add('on')
+}
+function resetRec(){
+  isRec=false;clearInterval(recTimer);cancelAnimationFrame(wAnim);recSecs=0;hasAudio=false
+  document.getElementById('rbtn').classList.remove('rec')
+  document.getElementById('rtime').style.display='none'
+  document.getElementById('rtime').textContent='00:00'
+  document.getElementById('rstat').textContent='タップして録音'
+  document.getElementById('wc').style.display='none'
+  document.getElementById('retake-rec').style.display='none'
+  document.getElementById('abtn').classList.remove('on')
+}
+function drawWave(){
+  const c=document.getElementById('wc'),ctx=c.getContext('2d')
+  const W=c.parentElement.offsetWidth-40||260;c.width=W;c.height=28
+  function fr(){
+    ctx.clearRect(0,0,W,28);ctx.fillStyle='rgba(74,124,111,.35)'
+    const bars=Math.floor(W/5)
+    for(let i=0;i<bars;i++){const h=isRec?4+Math.random()*20:4;ctx.fillRect(i*5,(28-h)/2,4,h)}
+    if(isRec)wAnim=requestAnimationFrame(fr)
+  }
+  fr()
+}
+function handleUp(e){
+  if(e.target.files&&e.target.files.length>0){
+    hasAudio=true
+    document.getElementById('abtn').classList.add('on')
+    document.getElementById('rstat').textContent='ファイルを読み込みました'
+  }
+}
+function genMetrics(){
+  const r=(lo,hi)=>lo+Math.random()*(hi-lo)
+  metrics={softness:r(.42,.88),brightness:r(.35,.82),depth:r(.28,.72),vitality:r(.30,.78),resonance:r(.38,.80),stability:r(.50,.92)}
+}
+function buildData(){
+  const m=metrics,yr=new Date().getFullYear()
+  const sid='NCC-'+yr+'-'+String(Math.floor(Math.random()*900)+100)
+  mapData={sid,
+    di:Math.round((m.softness+m.vitality)*50),
+    gb:m.brightness>.5?'+Y':'−Y',
+    gravity:GR[Math.floor(m.softness*3.99)],
+    density:m.vitality>.6?'高密度':m.vitality>.35?'中密度':'疎密度',
+    flow:FL[Math.floor(m.brightness*3.99)],
+    space:Math.round((1-m.vitality)*60+10),
+    nodes:3+Math.round(m.stability*8),
+    note:NOTES[Math.floor(Math.random()*3)]
+  }
+  document.getElementById('cid-val').textContent=sid
+  document.getElementById('mo-tl').innerHTML='NCC-001<br>φ解析モード<br>粒子数 '+(110+Math.round(metrics.vitality*90))
+  document.getElementById('mo-br').innerHTML='密度指数 '+mapData.di+'<br>重心偏位 '+mapData.gb
+  const g=document.getElementById('mgrid');g.innerHTML=''
+  MK.forEach((k,i)=>{
+    const pct=Math.round(metrics[k]*100)
+    const d=document.createElement('div');d.className='mc'
+    d.innerHTML=`<div class="lbl">${MJ[i]}</div><div class="mbar"><div class="mbarb" id="mb${i}"></div></div><div class="mval">${pct}</div>`
+    g.appendChild(d);setTimeout(()=>{document.getElementById('mb'+i).style.width=pct+'%'},100+i*80)
+  })
+  const d=mapData
+  document.getElementById('sa-box').innerHTML=`<div class="lbl" style="margin-bottom:10px">構造解析</div>${[['重心位置',d.gravity],['粒子密度',d.density],['流動方向',d.flow],['余白比率',d.space+'%'],['結節点数',d.nodes+' 拠点']].map(([k,v])=>`<div class="sa-r"><div class="sa-k">${k}</div><div class="sa-v">${v}</div></div>`).join('')}`
+  document.getElementById('anote-box').innerHTML=`<div class="lbl" style="margin-bottom:10px">作家へのメモ</div><p>${d.note}</p><p style="margin-top:8px"><em>最終作品は作家の手によってのみ生まれます。</em></p>`
+}
+function startAnalysis(){
+  if(!hasAudio)return
+  genMetrics();buildData();goTo('s-ana')
+  const box=document.getElementById('logbox');box.innerHTML=''
+  LOGS.forEach(([tag,txt])=>{
+    const d=document.createElement('div');d.className='lg'
+    d.innerHTML='— <span>'+tag+'</span> &nbsp; '+txt;box.appendChild(d)
+  })
+  const lines=box.querySelectorAll('.lg'),prog=document.getElementById('progb')
+  let step=0
+  function tick(){
+    if(step<lines.length){
+      lines[step].classList.add('on')
+      prog.style.width=Math.round((step+1)/lines.length*100)+'%'
+      step++;setTimeout(tick,240+Math.random()*160)
+    }else{setTimeout(()=>goTo('s-map'),500)}
+  }
+  setTimeout(tick,180)
+}
+function goReset(){
+  resetRec();metrics=null;mapData=null
+  if(r1){r1.dispose&&r1.dispose();cancelAnimationFrame(a1);r1=null}
+  if(r2){r2.dispose&&r2.dispose();cancelAnimationFrame(a2);r2=null}
+  goTo('s-rec')
+}
+
+function initMap(cid,wid,num){
+  const wrap=document.getElementById(wid);if(!wrap||!metrics)return
+  const W=wrap.offsetWidth||340
+  const canvas=document.getElementById(cid)
+  if(num===1&&r1){r1.dispose();cancelAnimationFrame(a1);r1=null}
+  if(num===2&&r2){r2.dispose();cancelAnimationFrame(a2);r2=null}
+  const m=metrics
+  const scene=new THREE.Scene(),cam=new THREE.PerspectiveCamera(58,1,.1,100)
+  cam.position.set(0,0,5.8)
+  const renderer=new THREE.WebGLRenderer({canvas,antialias:true,alpha:false})
+  renderer.setSize(W,W);renderer.setPixelRatio(Math.min(devicePixelRatio,2))
+  renderer.setClearColor(0xe4e2da,1)
+  const cx=(m.brightness-.5)*.9,cy=(m.softness-.5)*1.1,sp=.7+m.vitality*1.6
+  const pivot=new THREE.Group();scene.add(pivot)
+  const N=100+Math.round(m.vitality*80),pos=new Float32Array(N*3)
+  for(let i=0;i<N;i++){
+    const r=.35+Math.pow(Math.random(),.65)*sp,t=Math.random()*Math.PI*2,p=(Math.random()-.5)*Math.PI*(.4+m.resonance*.5)
+    pos[i*3]=cx+r*Math.cos(t)*Math.cos(p);pos[i*3+1]=cy+r*Math.sin(p)*(1+m.softness*.4);pos[i*3+2]=r*Math.sin(t)*Math.cos(p)*.55
+  }
+  const pg=new THREE.BufferGeometry();pg.setAttribute('position',new THREE.BufferAttribute(pos,3))
+  pivot.add(new THREE.Points(pg,new THREE.PointsMaterial({color:0x4a7c6f,size:.046,transparent:true,opacity:.72,sizeAttenuation:true})))
+  const nm=new THREE.MeshBasicMaterial({color:0x2d5a4f,transparent:true,opacity:.55})
+  for(let i=0;i<4+Math.round(m.stability*6);i++){
+    const r=.2+Math.random()*1.6,t=Math.random()*Math.PI*2,p=(Math.random()-.5)*Math.PI*.5
+    const s=new THREE.Mesh(new THREE.SphereGeometry(.04+Math.random()*.06,8,8),nm)
+    s.position.set(cx+r*Math.cos(t),cy+r*Math.sin(p)*1.1,r*Math.sin(t)*.38);pivot.add(s)
+  }
+  const lm=new THREE.LineBasicMaterial({color:0x4a7c6f,transparent:true,opacity:.14})
+  for(let i=0;i<10+Math.round(m.resonance*7);i++){
+    const pts=[],st=2+Math.floor(Math.random()*3)
+    for(let j=0;j<=st;j++){const r=.2+Math.random()*2,t=Math.random()*Math.PI*2;pts.push(new THREE.Vector3(cx+r*Math.cos(t),cy+r*Math.sin(t)*.85,r*Math.sin(t)*.25))}
+    pivot.add(new THREE.Line(new THREE.BufferGeometry().setFromPoints(pts),lm))
+  }
+  const om=new THREE.LineBasicMaterial({color:0xb0b0a8,transparent:true,opacity:.3})
+  scene.add(new THREE.Line(new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(-3.2,0,0),new THREE.Vector3(3.2,0,0)]),om))
+  scene.add(new THREE.Line(new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(0,-3.2,0),new THREE.Vector3(0,3.2,0)]),om))
+  for(const rr of[1.2,2.4]){const ring=new THREE.RingGeometry(rr,rr+.007,80);scene.add(new THREE.Mesh(ring,new THREE.MeshBasicMaterial({color:0xb0b0a8,transparent:true,opacity:.18,side:THREE.DoubleSide})))}
+  const gm=new THREE.Mesh(new THREE.CircleGeometry(.05,14),new THREE.MeshBasicMaterial({color:0x2d5a4f,transparent:true,opacity:.45,side:THREE.DoubleSide}))
+  gm.position.set(cx,cy,0);scene.add(gm)
+  let aid
+  const animate=()=>{aid=requestAnimationFrame(animate);pivot.rotation.y+=.0014;renderer.render(scene,cam)}
+  animate()
+  if(num===1){a1=aid;r1=renderer}else{a2=aid;r2=renderer}
+}
+</script>
+</body>
+</html>
