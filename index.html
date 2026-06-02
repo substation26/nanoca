@@ -653,7 +653,20 @@ function initEggMap(cid,wid,num){
     if(!inEgg3D(x,y,z))continue
     const dens=densityAt(x,y,z)
     if(Math.random()>dens*0.93+0.07)continue
-    microByKey[pickPalKey()].push(x,y,z)
+    // 核アトラクター（pull>0.70）には温色のみ割り当て
+    // 灰青は外輪・一様分布のみに限定し、花芯の有機感を守る
+    let key
+    if(att.pull>0.70){
+      // 核層：薄藤・薄桃・琥珀・乳白のみ（灰青なし）
+      const r2=Math.random()
+      if(r2<0.30)key='usufuji'       // 薄藤 30%
+      else if(r2<0.58)key='usumomo'  // 薄桃 28%
+      else if(r2<0.80)key='nyuhaku'  // 乳白 22%
+      else key='kohaku'              // 琥珀 20%
+    } else {
+      key=pickPalKey()  // 内輪・外輪は通常の比率
+    }
+    microByKey[key].push(x,y,z)
     mPlaced++
   }
 
@@ -733,12 +746,14 @@ function initEggMap(cid,wid,num){
   // 核ノード：最大サイズ・高opacity（花芯の中核）
   // 内輪ノード：中サイズ（花びら第1層）
   // 外輪ノード：小サイズ（構造の外縁）
-  const MID_CORE_COLS=[PAL.kohaku.c3,PAL.nyuhaku.c3,PAL.usumomo.c3,PAL.kohaku.c3]
+  // 核層の色：薄藤・薄桃・琥珀・乳白を有機的に混在
+  // 石の塊でなく「花芯が生まれる直前の集積」
+  const MID_CORE_COLS=[PAL.usufuji.c3,PAL.usumomo.c3,PAL.kohaku.c3,PAL.nyuhaku.c3]
   const MID_INNER_COLS=[PAL.usufuji.c3,PAL.usumomo.c3,PAL.usufuji.c3,PAL.nyuhaku.c3,PAL.usumomo.c3,PAL.usufuji.c3]
   const MID_OUTER_COLS=[PAL.nyuhaku.c3,PAL.usufuji.c3,PAL.usumomo.c3,PAL.nyuhaku.c3]
 
   const layerDef=[
-    {arr:coreNodes,  cols:MID_CORE_COLS,  rMin:0.068, rMax:0.115, opBase:0.78, opZ:0.18},
+    {arr:coreNodes,  cols:MID_CORE_COLS,  rMin:0.068, rMax:0.115, opBase:0.63, opZ:0.16}, // 15〜20%弱める
     {arr:innerNodes, cols:MID_INNER_COLS, rMin:0.044, rMax:0.082, opBase:0.58, opZ:0.28},
     {arr:outerNodes, cols:MID_OUTER_COLS, rMin:0.030, rMax:0.055, opBase:0.42, opZ:0.30},
   ]
