@@ -486,13 +486,18 @@ function initEggMap(cid,wid,num){
     const rr=parseInt(hx.slice(0,2),16)
     const gg=parseInt(hx.slice(2,4),16)
     const bb=parseInt(hx.slice(4,6),16)
-    // 色彩主役：白は中心の極小域のみ、すぐ元色に戻る
-    const rH=Math.min(255,rr+22),gH=Math.min(255,gg+22),bH=Math.min(255,bb+22)
-    grad.addColorStop(0.00, `rgba(${rH},${gH},${bH},0.95)`) // わずかに明るい核
-    grad.addColorStop(0.25, `rgba(${rr},${gg},${bb},0.90)`) // 元色・明確な色彩域
-    grad.addColorStop(0.60, `rgba(${rr},${gg},${bb},0.65)`) // 中間フェード
-    grad.addColorStop(0.85, `rgba(${rr},${gg},${bb},0.20)`) // 外縁
-    grad.addColorStop(1.00, `rgba(${rr},${gg},${bb},0.00)`) // 透明
+    // 朝露をまとった花粉の質感：
+    // ・中心は元色そのまま（色情報を失わない）
+    // ・外周70〜85%で輪郭に向けてわずかに明るくなるリムハイライト
+    // ・発光体ではなく「表面が光を受けた縁取り」
+    const rH=Math.min(255,rr+14),gH=Math.min(255,gg+14),bH=Math.min(255,bb+14)
+    const rRim=Math.min(255,rr+32),gRim=Math.min(255,gg+32),bRim=Math.min(255,bb+32)
+    grad.addColorStop(0.00, `rgba(${rr},${gg},${bb},0.92)`)          // 元色・中心
+    grad.addColorStop(0.42, `rgba(${rr},${gg},${bb},0.88)`)          // 元色・主体
+    grad.addColorStop(0.68, `rgba(${rH},${gH},${bH},0.80)`)          // わずかに明るくなり始め
+    grad.addColorStop(0.82, `rgba(${rRim},${gRim},${bRim},0.55)`)    // リムハイライト（縁取り）
+    grad.addColorStop(0.92, `rgba(${rr},${gg},${bb},0.12)`)          // 外縁フェード
+    grad.addColorStop(1.00, `rgba(${rr},${gg},${bb},0.00)`)          // 透明
     ctx.fillStyle=grad
     ctx.beginPath();ctx.arc(cx,cy,r,0,Math.PI*2);ctx.fill()
     return new THREE.CanvasTexture(cv)
@@ -671,9 +676,14 @@ function initEggMap(cid,wid,num){
   }
 
   // 微粒子描画（色彩主役・NormalBlending）
+  // 灰青のみサイズ縮小・分散強化して別処理
   Object.entries(microByKey).forEach(([key,pos])=>{
     if(pos.length===0)return
     const tex=getTex(key,32)
+    const isHaisei=(key==='haisei')
+    // 灰青：サイズ18%縮小、opacityも弱める（分散した点として存在）
+    const sizeMult=isHaisei?0.82:1.0
+    const opMult=isHaisei?0.78:1.0
     for(let b=0;b<6;b++){
       const zLo=-1.15+b*0.383,zHi=zLo+0.383
       const bp=[]
@@ -685,12 +695,11 @@ function initEggMap(cid,wid,num){
       const zN=(b+0.5)/6
       pivot.add(new THREE.Points(geo,new THREE.PointsMaterial({
         map:tex,
-        size:0.028+zN*0.035,  // 0.028〜0.063（前後差、白飛びしないサイズ）
+        size:(0.028+zN*0.035)*sizeMult,
         transparent:true,
-        opacity:0.45+zN*0.40, // 0.45〜0.85
+        opacity:(0.45+zN*0.40)*opMult,
         sizeAttenuation:true,
         depthWrite:false,
-        // NormalBlending：色が正直に出る、重なっても白くならない
       })))
     }
   })
@@ -756,6 +765,24 @@ function initEggMap(cid,wid,num){
     {arr:coreNodes,  cols:MID_CORE_COLS,  rMin:0.068, rMax:0.115, opBase:0.63, opZ:0.16}, // 15〜20%弱める
     {arr:innerNodes, cols:MID_INNER_COLS, rMin:0.044, rMax:0.082, opBase:0.58, opZ:0.28},
     {arr:outerNodes, cols:MID_OUTER_COLS, rMin:0.030, rMax:0.055, opBase:0.42, opZ:0.30},
+  ].concat(
+    // 灰青粒子を外輪ノード周囲に少量・分散配置（塊にならないよう各ノードに1個）
+    outerNodes.slice(0,Math.ceil(outerNodes.length*0.5)).map((p,i)=>{
+      // 各ノードから少しランダムにずらして分散させる
+      const jitter=new THREE.Vector3(
+        (Math.random()-0.5)*0.18,
+        (Math.random()-0.5)*0.18,
+        (Math.random()-0.5)*0.12
+      )
+      const sp=new THREE.Mesh(
+        new THREE.SphereGeometry((0.022+Math.random()*0.018)*(0.65+(Math.max(0,Math.min(1,(p.z+1.15)/2.3)))*0.38),8,8),
+        new THREE.MeshBasicMaterial({color:PAL.haisei.c3,transparent:true,opacity:0.32+(Math.max(0,Math.min(1,(p.z+1.15)/2.3)))*0.22})
+      )
+      sp.position.set(p.x+jitter.x,p.y+jitter.y,p.z+jitter.z)
+      pivot.add(sp)
+      return null
+    }).filter(Boolean)
+  ).filter(x=>x&&x.arr)
   ]
   layerDef.forEach(({arr,cols,rMin,rMax,opBase,opZ})=>{
     arr.forEach((p,i)=>{
