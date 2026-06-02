@@ -245,12 +245,18 @@ const ANOTES=[
 /* ─── 色彩定義 ─── */
 // [名前JP, 読み, hex, 3D粒子カラーhex, 彩度係数]
 const CMAP = {
-  softness:   [['淡桜','usuzakura','#ddb8b0','#cc9088',0.68],['乳白','nyūhaku','#ede8df','#d8d0c4',0.45],['薄桃','usumomo','#d4aca6','#c09088',0.62]],
-  brightness: [['琥珀','kohaku','#c09040','#b07828',0.72],  ['生成色','kinari','#e0d8be','#c8c0a0',0.48],['蜜色','mitsuiro','#c0a040','#a88828',0.68]],
-  depth:      [['薄藤','usufuji','#a090bc','#8878a8',0.65], ['灰紫','haifuji','#a8a0c0','#9090b0',0.58],['薄墨','usuzumi','#a8a4b8','#9090a8',0.52]],
-  vitality:   [['珊瑚','sango','#c07868','#a85848',0.72],   ['橙','daidai','#c09060','#a87040',0.65],  ['朱','shu','#b06858','#985040',0.68]],
-  resonance:  [['真珠灰','shinju','#c0b8c0','#a8a0a8',0.52],['霞','kasumi','#c8bcc8','#b0a8b0',0.48],  ['白銀','hakugin','#c8c8c4','#b0b0a8',0.45]],
-  stability:  [['煙青','kemuri','#6888a8','#507090',0.72],  ['灰青','haisei','#7898a8','#608090',0.65],['石色','ishi','#a0a09c','#888880',0.52]],
+  // 柔らかさ → 桜・薄桃系（最も頻出させたい暖色）
+  softness:   [['淡桜','usuzakura','#e8c8c0','#d4a898',0.70],['薄桃','usumomo','#e0bcb4','#ccA090',0.65],['桜','sakura','#dfc4bc','#ccb0a8',0.68]],
+  // 明るさ → 琥珀・蜜色（温かみのある黄金）
+  brightness: [['琥珀','kohaku','#c8a448','#b08830',0.74],  ['蜜色','mitsuiro','#c8aa50','#b09038',0.70],['薄金','usugane','#d0b860','#b8a040',0.65]],
+  // 深さ → 薄藤（春の紫、冷たくしすぎない）
+  depth:      [['薄藤','usufuji','#b8a8cc','#a090bc',0.62], ['藤色','fujiiro','#b0a0c4','#9888b4',0.60],['淡紫','awamura','#baaec8','#a89cb8',0.55]],
+  // 躍動感 → 珊瑚（暖色系、やや抑えめ）
+  vitality:   [['珊瑚','sango','#cc8878','#b87060',0.68],   ['薄朱','usushu','#c48878','#b07060',0.65],  ['桃','momo','#d09090','#bc7878',0.62]],
+  // 余韻 → 乳白・真珠（光を受ける白）
+  resonance:  [['乳白','nyūhaku','#ede8e0','#ddd8cc',0.50],['真珠白','shinjuhaku','#eae5dc','#dad5c8',0.48],['霞白','kasumishiro','#e8e2d8','#d8d2c8',0.46]],
+  // 安定感 → 灰青（全体の15%程度に抑える）
+  stability:  [['灰青','haisei','#8898b0','#708098',0.62],  ['煙青','kemuri','#7890a8','#607888',0.60],['青磁','seiji','#90a8a8','#789090',0.55]],
 }
 
 /* ─── 状態 ─── */
@@ -547,9 +553,9 @@ function initEggMap(cid,wid,num){
       const geo=new THREE.BufferGeometry().setFromPoints(pts)
       // Z深度で透明度変化（奥は薄く）
       const avgZ=(from.z+to.z)/2
-      const lineOpacity=0.12+Math.max(0,(avgZ+1.2)/2.4)*0.14
+      const lineOpacity=0.11+Math.max(0,(avgZ+1.2)/2.4)*0.13
       networkLines.add(new THREE.Line(geo,new THREE.LineBasicMaterial({
-        color:0x8898a0,transparent:true,opacity:lineOpacity
+        color:0xb0a098,transparent:true,opacity:lineOpacity  // 桜系の暖色線
       })))
     }
   }
@@ -605,14 +611,22 @@ function initEggMap(cid,wid,num){
 
   /* ─ [3] 中粒子（ノード位置）─
      ネットワークの節点を視覚化
-     薄い灰緑で統一                       */
+     桜・乳白・薄藤の暖色系でまとめる    */
+  // ノード用カラーパレット：桜30%・乳白30%・薄藤20%・琥珀20%
+  const NODE_COLORS=[
+    0xdcbab2, 0xdcbab2, 0xdcbab2,
+    0xe8e2d8, 0xe8e2d8, 0xe8e2d8,
+    0xb8a8cc, 0xb8a8cc,
+    0xc8a448, 0xc8a448,
+  ]
   nodes.forEach((p,i)=>{
     const zNorm=(p.z+1.2)/2.4
-    const r=0.055+Math.random()*0.045+(i<3?0.03:0)  // 主要ノードは大きめ
-    const opacity=0.38+zNorm*0.28
+    const r=0.058+Math.random()*0.048+(i<3?0.032:0)
+    const opacity=0.42+zNorm*0.30
+    const col=NODE_COLORS[i%NODE_COLORS.length]
     const sphere=new THREE.Mesh(
       new THREE.SphereGeometry(r*(0.7+zNorm*0.35),10,10),
-      new THREE.MeshBasicMaterial({color:0x7a9090,transparent:true,opacity})
+      new THREE.MeshBasicMaterial({color:col,transparent:true,opacity})
     )
     sphere.position.copy(p)
     pivot.add(sphere)
@@ -645,29 +659,72 @@ function initEggMap(cid,wid,num){
     }
   }
 
-  // 小粒子を Z 深度でソートしてレンダリング（奥から手前）
-  // Three.jsのPointsはソートが難しいため、深度バンドで分けて透明度制御
-  const bands=4
-  for(let b=0;b<bands;b++){
-    const zLo=-1.2+b*0.6, zHi=-1.2+(b+1)*0.6
-    const bandPos=[]
-    for(let i=0;i<smPos.length;i+=3){
-      const z=smPos[i+2]
-      if(z>=zLo&&z<zHi) bandPos.push(smPos[i],smPos[i+1],smPos[i+2])
+  // 小粒子を「色エリア」×「Z深度」で分けてレンダリング
+  // 色の比率: 桜30% / 乳白25% / 琥珀20% / 薄藤15% / 灰青10%
+  // 各色は空間的にまとまりを持つ（クラスター配置）
+  const SM_PALETTE=[
+    {hex:0xdcb8b0, ratio:0.30, name:'sakura'},   // 桜
+    {hex:0xe8e4dc, ratio:0.25, name:'nyuhaku'},   // 乳白
+    {hex:0xc8a448, ratio:0.20, name:'kohaku'},    // 琥珀
+    {hex:0xb8a8cc, ratio:0.15, name:'usufuji'},   // 薄藤
+    {hex:0x8898b0, ratio:0.10, name:'haisei'},    // 灰青
+  ]
+
+  // 各色ごとにクラスター中心を決め、そこから粒子を散布
+  SM_PALETTE.forEach(pal=>{
+    const count=Math.round(smPos.length/3*pal.ratio)
+    if(count===0)return
+
+    // クラスター中心：卵型内のランダムな点
+    const clusterCount=2+Math.floor(Math.random()*2)
+    const centers=[]
+    for(let c=0;c<clusterCount;c++){
+      const ang=Math.random()*Math.PI*2
+      const d=0.1+Math.random()*0.9
+      const ry=Math.sin(ang)>=0?EGG.ryT:EGG.ryB
+      centers.push(new THREE.Vector3(
+        gravX+EGG.rx*d*0.75*Math.cos(ang),
+        gravY+ry*d*0.75*Math.sin(ang),
+        (Math.random()-0.5)*0.8
+      ))
     }
-    if(bandPos.length===0)continue
-    const geo=new THREE.BufferGeometry()
-    geo.setAttribute('position',new THREE.BufferAttribute(new Float32Array(bandPos),3))
-    const zNorm=(b+0.5)/bands
-    // 前面：明るく大きく／背面：暗く小さく
-    pivot.add(new THREE.Points(geo,new THREE.PointsMaterial({
-      color:0x6a8480,
-      size:0.018+zNorm*0.022,  // 0.018〜0.040
-      transparent:true,
-      opacity:0.28+zNorm*0.32,  // 0.28〜0.60
-      sizeAttenuation:true
-    })))
-  }
+
+    // クラスター周囲に粒子配置
+    const clusterPos=[]
+    for(let n=0;n<count;n++){
+      const ctr=centers[n%centers.length]
+      const spread=0.3+Math.random()*0.5
+      let x,y,z,att=0
+      do{
+        x=ctr.x+(Math.random()-0.5)*spread*1.2
+        y=ctr.y+(Math.random()-0.5)*spread
+        z=ctr.z+(Math.random()-0.5)*spread*0.7
+        att++
+      }while(!inEgg3D(x,y,z)&&att<20)
+      clusterPos.push(x,y,z)
+    }
+
+    // Z深度バンドで分けて描画（前面明るく・大きく）
+    for(let b=0;b<4;b++){
+      const zLo=-1.2+b*0.6, zHi=-1.2+(b+1)*0.6
+      const bandPos=[]
+      for(let i=0;i<clusterPos.length;i+=3){
+        if(clusterPos[i+2]>=zLo&&clusterPos[i+2]<zHi)
+          bandPos.push(clusterPos[i],clusterPos[i+1],clusterPos[i+2])
+      }
+      if(bandPos.length===0)continue
+      const geo=new THREE.BufferGeometry()
+      geo.setAttribute('position',new THREE.BufferAttribute(new Float32Array(bandPos),3))
+      const zNorm=(b+0.5)/4
+      pivot.add(new THREE.Points(geo,new THREE.PointsMaterial({
+        color:pal.hex,
+        size:0.016+zNorm*0.026,    // 0.016〜0.042
+        transparent:true,
+        opacity:0.26+zNorm*0.36,   // 0.26〜0.62
+        sizeAttenuation:true
+      })))
+    }
+  })
 
   /* ─ [5] 卵型輪郭（極めて淡い、参照線として）─ */
   const ePts=[],SEG=96
