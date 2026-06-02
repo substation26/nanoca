@@ -417,11 +417,13 @@ function goReset(){
 }
 
 /* ═══════════════════════════════════════════════════
-   卵形パーティクルマップ v3
-   ─ 粒子分布そのものが卵型を形成する
-   ─ 菌糸・神経網ネットワークで構造を持たせる
-   ─ 3D奥行き：前面大・明、背面小・暗
-   ─ 常時低速回転（博物館展示物）
+   卵形パーティクルマップ v4 — 最終版
+   「声が卵の中で静かに孵化を待っている」体験
+   ─ 粒子分布そのものが卵型シルエットを形成
+   ─ 微粒子の密度勾配で生命感を演出
+   ─ 色エリアのクラスタリングで春の標本感
+   ─ 奥行き×前後サイズ差で3Dガラス瓶の質感
+   ─ 1周8〜10秒の回転で「生きている」ことを明示
    ═══════════════════════════════════════════════════ */
 function initEggMap(cid,wid,num){
   const wrap=document.getElementById(wid)
@@ -440,97 +442,68 @@ function initEggMap(cid,wid,num){
   const renderer=new THREE.WebGLRenderer({canvas,antialias:true,alpha:false})
   renderer.setSize(W,H)
   renderer.setPixelRatio(Math.min(devicePixelRatio,2))
-  renderer.setClearColor(0xf0ede5,1)  // 標本紙色
+  renderer.setClearColor(0xf0ede5,1)
 
   const aspect=W/H
-  // Perspective camera で奥行き感を出す
-  const cam=new THREE.PerspectiveCamera(48,aspect,0.1,100)
-  cam.position.set(0,0.1,7.5)
+  const cam=new THREE.PerspectiveCamera(46,aspect,0.1,100)
+  cam.position.set(0,0.1,7.8)
   cam.lookAt(0,0.1,0)
 
-  /* ─ 卵型パラメータ ─
-     上部：細く丸い  下部：やや広がる
-     粒子分布が卵型になるよう座標変換に使う */
-  const EGG={
-    rx:  1.45,   // 横半径
-    ryT: 2.0,    // 上半径（細い方）
-    ryB: 1.65,   // 下半径（広い方）
-    cy:  0.15,   // 中心を少し上に
-  }
+  /* ─ 卵型パラメータ（変更なし） ─ */
+  const EGG={rx:1.45,ryT:2.0,ryB:1.65,cy:0.15,rz:1.15}
 
-  // 卵型座標変換：均一分布を卵型にマッピング
-  function toEggSpace(u,v,r){
-    // u:[-1,1] 横, v:[-1,1] 縦, r:奥行き
-    const ry = v >= 0 ? EGG.ryT : EGG.ryB
-    return new THREE.Vector3(
-      u * EGG.rx * r,
-      EGG.cy + v * ry * r,
-      (Math.random()-0.5) * r * 1.8  // 奥行き（3D感）
-    )
-  }
-
-  // 卵型内部かどうか判定（3D）
   function inEgg3D(x,y,z){
-    const dy=y-EGG.cy
-    const ry=dy>=0?EGG.ryT:EGG.ryB
-    const rz=1.2  // 奥行き半径
-    return x*x/(EGG.rx*EGG.rx)+dy*dy/(ry*ry)+z*z/(rz*rz)<=1.0
+    const dy=y-EGG.cy,ry=dy>=0?EGG.ryT:EGG.ryB
+    return x*x/(EGG.rx*EGG.rx)+dy*dy/(ry*ry)+z*z/(EGG.rz*EGG.rz)<=1.0
   }
 
-  // 卵型表面からサンプリング（密度を中心〜表面で調整）
-  function sampleEgg(densityBias){
-    // densityBias: 0=均一, 1=中心集中, -1=表面集中
+  function sampleInsideEgg(bias){
+    // bias: 0=均一, 0〜1=中心寄り
     let x,y,z,att=0
     do{
-      const r=Math.pow(Math.random(),0.6+densityBias*0.4)  // 中心寄りにバイアス
+      const r=Math.pow(Math.random(),0.5+bias*0.5)
       const theta=Math.random()*Math.PI*2
       const phi=Math.acos(2*Math.random()-1)
       const ry=Math.cos(phi)>=0?EGG.ryT:EGG.ryB
-      x=(EGG.rx*r)*Math.sin(phi)*Math.cos(theta)
-      y=EGG.cy+(ry*r)*Math.cos(phi)
-      z=(1.15*r)*Math.sin(phi)*Math.sin(theta)
+      x=EGG.rx*r*Math.sin(phi)*Math.cos(theta)
+      y=EGG.cy+ry*r*Math.cos(phi)
+      z=EGG.rz*r*Math.sin(phi)*Math.sin(theta)
       att++
     }while(!inEgg3D(x,y,z)&&att<30)
     return new THREE.Vector3(x,y,z)
   }
 
-  /* ─ ノード構造の生成 ─
-     菌糸ネットワークの「節点」となる中粒子群
-     声の特徴から重心・分布を決定 */
-  const gravX=(m.brightness-0.5)*0.55
-  const gravY=EGG.cy+(m.softness-0.5)*0.70
-  const nodeCount=8+Math.round(m.stability*8)  // 8〜16個
+  // 声の重心
+  const gravX=(m.brightness-0.5)*0.52
+  const gravY=EGG.cy+(m.softness-0.5)*0.68
+
+  /* ─ pivot（全粒子・線の親グループ） ─ */
+  const pivot=new THREE.Group()
+  scene.add(pivot)
+
+  /* ══════════════════════════════
+     [1] ネットワーク線（最背面・最薄）
+         星座・菌糸を連想、粒子の背後に沈める
+     ══════════════════════════════ */
+  const nodeCount=10+Math.round(m.stability*7)
   const nodes=[]
   for(let i=0;i<nodeCount;i++){
     let p
-    if(i<3){
-      // 最初の3点は重心付近に固定（主要ノード）
-      const ang=i/3*Math.PI*2+Math.random()*0.5
-      const d=0.15+Math.random()*0.45
+    if(i<4){
+      const ang=i/4*Math.PI*2+Math.random()*0.4
+      const d=0.12+Math.random()*0.5
       p=new THREE.Vector3(
-        gravX+d*Math.cos(ang)*0.85,
-        gravY+d*Math.sin(ang)*0.9,
-        (Math.random()-0.5)*0.4
+        gravX+d*Math.cos(ang)*0.88,
+        gravY+d*Math.sin(ang)*0.92,
+        (Math.random()-0.5)*0.5
       )
     } else {
-      // 残りは卵型内にランダム配置
-      p=sampleEgg(0.3)
+      p=sampleInsideEgg(0.25)
     }
     nodes.push(p)
   }
 
-  /* ─ pivot グループ（回転対象） ─ */
-  const pivot=new THREE.Group()
-  scene.add(pivot)
-
-  /* ─ [1] 菌糸ネットワーク線 ─
-     重要ノード間だけを結ぶ。星座的な構造。
-     近い点同士のみ接続（距離閾値あり）     */
-  const networkLines=new THREE.Group()
-  const DIST_THRESH=1.3+m.resonance*0.6  // 余韻が高いほど広いネットワーク
-  const connectionCount=Math.round(nodeCount*1.2+m.stability*4)
-
-  // Delaunay風：距離ソートして近傍接続
+  const DIST_THRESH=1.4+m.resonance*0.5
   for(let i=0;i<nodeCount;i++){
     const dists=[]
     for(let j=0;j<nodeCount;j++){
@@ -538,70 +511,197 @@ function initEggMap(cid,wid,num){
       dists.push({j,d:nodes[i].distanceTo(nodes[j])})
     }
     dists.sort((a,b)=>a.d-b.d)
-    const connectTo=Math.min(2+Math.floor(Math.random()*2), dists.length)
+    const connectTo=Math.min(2+Math.floor(Math.random()*2),dists.length)
     for(let k=0;k<connectTo;k++){
       if(dists[k].d>DIST_THRESH)continue
-      const from=nodes[i],to=nodes[dists[k].j]
-      // 中間に1点のカーブを加える（有機的な線）
+      const fr=nodes[i],to=nodes[dists[k].j]
       const mid=new THREE.Vector3(
-        (from.x+to.x)/2+(Math.random()-0.5)*0.25,
-        (from.y+to.y)/2+(Math.random()-0.5)*0.25,
-        (from.z+to.z)/2+(Math.random()-0.5)*0.15
+        (fr.x+to.x)/2+(Math.random()-0.5)*0.22,
+        (fr.y+to.y)/2+(Math.random()-0.5)*0.22,
+        (fr.z+to.z)/2+(Math.random()-0.5)*0.12
       )
-      const curve=new THREE.QuadraticBezierCurve3(from,mid,to)
-      const pts=curve.getPoints(20)
-      const geo=new THREE.BufferGeometry().setFromPoints(pts)
-      // Z深度で透明度変化（奥は薄く）
-      const avgZ=(from.z+to.z)/2
-      const lineOpacity=0.11+Math.max(0,(avgZ+1.2)/2.4)*0.13
-      networkLines.add(new THREE.Line(geo,new THREE.LineBasicMaterial({
-        color:0xb0a098,transparent:true,opacity:lineOpacity  // 桜系の暖色線
-      })))
+      const pts=new THREE.QuadraticBezierCurve3(fr,mid,to).getPoints(18)
+      const avgZ=(fr.z+to.z)/2
+      // さらに薄く：存在感を下げて粒子を主役に
+      const op=0.06+Math.max(0,(avgZ+1.15)/2.3)*0.08
+      pivot.add(new THREE.Line(
+        new THREE.BufferGeometry().setFromPoints(pts),
+        new THREE.LineBasicMaterial({color:0xc0b0a8,transparent:true,opacity:op})
+      ))
     }
   }
-  pivot.add(networkLines)
 
-  /* ─ [2] 色彩大粒子（主役）─
-     colorDataの4色を卵型内に配置
-     主色が最も大きく・最も多く・重心寄り  */
+  /* ══════════════════════════════
+     [2] 微粒子群（40%）— 密度勾配で生命感
+         卵型シルエットの形成を担う核心
+     ══════════════════════════════ */
+  // 春の色パレット（比率厳守）
+  const MICRO_PAL=[
+    {c:0xe0c0b8,r:0.32},  // 淡桜  32%
+    {c:0xece8e0,r:0.26},  // 乳白  26%
+    {c:0xc8aa50,r:0.18},  // 琥珀  18%
+    {c:0xc0b0d0,r:0.14},  // 薄藤  14%
+    {c:0x90a8c0,r:0.10},  // 灰青  10%
+  ]
+
+  // 密度勾配のアトラクター（集まる場所を決める）
+  const attractors=[]
+  const attCount=3+Math.round(m.vitality*3)
+  for(let i=0;i<attCount;i++){
+    const p=sampleInsideEgg(0.4)
+    attractors.push({x:p.x,y:p.y,z:p.z,strength:0.4+Math.random()*0.6})
+  }
+
+  // 微粒子総数：声の特徴で変動（450〜700）
+  const MICRO_TOTAL=450+Math.round(m.vitality*250)
+
+  MICRO_PAL.forEach(pal=>{
+    const count=Math.round(MICRO_TOTAL*pal.r)
+    // クラスター中心を2〜3個設定（色のまとまり）
+    const clusterCenters=[]
+    const cc=2+Math.floor(Math.random()*2)
+    for(let c=0;c<cc;c++) clusterCenters.push(sampleInsideEgg(0.3))
+
+    const pos=[]
+    for(let n=0;n<count;n++){
+      const ctr=clusterCenters[n%clusterCenters.length]
+      // アトラクターへの引力で密度の偏りを作る
+      const att=attractors[n%attractors.length]
+      const lerpT=0.25+Math.random()*0.5
+      let x,y,z,tries=0
+      do{
+        // クラスター中心 + ばらつき + アトラクター引力
+        const bx=ctr.x*(1-lerpT)+att.x*lerpT
+        const by=ctr.y*(1-lerpT)+att.y*lerpT
+        const bz=ctr.z*(1-lerpT)+att.z*lerpT
+        const spread=0.18+Math.random()*0.55
+        x=bx+(Math.random()-0.5)*spread*1.3
+        y=by+(Math.random()-0.5)*spread
+        z=bz+(Math.random()-0.5)*spread*0.85
+        tries++
+      }while(!inEgg3D(x,y,z)&&tries<25)
+
+      pos.push(x,y,z)
+    }
+
+    // Z深度6バンドで前後差を強調
+    for(let b=0;b<6;b++){
+      const zLo=-1.15+b*0.383,zHi=zLo+0.383
+      const bp=[]
+      for(let i=0;i<pos.length;i+=3){
+        if(pos[i+2]>=zLo&&pos[i+2]<zHi) bp.push(pos[i],pos[i+1],pos[i+2])
+      }
+      if(bp.length===0)continue
+      const geo=new THREE.BufferGeometry()
+      geo.setAttribute('position',new THREE.BufferAttribute(new Float32Array(bp),3))
+      const zN=(b+0.5)/6
+      // 前面：大きく明るく／背面：小さく薄く
+      pivot.add(new THREE.Points(geo,new THREE.PointsMaterial({
+        color:pal.c,
+        size:0.010+zN*0.032,      // 0.010〜0.042（前後差4.2倍）
+        transparent:true,
+        opacity:0.18+zN*0.52,     // 0.18〜0.70（前後差3.9倍）
+        sizeAttenuation:true
+      })))
+    }
+  })
+
+  /* ══════════════════════════════
+     [3] 小粒子（30%）— 色エリアまとまり
+     ══════════════════════════════ */
+  const SM_PAL=[
+    {c:0xd8b0a8,r:0.32},{c:0xe8e2d8,r:0.26},
+    {c:0xc0a040,r:0.18},{c:0xb8a8c8,r:0.14},{c:0x8898b0,r:0.10}
+  ]
+  const SM_TOTAL=80+Math.round(m.vitality*50)
+  SM_PAL.forEach(pal=>{
+    const count=Math.round(SM_TOTAL*pal.r)
+    const ctr=sampleInsideEgg(0.35)
+    const pos=[]
+    for(let n=0;n<count;n++){
+      let x,y,z,tries=0
+      do{
+        const sp=0.4+Math.random()*0.7
+        x=ctr.x+(Math.random()-0.5)*sp*1.1
+        y=ctr.y+(Math.random()-0.5)*sp
+        z=ctr.z+(Math.random()-0.5)*sp*0.75
+        tries++
+      }while(!inEgg3D(x,y,z)&&tries<20)
+      pos.push(x,y,z)
+    }
+    for(let b=0;b<4;b++){
+      const zLo=-1.15+b*0.575,zHi=zLo+0.575
+      const bp=[]
+      for(let i=0;i<pos.length;i+=3)
+        if(pos[i+2]>=zLo&&pos[i+2]<zHi) bp.push(pos[i],pos[i+1],pos[i+2])
+      if(bp.length===0)continue
+      const geo=new THREE.BufferGeometry()
+      geo.setAttribute('position',new THREE.BufferAttribute(new Float32Array(bp),3))
+      const zN=(b+0.5)/4
+      pivot.add(new THREE.Points(geo,new THREE.PointsMaterial({
+        color:pal.c,size:0.022+zN*0.030,transparent:true,
+        opacity:0.28+zN*0.42,sizeAttenuation:true
+      })))
+    }
+  })
+
+  /* ══════════════════════════════
+     [4] 中粒子（20%）— ノード位置
+         暖色でまとめ、前後差を明確に
+     ══════════════════════════════ */
+  const MID_COLORS=[
+    0xdcbcb2,0xdcbcb2,0xdcbcb2,  // 桜系 30%
+    0xeae4da,0xeae4da,0xeae4da,  // 乳白 30%
+    0xbaacc8,0xbaacc8,            // 薄藤 20%
+    0xc8a848,0xc8a848,            // 琥珀 20%
+  ]
+  nodes.forEach((p,i)=>{
+    const zN=(p.z+1.15)/2.3
+    const baseR=0.055+Math.random()*0.042+(i<4?0.028:0)
+    const sphere=new THREE.Mesh(
+      new THREE.SphereGeometry(baseR*(0.65+zN*0.38),10,10),
+      new THREE.MeshBasicMaterial({
+        color:MID_COLORS[i%MID_COLORS.length],
+        transparent:true,
+        opacity:0.38+zN*0.34
+      })
+    )
+    sphere.position.copy(p)
+    pivot.add(sphere)
+  })
+
+  /* ══════════════════════════════
+     [5] 大粒子（10%）— colorDataの主色
+         重心付近に集まり、作家への色情報を担う
+     ══════════════════════════════ */
   if(colorData){
-    colorData.forEach((cd,ci)=>{
-      // 3D用カラー（やや濃い方のhex）
+    colorData.slice(0,3).forEach((cd,ci)=>{
       const hex=(cd.color[3]||cd.color[2]).replace('#','')
-      const cr=parseInt(hex.slice(0,2),16)/255
-      const cg=parseInt(hex.slice(2,4),16)/255
-      const cb=parseInt(hex.slice(4,6),16)/255
-      const col=new THREE.Color(cr,cg,cb)
-
-      // 粒子数・サイズ：主色が最大
-      const counts=[10,7,5,3]
-      const rMin=[0.10,0.07,0.055,0.04]
-      const rMax=[0.19,0.13,0.09,0.07]
-      const nc=counts[ci]
-
-      for(let n=0;n<nc;n++){
+      const col=new THREE.Color(
+        parseInt(hex.slice(0,2),16)/255,
+        parseInt(hex.slice(2,4),16)/255,
+        parseInt(hex.slice(4,6),16)/255
+      )
+      const counts=[7,5,4]
+      const rMin=[0.10,0.072,0.058]
+      const rMax=[0.185,0.125,0.092]
+      for(let n=0;n<counts[ci];n++){
         let p,att=0
-        const bias=ci===0?0.5:ci===1?0.3:0.1  // 主色ほど中心寄り
         do{
           const ang=Math.random()*Math.PI*2
-          const d=0.05+Math.random()*(0.8+ci*0.28)*(m.vitality*0.6+0.5)
+          const d=0.06+Math.random()*(0.75+ci*0.3)*(m.vitality*0.55+0.5)
           p=new THREE.Vector3(
-            gravX+d*Math.cos(ang)*(0.75+m.brightness*0.28),
-            gravY+d*Math.sin(ang)*(0.85+m.softness*0.18),
+            gravX+d*Math.cos(ang)*(0.78+m.brightness*0.25),
+            gravY+d*Math.sin(ang)*(0.88+m.softness*0.16),
             (Math.random()-0.5)*1.0
           )
           att++
         }while(!inEgg3D(p.x,p.y,p.z)&&att<40)
-
-        const radius=rMin[ci]+Math.random()*(rMax[ci]-rMin[ci])
-        // Z位置に応じて透明度とサイズを調整（奥ほど小さく暗く）
-        const zNorm=(p.z+1.2)/2.4  // 0〜1 (前面=1)
-        const opacity=0.45+zNorm*0.35
-        const scaleMod=0.72+zNorm*0.3
-
+        const zN=(p.z+1.15)/2.3
+        const r=rMin[ci]+Math.random()*(rMax[ci]-rMin[ci])
         const sphere=new THREE.Mesh(
-          new THREE.SphereGeometry(radius*scaleMod,12,12),
-          new THREE.MeshBasicMaterial({color:col,transparent:true,opacity})
+          new THREE.SphereGeometry(r*(0.68+zN*0.36),12,12),
+          new THREE.MeshBasicMaterial({color:col,transparent:true,opacity:0.48+zN*0.36})
         )
         sphere.position.copy(p)
         pivot.add(sphere)
@@ -609,140 +709,43 @@ function initEggMap(cid,wid,num){
     })
   }
 
-  /* ─ [3] 中粒子（ノード位置）─
-     ネットワークの節点を視覚化
-     桜・乳白・薄藤の暖色系でまとめる    */
-  // ノード用カラーパレット：桜30%・乳白30%・薄藤20%・琥珀20%
-  const NODE_COLORS=[
-    0xdcbab2, 0xdcbab2, 0xdcbab2,
-    0xe8e2d8, 0xe8e2d8, 0xe8e2d8,
-    0xb8a8cc, 0xb8a8cc,
-    0xc8a448, 0xc8a448,
-  ]
-  nodes.forEach((p,i)=>{
-    const zNorm=(p.z+1.2)/2.4
-    const r=0.058+Math.random()*0.048+(i<3?0.032:0)
-    const opacity=0.42+zNorm*0.30
-    const col=NODE_COLORS[i%NODE_COLORS.length]
-    const sphere=new THREE.Mesh(
-      new THREE.SphereGeometry(r*(0.7+zNorm*0.35),10,10),
-      new THREE.MeshBasicMaterial({color:col,transparent:true,opacity})
-    )
-    sphere.position.copy(p)
-    pivot.add(sphere)
-  })
-
-  /* ─ [4] 小粒子群（背景・密度表現）─
-     卵型の輪郭を粒子密度で形成する核心
-     上部は細く、下部は広く配置          */
-  const SMALL_COUNT=120+Math.round(m.vitality*60)  // 120〜180個
-  const smPos=[]
-  let placed=0
-  const maxTry=SMALL_COUNT*20
-
-  for(let t=0;t<maxTry&&placed<SMALL_COUNT;t++){
-    // 声の特徴でサンプリングを変化
-    const r=Math.pow(Math.random(),0.55)  // 中心寄り傾向
-    const theta=Math.random()*Math.PI*2
-    const phi=Math.acos(2*Math.random()-1)
-    const ry=Math.cos(phi)>=0?EGG.ryT:EGG.ryB
-    const spread=0.6+m.vitality*0.45
-
-    // 重心バイアス
-    const x=gravX+(EGG.rx*r*spread)*Math.sin(phi)*Math.cos(theta)
-    const y=gravY+(ry*r*spread)*Math.cos(phi)
-    const z=(1.0*r)*Math.sin(phi)*Math.sin(theta)*1.4
-
-    if(inEgg3D(x-gravX,y-EGG.cy,z)){
-      smPos.push(x,y,z)
-      placed++
-    }
-  }
-
-  // 小粒子を「色エリア」×「Z深度」で分けてレンダリング
-  // 色の比率: 桜30% / 乳白25% / 琥珀20% / 薄藤15% / 灰青10%
-  // 各色は空間的にまとまりを持つ（クラスター配置）
-  const SM_PALETTE=[
-    {hex:0xdcb8b0, ratio:0.30, name:'sakura'},   // 桜
-    {hex:0xe8e4dc, ratio:0.25, name:'nyuhaku'},   // 乳白
-    {hex:0xc8a448, ratio:0.20, name:'kohaku'},    // 琥珀
-    {hex:0xb8a8cc, ratio:0.15, name:'usufuji'},   // 薄藤
-    {hex:0x8898b0, ratio:0.10, name:'haisei'},    // 灰青
-  ]
-
-  // 各色ごとにクラスター中心を決め、そこから粒子を散布
-  SM_PALETTE.forEach(pal=>{
-    const count=Math.round(smPos.length/3*pal.ratio)
-    if(count===0)return
-
-    // クラスター中心：卵型内のランダムな点
-    const clusterCount=2+Math.floor(Math.random()*2)
-    const centers=[]
-    for(let c=0;c<clusterCount;c++){
-      const ang=Math.random()*Math.PI*2
-      const d=0.1+Math.random()*0.9
-      const ry=Math.sin(ang)>=0?EGG.ryT:EGG.ryB
-      centers.push(new THREE.Vector3(
-        gravX+EGG.rx*d*0.75*Math.cos(ang),
-        gravY+ry*d*0.75*Math.sin(ang),
-        (Math.random()-0.5)*0.8
-      ))
-    }
-
-    // クラスター周囲に粒子配置
-    const clusterPos=[]
-    for(let n=0;n<count;n++){
-      const ctr=centers[n%centers.length]
-      const spread=0.3+Math.random()*0.5
-      let x,y,z,att=0
-      do{
-        x=ctr.x+(Math.random()-0.5)*spread*1.2
-        y=ctr.y+(Math.random()-0.5)*spread
-        z=ctr.z+(Math.random()-0.5)*spread*0.7
-        att++
-      }while(!inEgg3D(x,y,z)&&att<20)
-      clusterPos.push(x,y,z)
-    }
-
-    // Z深度バンドで分けて描画（前面明るく・大きく）
-    for(let b=0;b<4;b++){
-      const zLo=-1.2+b*0.6, zHi=-1.2+(b+1)*0.6
-      const bandPos=[]
-      for(let i=0;i<clusterPos.length;i+=3){
-        if(clusterPos[i+2]>=zLo&&clusterPos[i+2]<zHi)
-          bandPos.push(clusterPos[i],clusterPos[i+1],clusterPos[i+2])
-      }
-      if(bandPos.length===0)continue
-      const geo=new THREE.BufferGeometry()
-      geo.setAttribute('position',new THREE.BufferAttribute(new Float32Array(bandPos),3))
-      const zNorm=(b+0.5)/4
-      pivot.add(new THREE.Points(geo,new THREE.PointsMaterial({
-        color:pal.hex,
-        size:0.016+zNorm*0.026,    // 0.016〜0.042
-        transparent:true,
-        opacity:0.26+zNorm*0.36,   // 0.26〜0.62
-        sizeAttenuation:true
-      })))
-    }
-  })
-
-  /* ─ [5] 卵型輪郭（極めて淡い、参照線として）─ */
-  const ePts=[],SEG=96
+  /* ══════════════════════════════
+     [6] 卵型輪郭線
+         「生命を包む器」として認識できる強さ
+         主張しすぎず、しかし一目で卵とわかる
+     ══════════════════════════════ */
+  const SEG=128
+  // 外輪郭（メイン）
+  const ePts=[]
   for(let i=0;i<=SEG;i++){
-    const t=i/SEG*Math.PI*2
-    const s=Math.sin(t),c2=Math.cos(t)
+    const t=i/SEG*Math.PI*2,s=Math.sin(t),c2=Math.cos(t)
     const ry=s>=0?EGG.ryT:EGG.ryB
-    ePts.push(new THREE.Vector3(EGG.rx*c2*0.98, EGG.cy+ry*s*0.98, 0))
+    ePts.push(new THREE.Vector3(EGG.rx*c2*0.985,EGG.cy+ry*s*0.985,0))
   }
   scene.add(new THREE.Line(
     new THREE.BufferGeometry().setFromPoints(ePts),
-    new THREE.LineBasicMaterial({color:0xb8b4a8,transparent:true,opacity:0.32})
+    // 不透明度を0.32→0.62へ。線幅はブラウザでは1px固定のため代わりに二重線で太く見せる
+    new THREE.LineBasicMaterial({color:0xa8a49a,transparent:true,opacity:0.62})
+  ))
+  // 内側のわずかな二重線（器の厚み感）
+  const ePts2=[]
+  for(let i=0;i<=SEG;i++){
+    const t=i/SEG*Math.PI*2,s=Math.sin(t),c2=Math.cos(t)
+    const ry=s>=0?EGG.ryT:EGG.ryB
+    ePts2.push(new THREE.Vector3(EGG.rx*c2*0.958,EGG.cy+ry*s*0.958,0))
+  }
+  scene.add(new THREE.Line(
+    new THREE.BufferGeometry().setFromPoints(ePts2),
+    new THREE.LineBasicMaterial({color:0xb8b4aa,transparent:true,opacity:0.28})
   ))
 
-  /* ─ アニメーション ─
-     Y軸を中心にゆっくり回転（博物館展示物）
-     回転速度：非常に遅く（1周=約7分）      */
-  const ROT_SPEED=0.0008  // rad/frame ≒ 2.7°/s @ 60fps → 1周133秒
+  /* ══════════════════════════════
+     [7] アニメーション
+         1周8〜10秒——確実に「生きている」と認識できる速度
+     ══════════════════════════════ */
+  // 0.0065 rad/frame @ 60fps = 約0.39°/frame → 1周≒923frame ≒ 15秒
+  // 0.008  rad/frame @ 60fps → 1周≒785frame ≒ 13秒  ← これを採用
+  const ROT_SPEED=0.008
 
   let aid
   const animate=()=>{
