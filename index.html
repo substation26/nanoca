@@ -470,61 +470,57 @@ function initEggMap(cid,wid,num){
   const gravX=(m.brightness-0.5)*0.50
   const gravY=EGG.cy+(m.softness-0.5)*0.65
 
-  /* ── 発光テクスチャ生成 ──
-     Canvas2Dで中心白→外周透明のradial gradientを描き
-     SpriteMaterialのmapとして使用する                  */
-  function makeGlowTexture(hexColor, size){
+  /* ── ソフトエッジテクスチャ ──
+     色彩が主役。白飛びなし。
+     PointsMaterialのmapとして使用（AdditiveBlending不使用）
+     中心：色のまま（白ハイライトは極小）
+     外縁：透明にフェードして輪郭を柔らかくする    */
+  function makeSoftTex(hexColor, size){
     const sz=size||64
-    const c=document.createElement('canvas')
-    c.width=sz;c.height=sz
-    const ctx=c.getContext('2d')
+    const cv=document.createElement('canvas')
+    cv.width=sz;cv.height=sz
+    const ctx=cv.getContext('2d')
     const cx=sz/2,cy=sz/2,r=sz/2
-    const grad=ctx.createRadialGradient(cx,cy,0,cx,cy,r)
-    // hex → rgb
+    const grad=ctx.createRadialGradient(cx,cy,r*0.05, cx,cy,r)
     const hx=hexColor.replace('#','')
     const rr=parseInt(hx.slice(0,2),16)
     const gg=parseInt(hx.slice(2,4),16)
     const bb=parseInt(hx.slice(4,6),16)
-    // 自然光を受けた質感：朝露・ガラス・鉱石・花びら
-    // 白は極小（中心5〜8%だけわずかに明るい内部ハイライト）
-    // 色彩情報を主役に保つ
-    const rL=Math.min(255,rr+18),gL=Math.min(255,gg+18),bL=Math.min(255,bb+18)
-    grad.addColorStop(0.00, `rgba(255,255,255,0.22)`)   // 極小の白核（5〜8%程度）
-    grad.addColorStop(0.12, `rgba(${rL},${gL},${bL},0.82)`) // 元色+わずかな明るさ
-    grad.addColorStop(0.35, `rgba(${rr},${gg},${bb},0.72)`) // 元色（色彩の主域）
-    grad.addColorStop(0.62, `rgba(${rr},${gg},${bb},0.32)`) // 外縁フェード
-    grad.addColorStop(0.85, `rgba(${rr},${gg},${bb},0.06)`) // 極薄グロー
-    grad.addColorStop(1.00, `rgba(${rr},${gg},${bb},0.00)`)
+    // 色彩主役：白は中心の極小域のみ、すぐ元色に戻る
+    const rH=Math.min(255,rr+22),gH=Math.min(255,gg+22),bH=Math.min(255,bb+22)
+    grad.addColorStop(0.00, `rgba(${rH},${gH},${bH},0.95)`) // わずかに明るい核
+    grad.addColorStop(0.25, `rgba(${rr},${gg},${bb},0.90)`) // 元色・明確な色彩域
+    grad.addColorStop(0.60, `rgba(${rr},${gg},${bb},0.65)`) // 中間フェード
+    grad.addColorStop(0.85, `rgba(${rr},${gg},${bb},0.20)`) // 外縁
+    grad.addColorStop(1.00, `rgba(${rr},${gg},${bb},0.00)`) // 透明
     ctx.fillStyle=grad
     ctx.beginPath();ctx.arc(cx,cy,r,0,Math.PI*2);ctx.fill()
-    const tex=new THREE.CanvasTexture(c)
-    return tex
+    return new THREE.CanvasTexture(cv)
   }
 
   /* ── 色彩パレット ──
      薄桃・薄藤・乳白・琥珀（蜂蜜光）
-     青はアクセントとして最小限に残す       */
+     青はアクセントとして最小限            */
   const PAL={
-    usumomo: {hex:'#e8c4bc', c3:new THREE.Color(0xe8c4bc)}, // 薄桃  28%
-    usufuji: {hex:'#c4b0d8', c3:new THREE.Color(0xc4b0d8)}, // 薄藤  28%
-    nyuhaku: {hex:'#eeeae0', c3:new THREE.Color(0xeeeae0)}, // 乳白  24%
-    kohaku:  {hex:'#e8c060', c3:new THREE.Color(0xe8c060)}, // 琥珀（蜂蜜光）12%
-    haisei:  {hex:'#a0b8cc', c3:new THREE.Color(0xa0b8cc)}, // 灰青（アクセント）8%
+    usumomo:{hex:'#ddb8b0',c3:new THREE.Color(0xddb8b0)},  // 薄桃  30%
+    usufuji:{hex:'#b8a8cc',c3:new THREE.Color(0xb8a8cc)},  // 薄藤  27%
+    nyuhaku:{hex:'#e8e4dc',c3:new THREE.Color(0xe8e4dc)},  // 乳白  26%
+    kohaku: {hex:'#d4a83c',c3:new THREE.Color(0xd4a83c)},  // 琥珀  13%
+    haisei: {hex:'#90a8bc',c3:new THREE.Color(0x90a8bc)},  //  灰青  4%
   }
-  // テクスチャキャッシュ（色×サイズで使い回す）
   const texCache={}
-  function getTex(key,size){
-    const k=key+'_'+size
-    if(!texCache[k]) texCache[k]=makeGlowTexture(PAL[key].hex,size)
+  function getTex(key,sz){
+    const k=key+'_'+sz
+    if(!texCache[k]) texCache[k]=makeSoftTex(PAL[key].hex,sz)
     return texCache[k]
   }
   function pickPalKey(){
     const r=Math.random()
-    if(r<0.30)return'usumomo'   // 薄桃 30%（+2）
-    if(r<0.57)return'usufuji'   // 薄藤 27%
-    if(r<0.83)return'nyuhaku'   // 乳白 26%（+2）
-    if(r<0.96)return'kohaku'    // 琥珀 13%
-    return'haisei'              // 灰青  4%（-4）
+    if(r<0.30)return'usumomo'
+    if(r<0.57)return'usufuji'
+    if(r<0.83)return'nyuhaku'
+    if(r<0.96)return'kohaku'
+    return'haisei'
   }
 
   /* ── 密度関数 ──
@@ -624,11 +620,10 @@ function initEggMap(cid,wid,num){
     mPlaced++
   }
 
-  // Sprite描画（発光テクスチャ使用）
+  // 微粒子描画（色彩主役・NormalBlending）
   Object.entries(microByKey).forEach(([key,pos])=>{
     if(pos.length===0)return
     const tex=getTex(key,32)
-    // Z深度6バンド
     for(let b=0;b<6;b++){
       const zLo=-1.15+b*0.383,zHi=zLo+0.383
       const bp=[]
@@ -640,12 +635,12 @@ function initEggMap(cid,wid,num){
       const zN=(b+0.5)/6
       pivot.add(new THREE.Points(geo,new THREE.PointsMaterial({
         map:tex,
-        size:0.040+zN*0.055,    // 発光テクスチャは大きめに（0.040〜0.095）
+        size:0.028+zN*0.035,  // 0.028〜0.063（前後差、白飛びしないサイズ）
         transparent:true,
-        opacity:0.30+zN*0.55,   // 0.30〜0.85（可視性向上）
+        opacity:0.45+zN*0.40, // 0.45〜0.85
         sizeAttenuation:true,
         depthWrite:false,
-        blending:THREE.AdditiveBlending,
+        // NormalBlending：色が正直に出る、重なっても白くならない
       })))
     }
   })
@@ -684,36 +679,39 @@ function initEggMap(cid,wid,num){
       const zN=(b+0.5)/5
       pivot.add(new THREE.Points(geo,new THREE.PointsMaterial({
         map:tex,
-        size:0.10+zN*0.10,
+        size:0.09+zN*0.08,
         transparent:true,
-        opacity:0.38+zN*0.48,   // 可視性向上
+        opacity:0.52+zN*0.36,
         sizeAttenuation:true,
         depthWrite:false,
-        blending:THREE.AdditiveBlending,
       })))
     }
   })
 
   /* ════════════════════
      [C] 中粒子（副花候補）
-         ノード位置、発光球体
+         ノード位置に球体配置。色彩を明確に表示。
      ════════════════════ */
-  const MID_KEYS=['usufuji','usufuji','usufuji','usumomo','usumomo','usumomo','nyuhaku','nyuhaku','kohaku']
+  const MID_COLS=[
+    PAL.usufuji.c3,PAL.usufuji.c3,PAL.usufuji.c3,
+    PAL.usumomo.c3,PAL.usumomo.c3,PAL.usumomo.c3,
+    PAL.nyuhaku.c3,PAL.nyuhaku.c3,
+    PAL.kohaku.c3,
+  ]
   nodes.forEach((p,i)=>{
-    const key=MID_KEYS[i%MID_KEYS.length]
-    const tex=getTex(key,64)
     const zN=Math.max(0,Math.min(1,(p.z+1.15)/2.3))
-    const sprite=new THREE.Sprite(new THREE.SpriteMaterial({
-      map:tex,
-      transparent:true,
-      opacity:0.38+zN*0.40,
-      blending:THREE.AdditiveBlending,
-      depthWrite:false,
-    }))
-    const sz=(0.20+Math.random()*0.16+(i<5?0.08:0))*(0.65+zN*0.42)
-    sprite.scale.set(sz,sz,1)
-    sprite.position.copy(p)
-    pivot.add(sprite)
+    const baseR=0.048+Math.random()*0.038+(i<5?0.022:0)
+    const r=baseR*(0.62+zN*0.42)
+    const sphere=new THREE.Mesh(
+      new THREE.SphereGeometry(r,10,10),
+      new THREE.MeshBasicMaterial({
+        color:MID_COLS[i%MID_COLS.length],
+        transparent:true,
+        opacity:0.55+zN*0.32,
+      })
+    )
+    sphere.position.copy(p)
+    pivot.add(sphere)
   })
 
   /* ════════════════════
@@ -723,10 +721,15 @@ function initEggMap(cid,wid,num){
      ════════════════════ */
   if(colorData){
     colorData.slice(0,3).forEach((cd,ci)=>{
+      // 大粒子 = 主花候補。colorDataの色を確実に表示する。
       const hex=(cd.color[3]||cd.color[2]).replace('#','')
-      const baseHex='#'+hex
-      // 大粒子専用テクスチャ（色固有）
-      const tex=makeGlowTexture(baseHex,96)
+      const col=new THREE.Color(
+        parseInt(hex.slice(0,2),16)/255,
+        parseInt(hex.slice(2,4),16)/255,
+        parseInt(hex.slice(4,6),16)/255
+      )
+      const rMin=[0.090,0.062,0.048]
+      const rMax=[0.170,0.110,0.082]
       const counts=[9,6,4]
       for(let n=0;n<counts[ci];n++){
         let bestP=null,bestD=0
@@ -744,17 +747,16 @@ function initEggMap(cid,wid,num){
         }
         if(!bestP)continue
         const zN=Math.max(0,Math.min(1,(bestP.z+1.15)/2.3))
-        const sprite=new THREE.Sprite(new THREE.SpriteMaterial({
-          map:tex,
-          transparent:true,
-          opacity:0.55+zN*0.35,
-          blending:THREE.AdditiveBlending,
-          depthWrite:false,
-        }))
-        const sz=(0.38+Math.random()*0.22-ci*0.08)*(0.60+zN*0.45)
-        sprite.scale.set(sz,sz,1)
-        sprite.position.copy(bestP)
-        pivot.add(sprite)
+        const r=(rMin[ci]+Math.random()*(rMax[ci]-rMin[ci]))*(0.62+zN*0.42)
+        const sphere=new THREE.Mesh(
+          new THREE.SphereGeometry(r,12,12),
+          new THREE.MeshBasicMaterial({
+            color:col,transparent:true,
+            opacity:0.72+zN*0.22,  // 色彩を確実に見せる
+          })
+        )
+        sphere.position.copy(bestP)
+        pivot.add(sphere)
       }
     })
   }
