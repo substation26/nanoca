@@ -783,7 +783,6 @@ function initEggMap(cid,wid,num){
       return null
     }).filter(Boolean)
   ).filter(x=>x&&x.arr)
-  ]
   layerDef.forEach(({arr,cols,rMin,rMax,opBase,opZ})=>{
     arr.forEach((p,i)=>{
       const zN=Math.max(0,Math.min(1,(p.z+1.15)/2.3))
