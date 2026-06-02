@@ -541,154 +541,181 @@ function initEggMap(cid,wid,num){
     }
   }
 
-  /* ══════════════════════════════
-     [2] 微粒子群 — 2.5倍増・外周拡散・新色比率
-         薄藤35% / 淡桜30% / 真珠灰20% / 琥珀15%
-         星雲・花粉が漂う空気感
-     ══════════════════════════════ */
-  const MICRO_PAL=[
-    {c:0xbaaed0,r:0.35},  // 薄藤  35%
-    {c:0xe0c4bc,r:0.30},  // 淡桜  30%
-    {c:0xd8d4cc,r:0.20},  // 真珠灰 20%
-    {c:0xc8a848,r:0.15},  // 琥珀  15%
-  ]
+  /* ══════════════════════════════════════════════════════
+     花材設計図レイヤー構造
+     ─ 大粒子  = 主花候補（colorDataの色・重心付近）
+     ─ 中粒子  = 副花候補（ノード位置・中間域）
+     ─ 小粒子  = 小花候補（中心〜中間域）
+     ─ 微粒子  = 花粉・光粒子候補（密度グラデーション）
+     ══════════════════════════════════════════════════════ */
 
-  // アトラクター：中心集積 + 外周への拡散点を混在させる
-  const attractors=[]
-  const attCount=4+Math.round(m.vitality*4)
-  for(let i=0;i<attCount;i++){
-    // 半分は中心寄り、半分は外周寄り
-    const bias=i<attCount/2 ? 0.5 : 0.0
-    const p=sampleInsideEgg(bias)
-    attractors.push({x:p.x,y:p.y,z:p.z})
+  // 共通パレット（全レイヤーで統一）
+  const PALETTE={
+    fuji:  {c3:new THREE.Color(0xb0a0cc), hex:'b0a0cc'}, // 薄藤 35%
+    sakura:{c3:new THREE.Color(0xddb8b0), hex:'ddb8b0'}, // 淡桜 30%
+    pearl: {c3:new THREE.Color(0xd4d0c8), hex:'d4d0c8'}, // 真珠灰 20%
+    kohaku:{c3:new THREE.Color(0xc8a848), hex:'c8a848'}, // 琥珀 15%
+  }
+  // 比率に応じてランダムに色を選ぶ
+  function pickColor(){
+    const r=Math.random()
+    if(r<0.35)return PALETTE.fuji
+    if(r<0.65)return PALETTE.sakura
+    if(r<0.85)return PALETTE.pearl
+    return PALETTE.kohaku
   }
 
-  // 微粒子総数：2.5倍（1125〜1750）
-  const MICRO_TOTAL=1125+Math.round(m.vitality*625)
+  /* ── 密度グラデーション関数 ──
+     中心を高密度、外周へ向かうにつれ指数的に疎になる
+     r_norm: 0=中心, 1=卵表面
+     戻り値: 0〜1（1=配置する、0=配置しない の確率） */
+  function densityAt(x,y,z){
+    const dx=x-gravX, dy=y-gravY
+    const dz=z
+    // 声の重心からの距離を正規化
+    const rNorm=Math.sqrt(
+      dx*dx/(EGG.rx*EGG.rx)+
+      dy*dy/((dy>=0?EGG.ryT:EGG.ryB)**2)+
+      dz*dz/(EGG.rz*EGG.rz)
+    )
+    // ガウス分布：中心が最高密度、外周で急速に疎に
+    // sigmaを声の特徴で調整（vitality高=広がり大）
+    const sigma=0.32+m.vitality*0.28
+    return Math.exp(-rNorm*rNorm/(2*sigma*sigma))
+  }
 
-  MICRO_PAL.forEach(pal=>{
-    const count=Math.round(MICRO_TOTAL*pal.r)
-    // クラスター中心を3〜4個設定（外周にも展開）
-    const clusterCenters=[]
-    const cc=3+Math.floor(Math.random()*2)
-    for(let c=0;c<cc;c++){
-      // 1/3は外周寄り（卵の縁まで粒子を拡散）
-      const outerBias=c===0?0.0:c===1?0.1:0.35
-      clusterCenters.push(sampleInsideEgg(outerBias))
-    }
+  /* ════════════════════════════
+     [A] 微粒子群（花粉・光粒子候補）
+         10倍増：7000〜11000個
+         密度グラデーション：中心高密度→外周疎
+     ════════════════════════════ */
+  const MICRO_TOTAL=7000+Math.round(m.vitality*4000)
 
-    const pos=[]
-    for(let n=0;n<count;n++){
-      const ctr=clusterCenters[n%clusterCenters.length]
-      const att=attractors[n%attractors.length]
-      // lerpT を小さくして外周への拡散を許容
-      const lerpT=0.15+Math.random()*0.45
-      let x,y,z,tries=0
-      do{
-        const bx=ctr.x*(1-lerpT)+att.x*lerpT
-        const by=ctr.y*(1-lerpT)+att.y*lerpT
-        const bz=ctr.z*(1-lerpT)+att.z*lerpT
-        // spread を広げる（外周まで届かせる）
-        const spread=0.22+Math.random()*0.78
-        x=bx+(Math.random()-0.5)*spread*1.4
-        y=by+(Math.random()-0.5)*spread
-        z=bz+(Math.random()-0.5)*spread*0.9
-        tries++
-      }while(!inEgg3D(x,y,z)&&tries<30)
-      pos.push(x,y,z)
-    }
+  // 色ごとにバッチ処理（メモリ効率）
+  const microByColor={
+    fuji:[],sakura:[],pearl:[],kohaku:[]
+  }
 
-    // Z深度8バンドで前後差をさらに細かく
+  // サンプリング：rejection samplingで密度グラデーションを実現
+  let microPlaced=0
+  const microMaxTry=MICRO_TOTAL*6
+  for(let t=0;t<microMaxTry&&microPlaced<MICRO_TOTAL;t++){
+    // 卵型内の一様サンプル
+    const r=Math.random()  // 一様（外周まで届く）
+    const theta=Math.random()*Math.PI*2
+    const phi=Math.acos(2*Math.random()-1)
+    const ry=Math.cos(phi)>=0?EGG.ryT:EGG.ryB
+    const x=EGG.rx*r*Math.sin(phi)*Math.cos(theta)
+    const y=EGG.cy+ry*r*Math.cos(phi)
+    const z=EGG.rz*r*Math.sin(phi)*Math.sin(theta)
+    if(!inEgg3D(x,y,z))continue
+
+    // 密度に基づくrejection
+    const dens=densityAt(x,y,z)
+    if(Math.random()>dens*0.96+0.04)continue  // 最低4%は外周にも配置
+
+    const rr=Math.random()
+    const key=rr<0.35?'fuji':rr<0.65?'sakura':rr<0.85?'pearl':'kohaku'
+    microByColor[key].push(x,y,z)
+    microPlaced++
+  }
+
+  // 色×Z深度バンドで描画（8バンド）
+  Object.entries(microByColor).forEach(([key,pos])=>{
+    if(pos.length===0)return
+    const col=PALETTE[key].c3
     for(let b=0;b<8;b++){
-      const zLo=-1.15+b*0.2875,zHi=zLo+0.2875
-      const bp=[]
-      for(let i=0;i<pos.length;i+=3){
-        if(pos[i+2]>=zLo&&pos[i+2]<zHi) bp.push(pos[i],pos[i+1],pos[i+2])
-      }
-      if(bp.length===0)continue
-      const geo=new THREE.BufferGeometry()
-      geo.setAttribute('position',new THREE.BufferAttribute(new Float32Array(bp),3))
-      const zN=(b+0.5)/8
-      pivot.add(new THREE.Points(geo,new THREE.PointsMaterial({
-        color:pal.c,
-        size:0.008+zN*0.030,      // 0.008〜0.038（前後差4.75倍）
-        transparent:true,
-        opacity:0.14+zN*0.56,     // 0.14〜0.70（前後差5倍）
-        sizeAttenuation:true
-      })))
-    }
-  })
-
-  /* ══════════════════════════════
-     [3] 小粒子（外周まで漂う）— 色比率を微粒子と統一
-     ══════════════════════════════ */
-  const SM_PAL=[
-    {c:0xb0a0c8,r:0.35},  // 薄藤
-    {c:0xd8b8b0,r:0.30},  // 淡桜
-    {c:0xd0ccC4,r:0.20},  // 真珠灰
-    {c:0xbf9a38,r:0.15},  // 琥珀
-  ]
-  const SM_TOTAL=80+Math.round(m.vitality*50)
-  SM_PAL.forEach(pal=>{
-    const count=Math.round(SM_TOTAL*pal.r)
-    const ctr=sampleInsideEgg(0.35)
-    const pos=[]
-    for(let n=0;n<count;n++){
-      let x,y,z,tries=0
-      do{
-        const sp=0.4+Math.random()*0.7
-        x=ctr.x+(Math.random()-0.5)*sp*1.1
-        y=ctr.y+(Math.random()-0.5)*sp
-        z=ctr.z+(Math.random()-0.5)*sp*0.75
-        tries++
-      }while(!inEgg3D(x,y,z)&&tries<20)
-      pos.push(x,y,z)
-    }
-    for(let b=0;b<4;b++){
-      const zLo=-1.15+b*0.575,zHi=zLo+0.575
+      const zLo=-1.15+b*0.2875, zHi=zLo+0.2875
       const bp=[]
       for(let i=0;i<pos.length;i+=3)
         if(pos[i+2]>=zLo&&pos[i+2]<zHi) bp.push(pos[i],pos[i+1],pos[i+2])
       if(bp.length===0)continue
       const geo=new THREE.BufferGeometry()
       geo.setAttribute('position',new THREE.BufferAttribute(new Float32Array(bp),3))
-      const zN=(b+0.5)/4
+      const zN=(b+0.5)/8
+      // 前面：大きく明るく／背面：極小・極薄（星雲の奥行き感）
       pivot.add(new THREE.Points(geo,new THREE.PointsMaterial({
-        color:pal.c,size:0.022+zN*0.030,transparent:true,
-        opacity:0.28+zN*0.42,sizeAttenuation:true
+        color:col,
+        size:0.006+zN*0.026,   // 0.006〜0.032
+        transparent:true,
+        opacity:0.10+zN*0.60,  // 0.10〜0.70（前後7倍差）
+        sizeAttenuation:true
       })))
     }
   })
 
-  /* ══════════════════════════════
-     [4] 中粒子（20%）— ノード位置
-         暖色でまとめ、前後差を明確に
-     ══════════════════════════════ */
-  const MID_COLORS=[
-    0xb8a8cc,0xb8a8cc,0xb8a8cc,0xb8a8cc,  // 薄藤 40%
-    0xdcbcb2,0xdcbcb2,0xdcbcb2,            // 淡桜 30%
-    0xd4d0c8,0xd4d0c8,                      // 真珠灰 20%
-    0xc8a848,                               // 琥珀 10%
+  /* ════════════════════════════
+     [B] 小粒子群（小花候補）
+         密度グラデーション準拠、中心〜中間域
+     ════════════════════════════ */
+  const SM_TOTAL=200+Math.round(m.vitality*120)
+  const smByColor={fuji:[],sakura:[],pearl:[],kohaku:[]}
+  let smPlaced=0
+  for(let t=0;t<SM_TOTAL*8&&smPlaced<SM_TOTAL;t++){
+    const r=Math.pow(Math.random(),0.6)  // やや中心寄り
+    const theta=Math.random()*Math.PI*2
+    const phi=Math.acos(2*Math.random()-1)
+    const ry=Math.cos(phi)>=0?EGG.ryT:EGG.ryB
+    const x=EGG.rx*r*Math.sin(phi)*Math.cos(theta)
+    const y=EGG.cy+ry*r*Math.cos(phi)
+    const z=EGG.rz*r*Math.sin(phi)*Math.sin(theta)
+    if(!inEgg3D(x,y,z))continue
+    const dens=densityAt(x,y,z)
+    if(Math.random()>dens*0.92+0.08)continue
+    const rr=Math.random()
+    const key=rr<0.35?'fuji':rr<0.65?'sakura':rr<0.85?'pearl':'kohaku'
+    smByColor[key].push(x,y,z)
+    smPlaced++
+  }
+  Object.entries(smByColor).forEach(([key,pos])=>{
+    if(pos.length===0)return
+    const col=PALETTE[key].c3
+    for(let b=0;b<6;b++){
+      const zLo=-1.15+b*0.383, zHi=zLo+0.383
+      const bp=[]
+      for(let i=0;i<pos.length;i+=3)
+        if(pos[i+2]>=zLo&&pos[i+2]<zHi) bp.push(pos[i],pos[i+1],pos[i+2])
+      if(bp.length===0)continue
+      const geo=new THREE.BufferGeometry()
+      geo.setAttribute('position',new THREE.BufferAttribute(new Float32Array(bp),3))
+      const zN=(b+0.5)/6
+      pivot.add(new THREE.Points(geo,new THREE.PointsMaterial({
+        color:col,
+        size:0.018+zN*0.028,
+        transparent:true,
+        opacity:0.22+zN*0.48,
+        sizeAttenuation:true
+      })))
+    }
+  })
+
+  /* ════════════════════════════
+     [C] 中粒子群（副花候補）
+         ノード位置に配置、色パレット準拠
+     ════════════════════════════ */
+  const MID_COL_SEQ=[
+    PALETTE.fuji.c3,PALETTE.fuji.c3,PALETTE.fuji.c3,PALETTE.fuji.c3,
+    PALETTE.sakura.c3,PALETTE.sakura.c3,PALETTE.sakura.c3,
+    PALETTE.pearl.c3,PALETTE.pearl.c3,
+    PALETTE.kohaku.c3,
   ]
   nodes.forEach((p,i)=>{
-    const zN=(p.z+1.15)/2.3
-    const baseR=0.055+Math.random()*0.042+(i<4?0.028:0)
+    const zN=Math.max(0,Math.min(1,(p.z+1.15)/2.3))
+    const baseR=0.050+Math.random()*0.040+(i<5?0.025:0)
+    const col=MID_COL_SEQ[i%MID_COL_SEQ.length]
     const sphere=new THREE.Mesh(
-      new THREE.SphereGeometry(baseR*(0.65+zN*0.38),10,10),
-      new THREE.MeshBasicMaterial({
-        color:MID_COLORS[i%MID_COLORS.length],
-        transparent:true,
-        opacity:0.38+zN*0.34
-      })
+      new THREE.SphereGeometry(baseR*(0.62+zN*0.42),10,10),
+      new THREE.MeshBasicMaterial({color:col,transparent:true,opacity:0.35+zN*0.38})
     )
     sphere.position.copy(p)
     pivot.add(sphere)
   })
 
-  /* ══════════════════════════════
-     [5] 大粒子（10%）— colorDataの主色
-         重心付近に集まり、作家への色情報を担う
-     ══════════════════════════════ */
+  /* ════════════════════════════
+     [D] 大粒子群（主花候補）
+         colorDataの色情報を持ち、重心付近に集積
+         作家が最初に目を向ける構造的中心
+     ════════════════════════════ */
   if(colorData){
     colorData.slice(0,3).forEach((cd,ci)=>{
       const hex=(cd.color[3]||cd.color[2]).replace('#','')
@@ -697,28 +724,33 @@ function initEggMap(cid,wid,num){
         parseInt(hex.slice(2,4),16)/255,
         parseInt(hex.slice(4,6),16)/255
       )
-      const counts=[7,5,4]
-      const rMin=[0.10,0.072,0.058]
-      const rMax=[0.185,0.125,0.092]
+      // 主花：重心近傍に強く集中（densityAt最高値域）
+      const counts=[8,6,4]
+      const rMin=[0.095,0.068,0.052]
+      const rMax=[0.180,0.118,0.088]
       for(let n=0;n<counts[ci];n++){
-        let p,att=0
-        do{
+        let p,att=0,bestP=null,bestD=0
+        // 複数候補を生成し密度最大点を選ぶ
+        for(let trial=0;trial<12;trial++){
           const ang=Math.random()*Math.PI*2
-          const d=0.06+Math.random()*(0.75+ci*0.3)*(m.vitality*0.55+0.5)
-          p=new THREE.Vector3(
-            gravX+d*Math.cos(ang)*(0.78+m.brightness*0.25),
-            gravY+d*Math.sin(ang)*(0.88+m.softness*0.16),
-            (Math.random()-0.5)*1.0
+          const d=0.04+Math.random()*(0.65+ci*0.32)*(m.vitality*0.5+0.5)
+          const cand=new THREE.Vector3(
+            gravX+d*Math.cos(ang)*(0.80+m.brightness*0.22),
+            gravY+d*Math.sin(ang)*(0.90+m.softness*0.14),
+            (Math.random()-0.5)*0.95
           )
-          att++
-        }while(!inEgg3D(p.x,p.y,p.z)&&att<40)
-        const zN=(p.z+1.15)/2.3
+          if(!inEgg3D(cand.x,cand.y,cand.z))continue
+          const dens=densityAt(cand.x,cand.y,cand.z)
+          if(dens>bestD){bestD=dens;bestP=cand}
+        }
+        if(!bestP)continue
+        const zN=Math.max(0,Math.min(1,(bestP.z+1.15)/2.3))
         const r=rMin[ci]+Math.random()*(rMax[ci]-rMin[ci])
         const sphere=new THREE.Mesh(
-          new THREE.SphereGeometry(r*(0.68+zN*0.36),12,12),
-          new THREE.MeshBasicMaterial({color:col,transparent:true,opacity:0.48+zN*0.36})
+          new THREE.SphereGeometry(r*(0.65+zN*0.40),12,12),
+          new THREE.MeshBasicMaterial({color:col,transparent:true,opacity:0.50+zN*0.36})
         )
-        sphere.position.copy(p)
+        sphere.position.copy(bestP)
         pivot.add(sphere)
       }
     })
