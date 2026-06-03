@@ -761,28 +761,12 @@ function initEggMap(cid,wid,num){
   const MID_INNER_COLS=[PAL.usufuji.c3,PAL.usumomo.c3,PAL.usufuji.c3,PAL.nyuhaku.c3,PAL.usumomo.c3,PAL.usufuji.c3]
   const MID_OUTER_COLS=[PAL.nyuhaku.c3,PAL.usufuji.c3,PAL.usumomo.c3,PAL.nyuhaku.c3]
 
+  // 3階層の中粒子を描画
   const layerDef=[
-    {arr:coreNodes,  cols:MID_CORE_COLS,  rMin:0.068, rMax:0.115, opBase:0.63, opZ:0.16}, // 15〜20%弱める
+    {arr:coreNodes,  cols:MID_CORE_COLS,  rMin:0.068, rMax:0.115, opBase:0.63, opZ:0.16},
     {arr:innerNodes, cols:MID_INNER_COLS, rMin:0.044, rMax:0.082, opBase:0.58, opZ:0.28},
     {arr:outerNodes, cols:MID_OUTER_COLS, rMin:0.030, rMax:0.055, opBase:0.42, opZ:0.30},
-  ].concat(
-    // 灰青粒子を外輪ノード周囲に少量・分散配置（塊にならないよう各ノードに1個）
-    outerNodes.slice(0,Math.ceil(outerNodes.length*0.5)).map((p,i)=>{
-      // 各ノードから少しランダムにずらして分散させる
-      const jitter=new THREE.Vector3(
-        (Math.random()-0.5)*0.18,
-        (Math.random()-0.5)*0.18,
-        (Math.random()-0.5)*0.12
-      )
-      const sp=new THREE.Mesh(
-        new THREE.SphereGeometry((0.022+Math.random()*0.018)*(0.65+(Math.max(0,Math.min(1,(p.z+1.15)/2.3)))*0.38),8,8),
-        new THREE.MeshBasicMaterial({color:PAL.haisei.c3,transparent:true,opacity:0.32+(Math.max(0,Math.min(1,(p.z+1.15)/2.3)))*0.22})
-      )
-      sp.position.set(p.x+jitter.x,p.y+jitter.y,p.z+jitter.z)
-      pivot.add(sp)
-      return null
-    }).filter(Boolean)
-  ).filter(x=>x&&x.arr)
+  ]
   layerDef.forEach(({arr,cols,rMin,rMax,opBase,opZ})=>{
     arr.forEach((p,i)=>{
       const zN=Math.max(0,Math.min(1,(p.z+1.15)/2.3))
@@ -798,6 +782,24 @@ function initEggMap(cid,wid,num){
       sphere.position.copy(p)
       pivot.add(sphere)
     })
+  })
+
+  // 灰青粒子：外輪ノード周囲に分散配置（独立ループ）
+  outerNodes.slice(0,Math.ceil(outerNodes.length*0.5)).forEach((p)=>{
+    const jx=(Math.random()-0.5)*0.18
+    const jy=(Math.random()-0.5)*0.18
+    const jz=(Math.random()-0.5)*0.12
+    const zN=Math.max(0,Math.min(1,(p.z+1.15)/2.3))
+    const r=(0.022+Math.random()*0.018)*(0.65+zN*0.38)
+    const sp=new THREE.Mesh(
+      new THREE.SphereGeometry(r,8,8),
+      new THREE.MeshBasicMaterial({
+        color:PAL.haisei.c3,transparent:true,
+        opacity:0.32+zN*0.22
+      })
+    )
+    sp.position.set(p.x+jx,p.y+jy,p.z+jz)
+    pivot.add(sp)
   })
 
   /* ════════════════════
