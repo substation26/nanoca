@@ -299,7 +299,7 @@ button:focus-visible,a:focus-visible,summary:focus-visible{outline:1.5px solid v
     <div>
       <div class="lbl">STEP 2 — 声を造形言語へ変換する / <b>it · design</b></div>
       <div class="h1" style="font-size:18px">割れた卵から、<br>5輪の花が咲きます</div>
-      <div class="sub">5つの視点それぞれが1輪の花に翻訳されました。<br>5輪は必ず異なる植物で構成されます。</div>
+      <div class="sub">5つの視点それぞれが1輪の花に翻訳されました。5輪は必ず異なる植物で、<br>二番花や蕾を添え、開花の状態に差をつけて束ねられます。</div>
     </div>
     <div class="egg-wrap" id="mapwrap">
       <canvas id="mc"></canvas>
@@ -720,6 +720,7 @@ function translateToFlowers(m){
     const trans=Math.round(30+ (1-v)*45 + rng()*10)         // 透明感%
     return {
       vp, v, sp, petals, size, openPct, trans,
+      buds: v<0.5?2:1,
       color:col,
       opening:OPENINGS[Math.min(3,Math.floor(openPct/26))],
       facing:FACINGS[Math.floor(rng()*3)],
@@ -808,7 +809,7 @@ function renderFlowers(fl){
         <div class="fa"><span class="k">茎</span><span class="v">${f.stem}</span></div>
         <div class="fa"><span class="k">透明感</span><span class="v">${f.trans}%</span></div>
       </div>
-      <div class="fnote">${f.sp.note} — 「${f.vp.jp}」${Math.round(f.v*100)} の翻訳</div>
+      <div class="fnote">${f.sp.note} — 「${f.vp.jp}」${Math.round(f.v*100)} の翻訳 ・ 蕾 ${f.buds} 個を添えて</div>
     </div>`
   }).join('')
   const b=balanceText(metrics)
@@ -886,7 +887,7 @@ function buildDesign(){
 function buildSaBox(){
   const rows=flowers.map(f=>[
     `${f.vp.jp} → ${f.sp.n}`,
-    `${f.color[0]} / ${f.sp.style==='cluster'?'集積':f.petals+'枚'} / ${f.size}mm / 開き${f.openPct}%`
+    `${f.color[0]} / ${f.sp.style==='cluster'?'集積':f.petals+'枚'} / ${f.size}mm / 開き${f.openPct}% / 蕾${f.buds}`
   ])
   rows.push(['全体のバランス',balanceText(metrics).t])
   rows.push(['土台','透明レジン 約2〜3cm・根は見せない'])
@@ -913,10 +914,12 @@ function goReset(){
 }
 
 /* ═══════════════════════════════════════════
-   3D 造形設計図 — 割れた卵殻から、5輪の花が外へ咲く
-   ・卵は必ず割れている（閉じた卵に花を閉じ込めない）
-   ・5輪は異なる植物 — radial / cup / wrap / cluster / raceme
-   ・下部に透明レジンの土台（約2〜3cm・根は見せない）
+   3D 造形設計図 — ブーケの骨格（3Dプリント前提）＋流動する色粒子
+   ・主役は「花の骨格」：輪郭線・葉脈・蕊の線画（完成品の彩色はしない）
+   ・ボリューム：主花＋二番花＋蕾＋葉を枝分かれで束ね、開花状態に差をつける
+   ・茎は結束リングで一点に束ね、プリント可能な一体骨格として描く
+   ・色彩は「流動する粒子」：濃淡を揺らしながら花を周回し、殻の口から螺旋状に立ちのぼる
+   ・卵は必ず割れている／土台は透明レジンの輪郭のみ（根は見せない）
    ═══════════════════════════════════════════ */
 function initSpecimen(cid,wid,num){
   const wrap=document.getElementById(wid)
@@ -933,20 +936,20 @@ function initSpecimen(cid,wid,num){
   const renderer=new THREE.WebGLRenderer({canvas,antialias:true,alpha:false})
   renderer.setSize(W,H)
   renderer.setPixelRatio(Math.min(devicePixelRatio,2))
-  renderer.setClearColor(0xf0ede5,1)
+  renderer.setClearColor(0xf3f0e9,1)
   const cam=new THREE.PerspectiveCamera(40,W/H,0.1,100)
-  cam.position.set(0,1.7,7.3)
-  cam.lookAt(0,0.75,0)
-  scene.add(new THREE.HemisphereLight(0xfffaf2,0x968f80,1.0))
-  const dl=new THREE.DirectionalLight(0xfff4e2,0.45);dl.position.set(2.5,5,3);scene.add(dl)
+  cam.position.set(0,1.9,8.7)
+  cam.lookAt(0,1.05,0)
 
   const pivot=new THREE.Group()
   scene.add(pivot)
   const srng=mulberry32(seed)
+  const INK=0x8a8375
+  const inkMat=op=>new THREE.LineBasicMaterial({color:INK,transparent:true,opacity:op})
 
-  /* ── 割れた卵殻（下半分・ギザギザの割れ口） ── */
+  /* ── 割れた卵殻：線画（薄い面＋子午線＋緯線＋割れ口） ── */
   const EGG={rx:1.22,ryB:1.42,ryT:1.9,rz:1.06}
-  function rimAt(th){ // 割れ口の高さ — 鋭い山谷で「割れ」を表す
+  function rimAt(th){
     const zig=(t,k)=>Math.abs(((t*k/(Math.PI*2))%1)-0.5)*2
     return 0.34+0.46*zig(th+0.7,5)+0.24*zig(th+2.1,9)+0.10*Math.sin(th*3+1.3)
   }
@@ -955,7 +958,7 @@ function initSpecimen(cid,wid,num){
     return EGG.rx*Math.sqrt(Math.max(0,1-(y/EGG.ryT)**2))
   }
   const TH=110,TT=14
-  const pos=[],idx=[],rimPts=[]
+  const pos=[],idx=[],rimPts=[],merid={}
   for(let i=0;i<=TH;i++){
     const th=i/TH*Math.PI*2
     const rim=rimAt(th)
@@ -963,8 +966,10 @@ function initSpecimen(cid,wid,num){
       const t=j/TT
       const y=-EGG.ryB*0.985+t*(rim+EGG.ryB*0.985)
       const r=Math.max(0.001,radAt(y))
-      pos.push(r*Math.cos(th),y,r*EGG.rz/EGG.rx*Math.sin(th))
-      if(j===TT)rimPts.push(new THREE.Vector3(r*Math.cos(th),y,r*EGG.rz/EGG.rx*Math.sin(th)))
+      const P=[r*Math.cos(th),y,r*EGG.rz/EGG.rx*Math.sin(th)]
+      pos.push(P[0],P[1],P[2])
+      if(i%10===0)(merid[i]=merid[i]||[]).push(new THREE.Vector3(P[0],P[1],P[2]))
+      if(j===TT)rimPts.push(new THREE.Vector3(P[0],P[1],P[2]))
     }
   }
   for(let i=0;i<TH;i++)for(let j=0;j<TT;j++){
@@ -975,32 +980,28 @@ function initSpecimen(cid,wid,num){
   shellGeo.setAttribute('position',new THREE.BufferAttribute(new Float32Array(pos),3))
   shellGeo.setIndex(idx)
   shellGeo.computeVertexNormals()
-  const shell=new THREE.Mesh(shellGeo,new THREE.MeshLambertMaterial({color:0xf4efe4,side:THREE.DoubleSide}))
-  pivot.add(shell)
-  const inner=new THREE.Mesh(shellGeo,new THREE.MeshLambertMaterial({color:0xe8e0d0,side:THREE.BackSide,transparent:true,opacity:0.9}))
-  inner.scale.set(0.985,0.985,0.985)
-  pivot.add(inner)
-  pivot.add(new THREE.Line(
-    new THREE.BufferGeometry().setFromPoints(rimPts.concat([rimPts[0]])),
-    new THREE.LineBasicMaterial({color:0xb8b0a0,transparent:true,opacity:0.75})
-  ))
+  pivot.add(new THREE.Mesh(shellGeo,new THREE.MeshBasicMaterial({color:0xfbf8f1,transparent:true,opacity:0.42,side:THREE.DoubleSide})))
+  Object.values(merid).forEach(mp=>pivot.add(new THREE.Line(new THREE.BufferGeometry().setFromPoints(mp),inkMat(0.16))))
+  pivot.add(new THREE.LineLoop(new THREE.BufferGeometry().setFromPoints(rimPts),inkMat(0.6)))
+  ;[-0.9,-0.25].forEach(y=>{
+    const r=radAt(y),c=[]
+    for(let i=0;i<=72;i++){const a=i/72*Math.PI*2;c.push(new THREE.Vector3(r*Math.cos(a),y,r*EGG.rz/EGG.rx*Math.sin(a)))}
+    pivot.add(new THREE.Line(new THREE.BufferGeometry().setFromPoints(c),inkMat(0.14)))
+  })
 
-  /* ── 透明レジンの土台（約2〜3cm・根は見せない） ── */
-  const base=new THREE.Mesh(
-    new THREE.CylinderGeometry(1.02,1.12,0.34,48),
-    new THREE.MeshLambertMaterial({color:0xd8e4de,transparent:true,opacity:0.30})
-  )
-  base.position.y=-EGG.ryB-0.13
-  pivot.add(base)
-  const baseTop=new THREE.Mesh(
-    new THREE.CircleGeometry(1.02,48),
-    new THREE.MeshBasicMaterial({color:0xffffff,transparent:true,opacity:0.14})
-  )
-  baseTop.rotation.x=-Math.PI/2
-  baseTop.position.y=-EGG.ryB+0.045
-  pivot.add(baseTop)
+  /* ── 透明レジンの土台：輪郭線のみ（根は見せない） ── */
+  const bc=[]
+  for(let i=0;i<=72;i++){const a=i/72*Math.PI*2;bc.push(new THREE.Vector3(1.1*Math.cos(a),-EGG.ryB-0.28,1.1*Math.sin(a)))}
+  pivot.add(new THREE.Line(new THREE.BufferGeometry().setFromPoints(bc),inkMat(0.3)))
 
-  /* ── 花弁 shape ── */
+  /* ── 結束リング：茎を一点に束ねる（プリント骨格の要） ── */
+  ;[[-0.32,0.5],[-0.24,0.3]].forEach(([y,op])=>{
+    const ring=[]
+    for(let i=0;i<=40;i++){const a=i/40*Math.PI*2;ring.push(new THREE.Vector3(0.17*Math.cos(a),y,0.17*Math.sin(a)))}
+    pivot.add(new THREE.LineLoop(new THREE.BufferGeometry().setFromPoints(ring),inkMat(op)))
+  })
+
+  /* ── 花弁の骨格：輪郭線＋ごく薄い面＋葉脈 ── */
   function petalShape(len,wid){
     const s=new THREE.Shape()
     s.moveTo(0,0)
@@ -1008,74 +1009,76 @@ function initSpecimen(cid,wid,num){
     s.bezierCurveTo(-wid*0.62,len*0.72, -wid*0.55,len*0.22, 0,0)
     return s
   }
-  function petalMat(hex,op){
-    return new THREE.MeshLambertMaterial({
-      color:new THREE.Color(hex),emissive:new THREE.Color(hex),emissiveIntensity:0.42,
-      transparent:true,opacity:op,side:THREE.DoubleSide,depthWrite:false
-    })
+  function petalSketch(len,wid,vein){
+    const sh=petalShape(len,wid),g=new THREE.Group()
+    g.add(new THREE.Mesh(new THREE.ShapeGeometry(sh,8),new THREE.MeshBasicMaterial({color:0xfdfcf8,transparent:true,opacity:0.40,side:THREE.DoubleSide,depthWrite:false})))
+    g.add(new THREE.LineLoop(new THREE.BufferGeometry().setFromPoints(sh.getPoints(20)),inkMat(0.60)))
+    if(vein)g.add(new THREE.Line(new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(0,len*0.12,0.002),new THREE.Vector3(0,len*0.8,0.002)]),inkMat(0.2)))
+    return g
   }
-  /* 1つの花冠（radial/cup） */
-  function makeCorolla(f,scale){
+  /* 花冠（radial/cup）：多層の花弁骨格＋蕊 — openMulで開花状態に差をつける */
+  function makeCorolla(f,scale,openMul){
     const g=new THREE.Group()
-    const n=Math.min(f.petals,22)
-    const layers=f.petals>10?2:1
-    const openA=(f.sp.style==='cup'?0.28:0.16)+ (1-f.openPct/100)*0.55 // 軸からの立ち上がり（小=開く）
+    const base=Math.min(f.petals,22)
+    const layers=base>10?3:(base>=5?2:1)
+    const openA=((f.sp.style==='cup'?0.30:0.16)+(1-(f.openPct*openMul)/100)*0.55)
     for(let L=0;L<layers;L++){
-      const cnt=L===0?Math.ceil(n/layers):Math.floor(n/layers)
+      const cnt=Math.max(3,Math.round(base*(1-L*0.25)))
       for(let i=0;i<cnt;i++){
-        const pm=new THREE.Mesh(new THREE.ShapeGeometry(petalShape(scale*(1-L*0.28),scale*0.52),8),petalMat(f.color[2],0.42+(1-f.trans/100)*0.45))
-        const az=i/cnt*Math.PI*2+L*0.4
-        pm.rotation.order='ZYX'
-        // 花弁を軸まわりに配置し、開き具合で倒す
+        const pg=petalSketch(scale*(1-L*0.24),scale*0.56*(1-L*0.12),true)
         const hold=new THREE.Group()
-        pm.rotation.x=-(Math.PI/2)*(1-openA)  // 開き
-        hold.add(pm)
-        hold.rotation.y=az
-        hold.position.y=L*scale*0.05
+        pg.rotation.x=-(Math.PI/2)*(1-openA*(1-L*0.28))
+        hold.add(pg);hold.rotation.y=i/cnt*Math.PI*2+L*(Math.PI/cnt)
+        hold.position.y=L*scale*0.04
         g.add(hold)
       }
     }
-    const core=new THREE.Mesh(new THREE.SphereGeometry(scale*0.13,10,10),
-      new THREE.MeshLambertMaterial({color:0xd9c273,emissive:0xd9c273,emissiveIntensity:0.5}))
-    g.add(core)
-    return g
-  }
-  /* カラー（wrap）：一枚花弁の漏斗 */
-  function makeWrap(f,scale){
-    const g=new THREE.Group()
-    const prof=[]
-    for(let i=0;i<=10;i++){
-      const t=i/10
-      prof.push(new THREE.Vector2(0.05+Math.pow(t,1.6)*scale*0.9, t*scale*1.5))
+    const sc=Math.max(5,Math.min(9,f.petals))
+    for(let i=0;i<sc;i++){
+      const a=i/sc*Math.PI*2,tl=scale*0.32
+      const tip=new THREE.Vector3(Math.cos(a)*tl*0.5,tl,Math.sin(a)*tl*0.5)
+      g.add(new THREE.Line(new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(0,scale*0.05,0),tip]),inkMat(0.4)))
+      const dot=new THREE.Mesh(new THREE.SphereGeometry(scale*0.034,6,6),new THREE.MeshBasicMaterial({color:new THREE.Color(f.color[2])}))
+      dot.position.copy(tip);g.add(dot)
     }
-    const funnel=new THREE.Mesh(new THREE.LatheGeometry(prof,26),petalMat(f.color[2],0.5+(1-f.trans/100)*0.4))
-    g.add(funnel)
-    const spadix=new THREE.Mesh(new THREE.CylinderGeometry(scale*0.07,scale*0.09,scale*1.1,10),
-      new THREE.MeshLambertMaterial({color:0xdcc26a,emissive:0xdcc26a,emissiveIntensity:0.45}))
-    spadix.position.y=scale*0.62
-    g.add(spadix)
     return g
   }
-  /* 紫陽花・かすみ草（cluster）：小花の集積 */
+  /* カラー（wrap）：漏斗の線画＋肉穂 */
+  function makeWrap(f,scale){
+    const g=new THREE.Group(),prof=[]
+    for(let i=0;i<=10;i++){const t=i/10;prof.push(new THREE.Vector2(0.05+Math.pow(t,1.6)*scale*0.95,t*scale*1.55))}
+    g.add(new THREE.Mesh(new THREE.LatheGeometry(prof,26),new THREE.MeshBasicMaterial({color:0xfdfcf8,transparent:true,opacity:0.34,side:THREE.DoubleSide,depthWrite:false})))
+    for(let k=0;k<6;k++){
+      const a=k/6*Math.PI*2
+      g.add(new THREE.Line(new THREE.BufferGeometry().setFromPoints(prof.map(p=>new THREE.Vector3(p.x*Math.cos(a),p.y,p.x*Math.sin(a)))),inkMat(0.3)))
+    }
+    const rc=[]
+    for(let i=0;i<=40;i++){const a=i/40*Math.PI*2;rc.push(new THREE.Vector3(prof[10].x*Math.cos(a),prof[10].y,prof[10].x*Math.sin(a)))}
+    g.add(new THREE.LineLoop(new THREE.BufferGeometry().setFromPoints(rc),inkMat(0.55)))
+    const sp=new THREE.Vector3(0,scale*1.1,0)
+    g.add(new THREE.Line(new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(0,scale*0.1,0),sp]),inkMat(0.45)))
+    const dot=new THREE.Mesh(new THREE.SphereGeometry(scale*0.05,6,6),new THREE.MeshBasicMaterial({color:new THREE.Color(f.color[2])}))
+    dot.position.copy(sp);g.add(dot)
+    return g
+  }
+  /* 紫陽花・かすみ草（cluster）：小花骨格の集積 */
   function makeCluster(f,scale){
     const g=new THREE.Group()
     const dense=f.sp.n==='紫陽花'
-    const cnt=dense?26:12
-    const R=scale*(dense?0.85:1.05)
+    const cnt=dense?32:16
+    const R=scale*(dense?0.92:1.1)
     for(let i=0;i<cnt;i++){
-      const phi=Math.acos(1-srng()*(dense?1.0:1.3))
-      const th=srng()*Math.PI*2
-      const p=new THREE.Vector3(R*Math.sin(phi)*Math.cos(th),R*Math.cos(phi)*0.7,R*Math.sin(phi)*Math.sin(th))
+      const phi=Math.acos(1-srng()*(dense?1.0:1.3)),th=srng()*Math.PI*2
+      const p=new THREE.Vector3(R*Math.sin(phi)*Math.cos(th),R*Math.cos(phi)*0.72,R*Math.sin(phi)*Math.sin(th))
       const fg=new THREE.Group()
       for(let k=0;k<4;k++){
-        const pm=new THREE.Mesh(new THREE.ShapeGeometry(petalShape(scale*0.30,scale*0.20),6),petalMat(f.color[2],0.55))
+        const pg=petalSketch(scale*0.32,scale*0.22,false)
         const hold=new THREE.Group()
-        pm.rotation.x=-Math.PI/2*0.35
-        hold.add(pm);hold.rotation.y=k/4*Math.PI*2
+        pg.rotation.x=-Math.PI/2*0.35
+        hold.add(pg);hold.rotation.y=k/4*Math.PI*2
         fg.add(hold)
       }
-      const dot=new THREE.Mesh(new THREE.SphereGeometry(scale*0.045,6,6),
-        new THREE.MeshLambertMaterial({color:0xffffff,emissive:0xffffff,emissiveIntensity:0.3}))
+      const dot=new THREE.Mesh(new THREE.SphereGeometry(scale*0.032,6,6),new THREE.MeshBasicMaterial({color:new THREE.Color(f.color[2])}))
       fg.add(dot)
       fg.position.copy(p)
       fg.lookAt(p.clone().multiplyScalar(2))
@@ -1083,116 +1086,204 @@ function initSpecimen(cid,wid,num){
     }
     return g
   }
-  /* 藤・スイートピー・スズラン（raceme）：垂れる房 */
+  /* 藤・スイートピー・スズラン（raceme）：垂れる房の骨格 */
   function makeRaceme(f,scale){
     const g=new THREE.Group()
-    const droop=f.sp.n==='藤'?1.5:(f.sp.n==='スズラン'?0.9:1.1)
-    const cnt=f.sp.n==='藤'?9:6
+    const droop=f.sp.n==='藤'?1.6:(f.sp.n==='スズラン'?0.95:1.15)
+    const cnt=f.sp.n==='藤'?12:8
     const curve=new THREE.CatmullRomCurve3([
       new THREE.Vector3(0,0,0),
-      new THREE.Vector3(scale*0.5,-scale*droop*0.5,0),
-      new THREE.Vector3(scale*0.72,-scale*droop*1.15,0),
+      new THREE.Vector3(scale*0.55,-scale*droop*0.5,0),
+      new THREE.Vector3(scale*0.78,-scale*droop*1.2,0),
     ])
-    const tube=new THREE.Mesh(new THREE.TubeGeometry(curve,14,0.012,6),
-      new THREE.MeshLambertMaterial({color:0x8d9484}))
-    g.add(tube)
+    g.add(new THREE.Line(new THREE.BufferGeometry().setFromPoints(curve.getPoints(18)),inkMat(0.5)))
     for(let i=0;i<cnt;i++){
-      const t=(i+1)/(cnt+1)
-      const p=curve.getPoint(t)
-      const sz=scale*0.34*(1-t*0.38)
+      const t=(i+1)/(cnt+1),p=curve.getPoint(t)
+      const sz=scale*0.36*(1-t*0.35)
       const fg=new THREE.Group()
       for(let k=0;k<f.petals;k++){
-        const pm=new THREE.Mesh(new THREE.ShapeGeometry(petalShape(sz,sz*0.62),6),petalMat(f.color[2],0.5+(1-f.trans/100)*0.4))
+        const pg=petalSketch(sz,sz*0.64,false)
         const hold=new THREE.Group()
-        pm.rotation.x=-Math.PI/2*0.5
-        hold.add(pm);hold.rotation.y=k/f.petals*Math.PI*2
+        pg.rotation.x=-Math.PI/2*0.5
+        hold.add(pg);hold.rotation.y=k/f.petals*Math.PI*2
         fg.add(hold)
       }
+      const dot=new THREE.Mesh(new THREE.SphereGeometry(sz*0.14,6,6),new THREE.MeshBasicMaterial({color:new THREE.Color(f.color[2])}))
+      fg.add(dot)
       fg.position.copy(p)
-      fg.position.z+=(srng()-0.5)*scale*0.25
-      fg.rotation.x=Math.PI*0.85 // 俯く
+      fg.position.z+=(srng()-0.5)*scale*0.28
+      fg.rotation.x=Math.PI*0.85
       g.add(fg)
     }
     return g
   }
+  /* 蕾：閉じた花の回転体線画＋萼＋色の点 */
+  function makeBud(f,scale){
+    const g=new THREE.Group(),prof=[]
+    for(let i=0;i<=8;i++){
+      const t=i/8
+      prof.push(new THREE.Vector2(0.012+Math.sin(t*Math.PI)*scale*0.20*(1-t*0.22),t*scale*0.52))
+    }
+    g.add(new THREE.Mesh(new THREE.LatheGeometry(prof,14),new THREE.MeshBasicMaterial({color:0xfdfcf8,transparent:true,opacity:0.42,side:THREE.DoubleSide,depthWrite:false})))
+    for(let k=0;k<5;k++){
+      const a=k/5*Math.PI*2
+      g.add(new THREE.Line(new THREE.BufferGeometry().setFromPoints(prof.map(p=>new THREE.Vector3(p.x*Math.cos(a),p.y,p.x*Math.sin(a)))),inkMat(0.5)))
+    }
+    for(let k=0;k<3;k++){
+      const a=k/3*Math.PI*2+0.5
+      g.add(new THREE.Line(new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(0,0.01,0),new THREE.Vector3(Math.cos(a)*scale*0.17,scale*0.2,Math.sin(a)*scale*0.17)]),inkMat(0.45)))
+    }
+    const dot=new THREE.Mesh(new THREE.SphereGeometry(scale*0.035,6,6),new THREE.MeshBasicMaterial({color:new THREE.Color(f.color[2])}))
+    dot.position.y=scale*0.53;g.add(dot)
+    return g
+  }
+  function orient(obj,pos,th,lift){
+    obj.position.copy(pos)
+    const target=pos.clone().add(new THREE.Vector3(Math.cos(th)*(1-lift),lift*1.6,Math.sin(th)*(1-lift)))
+    obj.up.set(0,0,1)
+    obj.lookAt(target)
+    obj.rotateX(Math.PI/2)
+  }
 
-  /* ── 5輪を割れ口から外へ ── */
-  const blooms=[]
+  /* ── 流動する色粒子：濃淡を揺らしながら流れる ── */
+  const BG=new THREE.Color(0xf3f0e9)
+  const whiteTex=(()=>{
+    const cv=document.createElement('canvas');cv.width=cv.height=32
+    const ctx=cv.getContext('2d'),gd=ctx.createRadialGradient(16,16,1,16,16,16)
+    gd.addColorStop(0,'rgba(255,255,255,1)')
+    gd.addColorStop(0.55,'rgba(255,255,255,0.6)')
+    gd.addColorStop(1,'rgba(255,255,255,0)')
+    ctx.fillStyle=gd;ctx.beginPath();ctx.arc(16,16,16,0,Math.PI*2);ctx.fill()
+    return new THREE.CanvasTexture(cv)
+  })()
+  const flows=[]
+  const allCols=flowers.map(x=>new THREE.Color(x.color[2]))
+  function makeFlow(cnt,size,op,gen){
+    const P=new Float32Array(cnt*3),C=new Float32Array(cnt*3),prms=[]
+    for(let i=0;i<cnt;i++)prms.push(gen(i))
+    const geo=new THREE.BufferGeometry()
+    geo.setAttribute('position',new THREE.BufferAttribute(P,3))
+    geo.setAttribute('color',new THREE.BufferAttribute(C,3))
+    pivot.add(new THREE.Points(geo,new THREE.PointsMaterial({map:whiteTex,size,transparent:true,opacity:op,vertexColors:true,sizeAttenuation:true,depthWrite:false})))
+    flows.push({P,C,prms,geo})
+  }
+  /* 花冠を周回する粒子（上下に揺れ、濃淡が明滅する） */
+  function cloudGen(center,scale,ownHex){
+    return ()=>({
+      c:center,
+      col:srng()<0.55?new THREE.Color(ownHex):allCols[Math.floor(srng()*allCols.length)],
+      r:scale*(0.45+Math.pow(srng(),0.7)*1.25),
+      th0:srng()*Math.PI*2,
+      om:(0.12+srng()*0.3)*(srng()<0.5?-1:1),
+      y0:(srng()-0.5)*scale*1.5,
+      bA:scale*(0.1+srng()*0.25),bW:0.4+srng()*1.0,bP:srng()*Math.PI*2,
+      fW:0.5+srng()*0.9,fP:srng()*Math.PI*2,
+      upd(prm,t){
+        const a=prm.th0+prm.om*t
+        return [prm.c.x+prm.r*Math.cos(a),
+                prm.c.y+prm.y0+prm.bA*Math.sin(prm.bW*t+prm.bP),
+                prm.c.z+prm.r*Math.sin(a)*0.9,
+                0.40+0.60*(0.5+0.5*Math.sin(prm.fW*t+prm.fP))]
+      }
+    })
+  }
+  /* 殻の口から立ちのぼる螺旋の流れ（声が立ちのぼるイメージ） */
+  function streamGen(){
+    return i=>({
+      p:srng(),sp:0.045+srng()*0.05,a0:srng()*Math.PI*2,rj:0.85+srng()*0.4,
+      col:allCols[i%allCols.length].clone(),
+      upd(prm,t){
+        const p=(prm.p+prm.sp*t)%1
+        const y=0.85+p*3.0
+        const r=(1.32-p*0.72)*prm.rj
+        const a=prm.a0+p*3.6+t*0.12
+        return [r*Math.cos(a),y,r*Math.sin(a)*0.9,
+                Math.sin(Math.PI*p)*(0.42+0.58*(0.5+0.5*Math.sin(t*0.9+prm.a0)))]
+      }
+    })
+  }
+
+  /* ── 5輪：主花＋二番花＋蕾＋葉で「束」に ── */
+  const hMul=[1.0,0.84,1.08,0.8,0.95]
   flowers.forEach((f,i)=>{
     const th=f.angle
     const rim=rimAt(th)
-    const scale=0.26+ (f.size-16)/30*0.34     // 花の大きさ
-    // 茎：殻の内側から割れ口を越えて外へ
-    const p0=new THREE.Vector3(Math.cos(th)*0.30,-0.55,Math.sin(th)*0.27)
-    const outR=0.70+f.stemLen*0.46
-    const topY=rim+0.45+f.stemLen*0.55
+    const scale=0.30+(f.size-16)/30*0.40
+    // 主茎：結束リングを通り、割れ口を越えて外へ（線画・二重線）
+    const p0=new THREE.Vector3(Math.cos(th)*0.10,-0.72,Math.sin(th)*0.09)
+    const outR=0.70+f.stemLen*0.44
+    const topY=rim+(0.42+f.stemLen*0.55)*hMul[i]
     const p3=new THREE.Vector3(Math.cos(th)*outR*0.92,topY,Math.sin(th)*outR*0.85)
-    const p1=new THREE.Vector3(Math.cos(th)*0.42,rim*0.55,Math.sin(th)*0.38)
-    const p2=new THREE.Vector3(Math.cos(th)*outR*0.72,rim+ (topY-rim)*0.55,Math.sin(th)*outR*0.66)
+    const p1=new THREE.Vector3(Math.cos(th)*0.30,rim*0.5,Math.sin(th)*0.27)
+    const p2=new THREE.Vector3(Math.cos(th)*outR*0.72,rim+(topY-rim)*0.55,Math.sin(th)*outR*0.66)
     const curve=new THREE.CatmullRomCurve3([p0,p1,p2,p3])
-    const stem=new THREE.Mesh(new THREE.TubeGeometry(curve,22,0.022,7),
-      new THREE.MeshLambertMaterial({color:0x87907f}))
-    pivot.add(stem)
-    // 葉を1枚
-    if(srng()<0.8){
-      const lp=curve.getPoint(0.55+srng()*0.2)
-      const leaf=new THREE.Mesh(new THREE.ShapeGeometry(petalShape(0.30,0.13),6),
-        new THREE.MeshLambertMaterial({color:0x9aa48e,transparent:true,opacity:0.85,side:THREE.DoubleSide}))
+    pivot.add(new THREE.Line(new THREE.BufferGeometry().setFromPoints(curve.getPoints(26)),inkMat(0.65)))
+    const off=curve.getPoints(26).map(p=>new THREE.Vector3(p.x+0.015*Math.cos(th+Math.PI/2),p.y,p.z+0.015*Math.sin(th+Math.PI/2)))
+    pivot.add(new THREE.Line(new THREE.BufferGeometry().setFromPoints(off),inkMat(0.32)))
+    // 葉2枚
+    ;[0.48,0.7].forEach((tt,k)=>{
+      const lp=curve.getPoint(tt+srng()*0.06)
+      const leaf=petalSketch(0.36,0.15,true)
       leaf.position.copy(lp)
-      leaf.rotation.set(-0.5,th,0.9)
+      leaf.rotation.set(-0.5+k*0.3,th+k*1.8,0.9)
       pivot.add(leaf)
-    }
-    // 花冠
+    })
+    // 主花
     let bloom
     if(f.sp.style==='wrap')bloom=makeWrap(f,scale)
     else if(f.sp.style==='cluster')bloom=makeCluster(f,scale)
     else if(f.sp.style==='raceme')bloom=makeRaceme(f,scale)
-    else bloom=makeCorolla(f,scale)
-    bloom.position.copy(p3)
-    // 向き：やや俯き / 外向き / 空向き
+    else bloom=makeCorolla(f,scale,1)
     const lift=f.facing==='空へ向かって'?0.95:(f.facing==='外へ向かって'?0.45:0.05)
-    if(f.sp.style!=='raceme'){
-      const target=p3.clone().add(new THREE.Vector3(Math.cos(th)*(1-lift),lift*1.6,Math.sin(th)*(1-lift)))
-      bloom.up.set(0,0,1)
-      bloom.lookAt(target)
-      bloom.rotateX(Math.PI/2)
-    }else{
-      bloom.rotation.y=th
-    }
+    if(f.sp.style!=='raceme'){orient(bloom,p3,th,lift)}
+    else{bloom.position.copy(p3);bloom.rotation.y=th}
     pivot.add(bloom)
-    blooms.push({center:p3,color:f.color[2],scale})
-  })
-
-  /* ── 花粉・光の微粒子（花のまわりに漂う） ── */
-  function softTex(hex){
-    const cv=document.createElement('canvas');cv.width=cv.height=32
-    const ctx=cv.getContext('2d')
-    const gd=ctx.createRadialGradient(16,16,1,16,16,16)
-    const c=new THREE.Color(hex)
-    const r=Math.round(c.r*255),g2=Math.round(c.g*255),b=Math.round(c.b*255)
-    gd.addColorStop(0,`rgba(${r},${g2},${b},0.9)`)
-    gd.addColorStop(0.6,`rgba(${r},${g2},${b},0.5)`)
-    gd.addColorStop(1,`rgba(${r},${g2},${b},0)`)
-    ctx.fillStyle=gd;ctx.beginPath();ctx.arc(16,16,16,0,Math.PI*2);ctx.fill()
-    return new THREE.CanvasTexture(cv)
-  }
-  blooms.forEach(b=>{
-    const pts=[]
-    for(let i=0;i<26;i++){
-      const rr=b.scale*(0.7+srng()*1.6)
-      const th=srng()*Math.PI*2,ph=Math.acos(2*srng()-1)
-      pts.push(b.center.x+rr*Math.sin(ph)*Math.cos(th),
-               b.center.y+rr*Math.cos(ph)*0.8,
-               b.center.z+rr*Math.sin(ph)*Math.sin(th))
+    // 二番花（radial/cup：開きをおさえ、内側寄り・低めに添えて中心を満たす）
+    if(f.sp.style==='radial'||f.sp.style==='cup'){
+      const bp=curve.getPoint(0.66)
+      const sp3=new THREE.Vector3(bp.x*0.5+Math.cos(th+2.4)*0.28,bp.y+0.55+srng()*0.25,bp.z*0.5+Math.sin(th+2.4)*0.25)
+      const br=new THREE.CatmullRomCurve3([bp,new THREE.Vector3((bp.x+sp3.x)/2,(bp.y+sp3.y)/2+0.1,(bp.z+sp3.z)/2),sp3])
+      pivot.add(new THREE.Line(new THREE.BufferGeometry().setFromPoints(br.getPoints(12)),inkMat(0.5)))
+      const b2=makeCorolla(f,scale*0.62,0.55)
+      orient(b2,sp3,th+2.4,0.6)
+      pivot.add(b2)
     }
-    const geo=new THREE.BufferGeometry()
-    geo.setAttribute('position',new THREE.BufferAttribute(new Float32Array(pts),3))
-    pivot.add(new THREE.Points(geo,new THREE.PointsMaterial({
-      map:softTex(b.color),size:0.055,transparent:true,opacity:0.6,sizeAttenuation:true,depthWrite:false
-    })))
+    // 蕾（枝分かれ・声の解析値で個数が変わる）
+    for(let k=0;k<(f.buds||1);k++){
+      const bp=curve.getPoint(0.55+k*0.18)
+      const dir=k===0?th+Math.PI*0.5:th-Math.PI*0.4
+      const bp3=new THREE.Vector3(bp.x+Math.cos(dir)*(0.30+srng()*0.15),bp.y+0.42+srng()*0.3,bp.z+Math.sin(dir)*(0.28+srng()*0.14))
+      const br=new THREE.CatmullRomCurve3([bp,new THREE.Vector3((bp.x+bp3.x)/2,(bp.y+bp3.y)/2+0.06,(bp.z+bp3.z)/2),bp3])
+      pivot.add(new THREE.Line(new THREE.BufferGeometry().setFromPoints(br.getPoints(12)),inkMat(0.48)))
+      const bud=makeBud(f,scale)
+      orient(bud,bp3,dir,0.85)
+      pivot.add(bud)
+    }
+    // 纏う粒子（流動）
+    makeFlow(60+Math.round(f.v*40),0.048,0.9,cloudGen(p3,scale,f.color[2]))
+    makeFlow(18,0.105,0.6,cloudGen(p3,scale*1.1,f.color[2]))
   })
+  // 立ちのぼる螺旋の流れ
+  makeFlow(170,0.052,0.85,streamGen())
+  makeFlow(50,0.11,0.5,streamGen())
 
-  /* ── 操作：ドラッグ回転 + 自動回転 ── */
+  function updateFlows(t){
+    flows.forEach(fl=>{
+      for(let i=0;i<fl.prms.length;i++){
+        const prm=fl.prms[i]
+        const r=prm.upd(prm,t)
+        fl.P[i*3]=r[0];fl.P[i*3+1]=r[1];fl.P[i*3+2]=r[2]
+        const c=prm.col,fade=r[3]
+        fl.C[i*3]=BG.r+(c.r-BG.r)*fade
+        fl.C[i*3+1]=BG.g+(c.g-BG.g)*fade
+        fl.C[i*3+2]=BG.b+(c.b-BG.b)*fade
+      }
+      fl.geo.attributes.position.needsUpdate=true
+      fl.geo.attributes.color.needsUpdate=true
+    })
+  }
+
+  /* ── 操作：ドラッグ回転＋自動回転＋粒子の流動 ── */
   let dragging=false,lastX=0,vel=0,rotY=0,idleT=0
   const onDown=e=>{dragging=true;lastX=(e.touches?e.touches[0].clientX:e.clientX);canvas.style.cursor='grabbing'}
   const onMove=e=>{
@@ -1206,13 +1297,16 @@ function initSpecimen(cid,wid,num){
   window.addEventListener('pointerup',onUp)
 
   const reduced=matchMedia('(prefers-reduced-motion: reduce)').matches
+  const t0=(typeof performance!=='undefined'?performance.now():0)
   let aid
+  if(reduced)updateFlows(6) // 動きを抑える設定では静止画として描く
   const animate=()=>{
     aid=requestAnimationFrame(animate)
     if(!dragging){
       vel*=0.94;idleT++
-      rotY+=vel+(idleT>90&&!reduced?0.0055:0)
+      rotY+=vel+(idleT>90&&!reduced?0.0045:0)
     }
+    if(!reduced)updateFlows((performance.now()-t0)/1000)
     pivot.rotation.y=rotY
     renderer.render(scene,cam)
   }
