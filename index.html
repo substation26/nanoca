@@ -246,8 +246,8 @@ button:focus-visible,a:focus-visible,summary:focus-visible{outline:1.5px solid v
         <p>声標本は「完成品」ではありません。その瞬間の声を採取した標本です。しかし標本でありながら、変化を止めるものではなく、<em>未来も含めて観察していく「生きた標本」</em>という思想でつくられています。</p>
         <h4>卵について</h4>
         <p>卵は容器ではありません。生命を包んでいた痕跡であり、存在していた証です。そのため、<em>卵は必ず割れています</em>。花は卵の中に閉じ込められません。割れた殻から、外へ向かって咲いていきます。これは「生まれてきた声」を意味します。</p>
-        <h4>5輪の花はすべて異なる植物です</h4>
-        <p>一つの卵から、5輪の花が咲きます。それぞれは、科学的解析から得られた5つの視点<em>（重心・密度・流れ・光・余韻）</em>を翻訳した花です。同じ「余韻」でも、ある人はスイートピーになり、別の人は藤になることがあります。</p>
+        <h4>5輪はすべて、実在しない花です</h4>
+        <p>一つの卵から、5輪の花が咲きます。それぞれは、科学的解析から得られた5つの視点<em>（重心・密度・流れ・光・余韻）</em>を翻訳した花です。図鑑のどこにも載っていない、あなたの声だけが咲かせた花<em>「nanoca（何の花）」</em>——その一輪ずつに、声の気配から綴った新しい名前が与えられます。</p>
       </div>
     </details>
     <button class="abtn" id="abtn" onclick="startAnalysis()">解析を開始する</button>
@@ -299,7 +299,7 @@ button:focus-visible,a:focus-visible,summary:focus-visible{outline:1.5px solid v
     <div>
       <div class="lbl">STEP 2 — 声を造形言語へ変換する / <b>it · design</b></div>
       <div class="h1" style="font-size:18px">割れた卵から、<br>5輪の花が咲きます</div>
-      <div class="sub">5つの視点それぞれが1輪の花に翻訳されました。5輪は必ず異なる植物で、<br>二番花や蕾を添え、開花の状態に差をつけて束ねられます。</div>
+      <div class="sub">5つの視点それぞれが1輪の花に翻訳されました。5輪はすべて実在しない、<br>あなたの声だけが咲かせた花「nanoca」。一輪ずつに新しい名が与えられます。</div>
     </div>
     <div class="egg-wrap" id="mapwrap">
       <canvas id="mc"></canvas>
@@ -310,7 +310,7 @@ button:focus-visible,a:focus-visible,summary:focus-visible{outline:1.5px solid v
     <div class="fgrid" id="fgrid"></div>
     <div class="balance" id="balance"></div>
     <div class="note">
-      <p>花種・花弁数・大きさ・開き方・向き・透明感・色は、すべて解析結果から異なります</p>
+      <p>花の名・かたち・花弁数・大きさ・開き方・透明感・色は、すべて解析結果から生まれます</p>
       <p><em>ここではまだ作品は完成していません。これは骨格の設計図です</em></p>
     </div>
     <div class="row2">
@@ -683,35 +683,18 @@ function spread(m){
 }
 
 /* ─── 造形言語への変換（IT｜アルゴリズム・設計） ───
-   5つの視点 → 5輪の花。5輪は必ず異なる植物。
-   同じ視点でも値と声のシードによって別の花種になる。 */
-const SPECIES = {
-  core: [
-    {n:'胡蝶蘭',   r:'phalaenopsis', style:'radial', pet:[5,6],   note:'どっしりと中心に据わる、声の芯'},
-    {n:'チューリップ',r:'tulip',      style:'cup',    pet:[6,6],   note:'すっと立ち上がる、まっすぐな存在感'},
-    {n:'スズラン', r:'lily of the valley', style:'raceme', pet:[6,6], note:'小さくとも確かな、俯きがちな重心'},
-  ],
-  dens: [
-    {n:'紫陽花',   r:'hydrangea',    style:'cluster',pet:[4,4],   note:'小花が寄り集まる、濃い情報の粒'},
-    {n:'ラナンキュラス',r:'ranunculus',style:'radial',pet:[7,8], note:'幾重にも重なる、きめの細かさ'},
-    {n:'かすみ草', r:'gypsophila',   style:'cluster',pet:[5,5],   note:'まばらに漂う、余白の多い密度'},
-  ],
-  flow: [
-    {n:'桜',       r:'cherry blossom', style:'radial',pet:[5,5],  note:'枝先へ流れていく、リズムの連なり'},
-    {n:'スイートピー',r:'sweet pea',  style:'raceme', pet:[4,5],  note:'ひらひらと揺れる、軽やかな抑揚'},
-    {n:'藤',       r:'wisteria',     style:'raceme', pet:[4,4],   note:'流れ落ちるように続く、長い連続性'},
-  ],
-  light: [
-    {n:'カラー',   r:'calla lily',   style:'wrap',   pet:[1,1],   note:'一枚の花弁が光を透かす、抜けの良さ'},
-    {n:'マーガレット',r:'marguerite',style:'radial', pet:[7,8], note:'まっすぐ開く、明るい放射'},
-    {n:'百合',     r:'lily',         style:'radial', pet:[6,6],   note:'大きく開いて光を受ける、声の通り'},
-  ],
-  after: [
-    {n:'スイートピー',r:'sweet pea', style:'raceme', pet:[4,5],   note:'ふわりと残る、甘い余韻'},
-    {n:'藤',       r:'wisteria',     style:'raceme', pet:[4,4],   note:'長く尾を引く、響きの広がり'},
-    {n:'桔梗',     r:'bellflower',   style:'cup',    pet:[5,5],   note:'澄んだ音が消えたあとの、静かな余白'},
-  ],
+   5つの視点 → 5輪の花。実在の花種は使わない。
+   すべて「nanoca（何の花）」— 声から生まれた、この世に存在しない花。
+   それぞれに、声の気配から綴った新しい名が与えられる。 */
+const NANOCA_NAMES = {
+  core:  [['燈心','tohshin'],['玉響','tamayura'],['深灯','miakari'],['宵芯','yoishin']],
+  dens:  [['星鈴','hoshisuzu'],['綾雫','ayashizuku'],['千灯','chitomo'],['密羽','mitsuha']],
+  flow:  [['風緒','kazao'],['揺光','yurari'],['絹波','kinunami'],['流詠','ruei']],
+  light: [['白澄','shirasumi'],['透音','sukine'],['朝光','asakage'],['澄衣','sumigoromo']],
+  after: [['宵鈴','yosuzu'],['余花','yobana'],['夢緒','yumeo'],['遠音','tohne']],
 }
+const HABIT_JP={solo:'一輪咲き',spray:'散り咲き',pendant:'垂れ咲き',chalice:'苞咲き'}
+const HABIT_STYLE={solo:'radial',spray:'cluster',pendant:'raceme',chalice:'wrap'}
 /* 視点ごとの伝統色候補 [名, hex(表示), hex(3D)] — 値の高低で選ぶ */
 const VCOLORS = {
   core:  [['生成','#efe6d0','#e5d9bc'],['薄金','#d8c078','#ccae5c'],['琥珀','#c8a448','#b08830']],
@@ -726,24 +709,42 @@ const STEMS=['短くまっすぐ','しなやかに曲がって','伸びやかに
 
 function translateToFlowers(m){
   rng = mulberry32(seed)
-  const used=new Set()
   return VIEWPOINTS.map((vp,i)=>{
     const v=m[vp.key]
-    const cands=SPECIES[vp.key]
-    // 値の高低＋声のシードで花種を選ぶ。5輪は必ず異なる植物。
-    let idx=v>0.66?0:(v>0.36?1:2)
-    if(rng()<0.3)idx=(idx+ (rng()<0.5?1:2))%3
-    let sp=cands[idx], guard=0
-    while(used.has(sp.n)&&guard<4){idx=(idx+1)%3;sp=cands[idx];guard++}
-    used.add(sp.n)
+    // 咲き方（形態）：視点と値から。5輪の形は互いに異なる方向へ
+    let habit
+    if(vp.key==='core')habit='solo'
+    else if(vp.key==='dens')habit='spray'
+    else if(vp.key==='flow')habit=v>0.5?'pendant':'solo'
+    else if(vp.key==='light')habit=v>0.55?'solo':'chalice'
+    else habit=v>0.45?'pendant':'solo'
+    // 名前：声のシードで決まる、この声だけの花名
+    const pool=NANOCA_NAMES[vp.key]
+    const nm=pool[Math.floor(rng()*pool.length)]
     const ci=v>0.62?2:(v>0.34?1:0)
     const col=VCOLORS[vp.key][ci]
-    const petals=sp.pet[0]+Math.round(rng()*(sp.pet[1]-sp.pet[0]))
-    const size=Math.round(16+v*26+rng()*4)                 // mm
-    const openPct=Math.round(28+v*62)                       // %
-    const trans=Math.round(30+ (1-v)*45 + rng()*10)         // 透明感%
+    const petals=4+Math.round(rng()*2)+(v>0.6?1:0)          // 4〜7枚
+    const size=Math.round(16+v*26+rng()*4)                  // mm
+    const openPct=Math.round(28+v*62)                        // %
+    const trans=Math.round(30+ (1-v)*45 + rng()*10)          // 透明感%
+    // 花のかたちを決めるパラメータ（実在の花ではなく、声の数値から生成）
+    const form={
+      petals,
+      tip:   Math.max(0,Math.min(1, 0.12+(vp.key==='light'?0.25:0)+rng()*0.45)),  // 先端 丸↔尖
+      frill: Math.max(0,Math.min(1, 0.25+m.flow*0.45+rng()*0.2)),                  // 縁の揺れ
+      open:  Math.max(0,Math.min(1, 0.25+v*0.6)),                                  // 開き
+      width: 0.3+rng()*0.5,                                                        // 花弁の幅感
+      whorl2: habit==='solo' && m.dens>0.6,                                        // 密度が高い声だけ、内側にもう一輪
+      droop: m.after,
+    }
+    const sp={
+      n:nm[0],
+      r:"nanoca '"+nm[1]+"'",
+      style:HABIT_STYLE[habit],
+      note:`${HABIT_JP[habit]}のかたちに咲く、実在しない花`,
+    }
     return {
-      vp, v, sp, petals, size, openPct, trans,
+      vp, v, sp, form, petals, size, openPct, trans,
       buds: 1,
       color:col,
       opening:OPENINGS[Math.min(3,Math.floor(openPct/26))],
@@ -826,7 +827,7 @@ function renderFlowers(fl){
         <div class="fclr"><i style="background:${f.color[1]}"></i><span>${f.color[0]}</span></div>
       </div>
       <div class="fattrs">
-        <div class="fa"><span class="k">花弁数</span><span class="v">${f.sp.style==='cluster'?'小花の集積':f.petals+' 枚'}</span></div>
+        <div class="fa"><span class="k">花弁数</span><span class="v">${f.sp.style==='cluster'?'小花の散形':f.petals+' 枚'}</span></div>
         <div class="fa"><span class="k">大きさ</span><span class="v">約 ${f.size}mm</span></div>
         <div class="fa"><span class="k">開き方</span><span class="v">${f.openPct}%</span></div>
         <div class="fa"><span class="k">向き</span><span class="v">${f.facing}</span></div>
@@ -895,7 +896,7 @@ function goTranslate(){
   flowers=translateToFlowers(metrics)
   renderFlowers(flowers)
   const names=flowers.map(f=>f.sp.n).join('・')
-  document.getElementById('mo-tl').innerHTML=`造形設計図 #${design.sid.slice(-3)}<br>5輪 — 全て異なる植物<br>${names}`
+  document.getElementById('mo-tl').innerHTML=`造形設計図 #${design.sid.slice(-3)}<br>5輪 — すべて、声から生まれた新しい花<br>${names}`
   document.getElementById('mo-br').innerHTML=`ドラッグで回転`
   buildSaBox()
   goTo('s-map')
@@ -1047,37 +1048,26 @@ function initSpecimen(cid,wid,num){
 
   /* ── 花弁の骨格：縁が揺れる（フリルのある）白い輪郭＋淡い膜＋中肋 ──
      声の揺れを思わせるよう、縁に細かなうねりと丸みを持たせる。 */
-  function petalPts(len,wid,type){
+  /* q={tip:0丸↔1尖, frill:0..1 縁の揺れ, belly:0..1 ふくらみ} — 実在の花ではなく、声の数値がそのまま花弁の形になる */
+  function petalPts(len,wid,q){
+    q=q||{tip:0.3,frill:0.3,belly:0.5}
     const N=15
-    const wAt=t=>{                                   // 中心軸からの相対幅（0..1）
-      if(type==='ray')   return Math.pow(Math.sin(Math.PI*t),0.95)
-      if(type==='point') return Math.pow(Math.sin(Math.PI*t),1.12)
-      if(type==='lobe')  return Math.pow(Math.sin(Math.PI*t),0.82)*(1-0.12*t)
-      if(type==='wide')  return Math.pow(Math.sin(Math.PI*Math.pow(t,0.82)),0.74)
-      if(type==='tulip') return Math.pow(Math.sin(Math.PI*Math.pow(t,0.92)),0.70)  // 幅広で先まるい杯
-      if(type==='notch') return Math.pow(Math.sin(Math.PI*t),0.85)
-      return Math.pow(Math.sin(Math.PI*Math.pow(t,0.72)),0.80)                     // round：ふっくら
-    }
-    const frillF=(type==='ray')?0:2.7                // 縁のうねり回数
-    const frillA=(type==='ray')?0:(type==='point'?0.05:0.12)
-    const round=(type==='point')?0.05:(type==='lobe')?0.0:0.14   // 先端の丸み
-    const tCap=1-round
+    const ea=0.72+q.tip*0.42, eb=0.82-q.belly*0.14+q.tip*0.34
+    const wAt=t=>Math.pow(Math.sin(Math.PI*Math.pow(t,ea)),eb)
+    const frillF=2.2+q.frill*1.6                     // 縁のうねり回数
+    const frillA=0.03+q.frill*0.11                   // うねりの深さ
+    const round=0.16*(1-q.tip)                       // 先端の丸み（尖るほど小さく）
+    const tCap=1-Math.max(0.04,round)
     const side=t=>(wAt(t)+frillA*Math.sin(frillF*Math.PI*t)*Math.sin(Math.PI*t))*wid
     const pts=[]
-    if(type==='notch'){                              // 桜：先端に切れ込み
-      for(let i=0;i<=N;i++){const t=i/N*0.9;pts.push([side(t),t*len])}
-      pts.push([wid*0.16,len]);pts.push([0,len*0.86]);pts.push([-wid*0.16,len])
-      for(let i=N;i>=0;i--){const t=i/N*0.9;pts.push([-side(t),t*len])}
-    }else{
-      for(let i=0;i<=N;i++){const t=i/N*tCap;pts.push([side(t),t*len])}
-      if(round>0){const wc=side(tCap);for(let a=1;a<6;a++){const ang=a/6*Math.PI;pts.push([Math.cos(ang)*wc,tCap*len+Math.sin(ang)*round*len])}}
-      else pts.push([0,len])
-      for(let i=N;i>=0;i--){const t=i/N*tCap;pts.push([-side(t),t*len])}
-    }
+    for(let i=0;i<=N;i++){const t=i/N*tCap;pts.push([side(t),t*len])}
+    if(round>0.05){const wc=side(tCap);for(let a=1;a<6;a++){const ang=a/6*Math.PI;pts.push([Math.cos(ang)*wc,tCap*len+Math.sin(ang)*round*len])}}
+    else pts.push([0,len])
+    for(let i=N;i>=0;i--){const t=i/N*tCap;pts.push([-side(t),t*len])}
     return pts
   }
-  function petalSketch(len,wid,vein,outlineOp,type,bendMul){
-    const raw=petalPts(len,wid,type)
+  function petalSketch(len,wid,vein,outlineOp,q,bendMul){
+    const raw=petalPts(len,wid,q)
     const sh=new THREE.Shape()
     sh.moveTo(raw[0][0],raw[0][1])
     for(let i=1;i<raw.length;i++)sh.lineTo(raw[i][0],raw[i][1])
@@ -1097,12 +1087,12 @@ function initSpecimen(cid,wid,num){
     }
     return g
   }
-  /* 花冠（radial/cup）：種ごとに本物に近い一重の花形を、3Dプリント用の骨格として描く。
-     不自然な花弁の二重化はせず、種の特徴（枚数・形・反り・並び）で描き分ける。 */
-  function makeCorolla(f,scale,openMul){
+  /* 花冠（solo）：実在の花ではない。声の数値（form）がそのまま花のかたちになる。
+     一重を基本に、密度の高い声だけ内側にもう一輪。 */
+  function makeCorolla(f,scale){
     const g=new THREE.Group()
-    const n=f.sp.n
-    // 1枚の花弁を配置：tilt=軸からの倒し角、yaw=方位、y=高さ
+    const fm=f.form||{petals:f.petals||5,tip:0.35,frill:0.35,open:0.6,width:0.5,whorl2:false}
+    const q={tip:fm.tip,frill:fm.frill,belly:fm.width}
     const put=(pg,tilt,yaw,y)=>{
       const hold=new THREE.Group()
       pg.rotation.x=tilt*(0.95+srng()*0.10)
@@ -1112,7 +1102,6 @@ function initSpecimen(cid,wid,num){
       if(y)hold.position.y=y
       g.add(hold)
     }
-    // 蕊（白い線のみ・粒は置かない）
     const stamens=(cnt,tl,op)=>{
       for(let i=0;i<cnt;i++){
         const a=i/cnt*Math.PI*2
@@ -1120,61 +1109,21 @@ function initSpecimen(cid,wid,num){
         g.add(new THREE.Line(new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(0,scale*0.05,0),tip]),lineMat(op||0.42)))
       }
     }
-    const P=(l,w,t,b,op)=>petalSketch(scale*l*(0.92+srng()*0.16),scale*w,true,op||0.75,t,b)
-
-    if(n==='マーガレット'){                      // デイジー：短めの舌状花13枚＋盛り上がる円盤
-      const cnt=13
-      for(let i=0;i<cnt;i++)put(P(0.92,0.24,'ray',0.4,0.7),-Math.PI/2*0.88,i/cnt*Math.PI*2)
-      const disc=new THREE.Mesh(new THREE.CircleGeometry(scale*0.30,18),ghostMat(0.16))
-      disc.rotation.x=-Math.PI/2;disc.position.y=scale*0.05;g.add(disc)
-      g.add(new THREE.LineLoop(new THREE.BufferGeometry().setFromPoints(
-        Array.from({length:25},(_,i)=>{const a=i/24*Math.PI*2;return new THREE.Vector3(Math.cos(a)*scale*0.30,scale*0.06,Math.sin(a)*scale*0.30)})),lineMat(0.5)))
+    const cnt=Math.max(4,Math.min(fm.petals,7))
+    const len=scale*(1.02+fm.width*0.28)
+    const wid=scale*(0.46+fm.width*0.34)
+    const tilt=-(Math.PI/2)*(0.14+fm.open*0.72)        // 開き：閉じた杯 ↔ 平開
+    const bend=0.5+fm.open*0.5                          // 開くほど先が反る
+    for(let i=0;i<cnt;i++)
+      put(petalSketch(len*(0.92+srng()*0.16),wid,true,0.78,q,bend),tilt,i/cnt*Math.PI*2)
+    if(fm.whorl2){                                      // 内輪（密度の高い声だけ）
+      for(let i=0;i<cnt-1;i++)
+        put(petalSketch(len*0.62,wid*0.78,true,0.7,q,bend*0.8),tilt*0.55,i/(cnt-1)*Math.PI*2+Math.PI/cnt,scale*0.07)
     }
-    else if(n==='桜'){                           // 桜：5枚・先端に切れ込み・平開
-      for(let i=0;i<5;i++)put(P(1.08,0.74,'notch',0.7,0.78),-Math.PI/2*0.72,i/5*Math.PI*2)
-      stamens(6,scale*0.34,0.4)
-    }
-    else if(n==='百合'){                         // 百合：6枚・細長く反り返る花被
-      for(let i=0;i<6;i++)put(P(1.45,0.40,'point',1.6,0.78),-Math.PI/2*0.40,i/6*Math.PI*2)
-      stamens(6,scale*0.72,0.5)
-    }
-    else if(n==='チューリップ'){                 // チューリップ：先まるい6弁が内へ抱える閉じた杯
-      for(let i=0;i<6;i++){const inner=i%2===0
-        put(P(inner?1.42:1.28, inner?0.66:0.56,'tulip',-0.6,0.82),-Math.PI/2*0.10,i/6*Math.PI*2,inner?0:scale*0.06)}
-    }
-    else if(n==='桔梗'){                         // 桔梗：5裂片が基部で融合した星形の鐘
-      for(let i=0;i<5;i++)put(P(1.18,0.66,'lobe',0.9,0.8),-Math.PI/2*0.50,i/5*Math.PI*2)
-      g.add(new THREE.LineLoop(new THREE.BufferGeometry().setFromPoints(
-        Array.from({length:6},(_,i)=>{const a=i/5*Math.PI*2;return new THREE.Vector3(Math.cos(a)*scale*0.22,scale*0.16,Math.sin(a)*scale*0.22)})),lineMat(0.42)))
-      stamens(5,scale*0.30,0.4)
-    }
-    else if(n==='胡蝶蘭'){                       // 胡蝶蘭：平たい蛾のような顔。幅広2弁＋3萼片＋唇弁と触角
-      // 3萼片（細め）：上・左下・右下。浅く皿状にして、斜めからも面が見えるように
-      ;[0,2.5,-2.5].forEach(yaw=>put(petalSketch(scale*0.92,scale*0.54,true,0.68,'wide',0.8),-Math.PI/2*0.80,yaw))
-      // 2側花弁（幅広の翼）：左右
-      ;[1.28,-1.28].forEach(yaw=>put(petalSketch(scale*0.98,scale*0.98,true,0.75,'wide',0.8),-Math.PI/2*0.80,yaw))
-      // 唇弁（中央下・切れ込み）
-      const lip=petalSketch(scale*0.54,scale*0.5,false,0.85,'notch',0.6)
-      put(lip,-Math.PI/2*0.58,Math.PI)
-      // 触角2本（蘭らしさ）
-      for(const s of [-1,1]){const a=[]
-        for(let k=0;k<=6;k++){const t=k/6;a.push(new THREE.Vector3(s*(0.03+t*0.13)*scale,scale*(0.05+t*0.22),(0.06+t*0.03)*scale))}
-        g.add(new THREE.Line(new THREE.BufferGeometry().setFromPoints(a),lineMat(0.5)))}
-    }
-    else if(n==='ラナンキュラス'){               // ラナンキュラス：丸い花弁が整然と重なる球（唯一の自然な多重）
-      for(let i=0;i<7;i++)put(P(0.98,0.72,'round',0.8,0.7),-Math.PI/2*0.60,i/7*Math.PI*2)
-      for(let i=0;i<5;i++)put(P(0.74,0.58,'round',0.9,0.72),-Math.PI/2*0.28,i/5*Math.PI*2+0.44,scale*0.10)
-      stamens(4,scale*0.16,0.35)
-    }
-    else {                                        // 既定：丸い花弁の一重（珊瑚・桃・胡蝶蘭以外の radial 予備）
-      const cnt=Math.max(5,Math.min(f.petals,7))
-      const openA=(f.sp.style==='cup'?0.30:0.16)+(1-(f.openPct*openMul)/100)*0.55
-      for(let i=0;i<cnt;i++)put(P(1.10,0.66,'round',0.9,0.75),-(Math.PI/2)*(1-openA),i/cnt*Math.PI*2)
-      stamens(5,scale*0.30,0.4)
-    }
+    stamens(5,scale*(0.24+fm.open*0.14),0.42)
     return g
   }
-  /* カラー（wrap）：ラッパでなく、片側が尖って反り返る苞の設計図
+  /* 苞咲き（chalice）：片側が尖って反り返る、一枚の苞に包まれた花
      少ない分割数の直線セグメントで「カクついた」構築線として描く */
   function makeWrap(f,scale){
     const g=new THREE.Group()
@@ -1211,53 +1160,66 @@ function initSpecimen(cid,wid,num){
     g.add(new THREE.Line(new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(0,scale*0.1,0),new THREE.Vector3(0,scale*1.15,0)]),lineMat(0.55)))
     return g
   }
-  /* 紫陽花・かすみ草（cluster）：小花骨格の集積 */
+  /* 散り咲き（spray）：小花が放射する小枝の先にひとつずつ咲く。
+     フィボナッチ配置で等間隔に散らし、重なりをつくらない。 */
   function makeCluster(f,scale){
     const g=new THREE.Group()
-    const dense=f.sp.n==='紫陽花'
-    const cnt=dense?14:9   // 小花は少なく・大きく
-    const R=scale*(dense?0.92:1.08)
+    const fm=f.form||{petals:5,tip:0.3,frill:0.3,open:0.6,width:0.5}
+    const q={tip:fm.tip,frill:fm.frill,belly:fm.width}
+    const cnt=8+Math.round(f.v*3)                       // 小花 8〜11
+    const GA=Math.PI*(3-Math.sqrt(5))                   // 黄金角：等間隔に散る
     for(let i=0;i<cnt;i++){
-      const phi=Math.acos(1-srng()*(dense?1.0:1.3)),th=srng()*Math.PI*2
-      const p=new THREE.Vector3(R*Math.sin(phi)*Math.cos(th),R*Math.cos(phi)*0.72,R*Math.sin(phi)*Math.sin(th))
+      const t=(i+0.5)/cnt
+      const phi=Math.acos(1-t*0.95)                     // 上半球寄り
+      const th=i*GA
+      const dir=new THREE.Vector3(Math.sin(phi)*Math.cos(th),Math.cos(phi)*0.85+0.15,Math.sin(phi)*Math.sin(th)).normalize()
+      const R=scale*(0.62+srng()*0.30)
+      const p=dir.clone().multiplyScalar(R)
+      // 小枝（花柄）：中心から小花まで、見える線でつなぐ
+      g.add(new THREE.Line(new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(0,0,0),p]),lineMat(0.45)))
+      // 小花：5弁の開いた星
       const fg=new THREE.Group()
-      for(let k=0;k<4;k++){
-        const pg=petalSketch(scale*0.50,scale*0.34,false,0.55)
+      for(let k=0;k<5;k++){
+        const pg=petalSketch(scale*0.34,scale*0.20,false,0.6,q,0.7)
         const hold=new THREE.Group()
-        pg.rotation.x=-Math.PI/2*0.35
-        hold.add(pg);hold.rotation.y=k/4*Math.PI*2
+        pg.rotation.x=-Math.PI/2*0.62
+        hold.add(pg);hold.rotation.y=k/5*Math.PI*2
         fg.add(hold)
       }
       fg.position.copy(p)
-      fg.lookAt(p.clone().multiplyScalar(2))
+      const target=p.clone().add(dir)
+      fg.up.set(0,0,1);fg.lookAt(target);fg.rotateX(Math.PI/2)
       g.add(fg)
     }
     return g
   }
-  /* 藤・スイートピー・スズラン（raceme）：垂れる房の骨格 */
+  /* 垂れ咲き（pendant）：房が流れ落ちる骨格。余韻・流れの深さ（form.droop）で垂れが変わる */
   function makeRaceme(f,scale){
     const g=new THREE.Group()
-    const droop=f.sp.n==='藤'?1.6:(f.sp.n==='スズラン'?0.95:1.15)
-    const cnt=f.sp.n==='藤'?8:6   // 房も少なく・大きく
+    const fm=f.form||{petals:5,tip:0.3,frill:0.3,droop:0.5,width:0.5}
+    const q={tip:fm.tip,frill:fm.frill,belly:fm.width}
+    const droop=1.05+(fm.droop||0.5)*0.65
+    const cnt=6+Math.round(f.v*2)
     const curve=new THREE.CatmullRomCurve3([
       new THREE.Vector3(0,0,0),
       new THREE.Vector3(scale*0.55,-scale*droop*0.5,0),
       new THREE.Vector3(scale*0.78,-scale*droop*1.2,0),
     ])
     g.add(new THREE.Line(new THREE.BufferGeometry().setFromPoints(curve.getPoints(16)),lineMat(0.6)))
+    const pn=Math.min(fm.petals,5)
     for(let i=0;i<cnt;i++){
       const t=(i+1)/(cnt+1),p=curve.getPoint(t)
-      const sz=scale*0.52*(1-t*0.35)
+      const sz=scale*0.50*(1-t*0.35)
       const fg=new THREE.Group()
-      for(let k=0;k<f.petals;k++){
-        const pg=petalSketch(sz,sz*0.66,false,0.65)
+      for(let k=0;k<pn;k++){
+        const pg=petalSketch(sz,sz*0.64,false,0.65,q,0.8)
         const hold=new THREE.Group()
         pg.rotation.x=-Math.PI/2*0.5
-        hold.add(pg);hold.rotation.y=k/f.petals*Math.PI*2
+        hold.add(pg);hold.rotation.y=k/pn*Math.PI*2
         fg.add(hold)
       }
       fg.position.copy(p)
-      fg.position.z+=(srng()-0.5)*scale*0.28
+      fg.position.z+=(srng()-0.5)*scale*0.16
       fg.rotation.x=Math.PI*0.85+(srng()-0.5)*0.2
       g.add(fg)
     }
