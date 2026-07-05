@@ -5,6 +5,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
 <title>声標本 KOE-HYOHON | nanoca — その瞬間の声を、科学と花で標本にする</title>
 <meta name="description" content="声標本は、声を科学的に解析し、5つの視点を5輪の花へ翻訳する生きた標本です。Science × IT × Art。">
+<link rel="canonical" href="https://substation26.github.io/nanoca/">
+<meta name="theme-color" content="#14161c">
 <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@300;400&family=Cormorant+Garamond:ital,wght@0,300;1,300;1,400&family=Shippori+Mincho:wght@500;600&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 <style>
@@ -119,7 +121,7 @@ button:focus-visible,a:focus-visible,summary:focus-visible{outline:1.5px solid v
 .vval small{font-size:9px;color:var(--ink4)}
 
 /* ── 3Dプレビュー ── */
-.egg-wrap{position:relative;width:100%;aspect-ratio:3/4;background:#14161c;border:0.5px solid #2a2d38;border-radius:3px;overflow:hidden;touch-action:pan-y}
+.egg-wrap{position:relative;width:100%;aspect-ratio:3/4;background:#14161c;border:0.5px solid #2a2d38;border-radius:3px;overflow:hidden;touch-action:none}
 .egg-wrap canvas{width:100%!important;height:100%!important;display:block;cursor:grab}
 .mo{position:absolute;font-size:9px;color:rgba(196,192,178,.85);letter-spacing:.08em;line-height:1.75;pointer-events:none;font-family:var(--mono)}
 .mo.tl{top:11px;left:14px}
@@ -190,13 +192,39 @@ button:focus-visible,a:focus-visible,summary:focus-visible{outline:1.5px solid v
 .tl-note{border-left:2px solid var(--teal3);padding:8px 13px;width:100%}
 .tl-note p{font-size:11px;color:var(--teal);line-height:1.9}
 /* シェア */
-.share{width:100%;border:0.5px solid var(--paper3);border-radius:3px;padding:14px 16px;display:flex;flex-direction:column;gap:9px;background:var(--paper2)}
+.sci-basis{width:100%;border:0.5px solid var(--paper3);border-radius:3px;background:var(--paper2);margin-top:6px;overflow:hidden}
+.sci-basis>summary{list-style:none;cursor:pointer;padding:11px 14px;font-size:11px;letter-spacing:.08em;color:var(--teal);font-family:var(--mono);display:flex;align-items:center;gap:7px}
+.sci-basis>summary::-webkit-details-marker{display:none}
+.sci-basis>summary::before{content:"＋";color:var(--ink4)}
+.sci-basis[open]>summary::before{content:"−"}
+.sci-in{padding:2px 15px 14px}
+.sci-lead{font-size:11px;color:var(--ink2);line-height:1.85;margin:8px 0 12px}
+.sci-k{font-size:10px;letter-spacing:.1em;color:var(--ink3);margin:0 0 6px}
+.sci-in ul{margin:0 0 10px;padding-left:1.1em;list-style:none}
+.sci-in li{font-size:10.5px;color:var(--ink2);line-height:1.9;margin-bottom:4px}
+.sci-in li b{color:var(--ink);font-weight:600}
+.sci-note{font-size:9.5px;color:var(--ink4);line-height:1.75;margin:8px 0 0;padding-top:8px;border-top:0.5px dashed var(--paper3)}
+.sci-cred{font-size:10px;color:var(--ink3);margin-top:8px;font-family:var(--mono);letter-spacing:.04em}
+.order-box{width:100%;border:0.5px solid var(--teal);border-radius:3px;padding:15px 16px;display:flex;flex-direction:column;gap:8px;background:var(--paper2)}
+.order-h{font-size:13px;color:var(--ink);font-weight:600;text-align:center;letter-spacing:.04em}
+.order-sub{font-size:10px;color:var(--ink3);text-align:center;line-height:1.7}
+.order-btn{width:100%;padding:14px;background:var(--teal);color:#fff;border:none;border-radius:3px;font-family:var(--mono);font-size:12px;letter-spacing:.1em;cursor:pointer}
+.order-btn:hover{background:var(--teal2)}
+.order-hint{font-size:9.5px;color:var(--ink4);text-align:center;line-height:1.6}
+.share{width:100%;border:0.5px solid var(--paper3);border-radius:3px;padding:14px 16px;display:flex;flex-direction:column;gap:11px;background:var(--paper2)}
 .share-lbl{font-size:10px;letter-spacing:.16em;color:var(--ink3);text-align:center}
-.share-main{width:100%;padding:13px;background:var(--teal);border:none;border-radius:3px;color:#fff;font-family:var(--mono);font-size:11px;letter-spacing:.12em;cursor:pointer}
-.share-main:hover{background:var(--teal2)}
-.share-row{display:flex;gap:8px}
-.share-sns{flex:1;padding:11px 0;border:0.5px solid var(--paper3);border-radius:3px;background:var(--paper);font-family:var(--mono);font-size:11px;letter-spacing:.04em;color:var(--ink2);cursor:pointer;transition:all .2s}
+.share-prev{width:100%;border-radius:3px;overflow:hidden;background:#14161c;border:0.5px solid var(--paper3);position:relative;aspect-ratio:16/10;display:flex;align-items:center;justify-content:center}
+.share-prev img{width:100%;height:100%;object-fit:cover;display:block}
+.share-prev .ph{position:absolute;font-size:9px;letter-spacing:.14em;color:rgba(233,229,216,.4);font-family:var(--mono)}
+.share-prev .tag{position:absolute;left:9px;bottom:8px;font-size:8.5px;letter-spacing:.1em;color:rgba(233,229,216,.72);background:rgba(20,22,28,.55);padding:3px 7px;border-radius:2px}
+.share-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.share-sns{display:flex;align-items:center;justify-content:center;gap:7px;padding:13px 0;border:0.5px solid var(--paper3);border-radius:3px;background:var(--paper);font-family:var(--mono);font-size:11.5px;letter-spacing:.05em;color:var(--ink2);cursor:pointer;transition:all .2s}
+.share-sns .i{font-size:14px;line-height:1;opacity:.8}
 .share-sns:hover{border-color:var(--ink3);color:var(--ink)}
+.share-sns.sx:hover{border-color:#111;color:#111}
+.share-sns.sig:hover{border-color:#d6336c;color:#d6336c}
+.share-sns.stk:hover{border-color:#111;color:#111}
+.share-sns.sln:hover{border-color:#06c755;color:#06c755}
 .share-hint{font-size:9.5px;color:var(--ink4);line-height:1.7;text-align:center}
 .cflow{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;padding:4px 0 0}
 .cflow span{font-size:9px;letter-spacing:.14em;color:var(--ink3)}
@@ -276,7 +304,7 @@ button:focus-visible,a:focus-visible,summary:focus-visible{outline:1.5px solid v
     <div class="log-box" id="logbox" aria-live="polite"></div>
     <div class="prog"><div class="progb" id="progb"></div></div>
     <div class="note">
-      <p>解析は、科学者の研究・監修に基づいて声を数値化するプロセスです</p>
+      <p>解析は、科学者の研究・監修（林大輔博士／声遊楽プロジェクト）に基づいて声を数値化するプロセスです</p>
       <p><em>この段階で完成作品の形が決まることはありません</em></p>
     </div>
   </div>
@@ -293,6 +321,21 @@ button:focus-visible,a:focus-visible,summary:focus-visible{outline:1.5px solid v
       <div class="radar-cap">VOICE FEATURE MAP — 特徴量レーダー</div>
     </div>
     <div class="vlist" id="vlist"></div>
+    <details class="sci-basis">
+      <summary>この解析の科学的根拠を見る</summary>
+      <div class="sci-in">
+        <p class="sci-lead">声標本は、声を音響的に解析し、その特徴を5つの視点へ翻訳しています。占いのように毎回ランダムに出すものではなく、<b>同じ声からは必ず同じ設計図が生まれます</b>。</p>
+        <p class="sci-k">声を記述する4つの音響指標 → 5つの視点</p>
+        <ul>
+          <li><b>基本周波数（声の高さ）</b>— 低い声ほど落ち着き・信頼の印象と相関。→ <b>重心</b></li>
+          <li><b>スペクトル重心（明るさ）</b>— 高いほど明るく明瞭に聞こえる。→ <b>光</b></li>
+          <li><b>非周期性（かすれ）</b>— 息の混じりが多いほど柔らかさ・優しさ。→ <b>余韻</b></li>
+          <li><b>倍音の豊かさ・抑揚</b>— 声の濃さと、リズム・揺れ。→ <b>密度・流れ</b></li>
+        </ul>
+        <p class="sci-note">※これらは声の音響特徴と「印象」の対応にもとづく翻訳であり、性格や優劣を判定するものではありません。録音環境により一部の数値は変化します。</p>
+        <p class="sci-cred">科学監修：林大輔 博士（声遊楽プロジェクト）</p>
+      </div>
+    </details>
     <div class="note">
       <p>ここではまだ、花は決まっていません</p>
       <p><em>この数値が、次の工程で「造形言語」へ変換されます</em></p>
@@ -387,16 +430,25 @@ button:focus-visible,a:focus-visible,summary:focus-visible{outline:1.5px solid v
       <div class="cid"><span>標本 ID</span><strong id="cid-val">—</strong></div>
       <div class="cid"><span>5輪の構成</span><strong class="mn" id="cid-flowers">—</strong></div>
       <div class="cid"><span>完成予定</span><strong class="mn" style="font-size:12.5px">お知らせメールをお送りします</strong></div>
+      <div class="order-box" id="order-box">
+        <div class="order-h">この設計図を、実物としてお迎えする</div>
+        <div class="order-sub">お名前とお届け先をご記入いただくと、<br>アトリエで制作を開始します。</div>
+        <button class="order-btn" onclick="goOrder()">ご注文手続きへ進む　→</button>
+        <div class="order-hint" id="order-hint"></div>
+      </div>
       <div class="tl-note"><p>完成した作品の底面にはQRコードが付きます。<br>声の再生だけでなく、現在の声・将来の変化・過去との比較を観察できる「生きた標本」の記録が、ここから育っていきます。</p></div>
       <div class="share">
-        <div class="share-lbl">芽生えた設計図をシェアする</div>
-        <button class="share-main" onclick="shareNative()">画像で共有する</button>
-        <div class="share-row">
-          <button class="share-sns sx" onclick="shareX()">X</button>
-          <button class="share-sns sfb" onclick="shareFB()">Facebook</button>
-          <button class="share-sns sig" onclick="shareIG()">Instagram</button>
+        <div class="share-lbl">この設計図を、各SNSへ画像で投稿する</div>
+        <div class="share-prev" id="share-prev">
+          <span class="ph">設計図を読み込み中…</span>
         </div>
-        <div class="share-hint" id="share-hint">「画像で共有」から各SNSへ。Instagramは画像を保存して投稿できます。</div>
+        <div class="share-grid">
+          <button class="share-sns sx" onclick="shareTo('x')"><span class="i">𝕏</span>X</button>
+          <button class="share-sns sig" onclick="shareTo('instagram')"><span class="i">◎</span>Instagram</button>
+          <button class="share-sns stk" onclick="shareTo('tiktok')"><span class="i">♪</span>TikTok</button>
+          <button class="share-sns sln" onclick="shareTo('line')"><span class="i">▶</span>LINE</button>
+        </div>
+        <div class="share-hint" id="share-hint">ボタンを押すと、あなたの設計図の画像が添付された状態で共有できます。スマホは共有メニューから投稿先を選んでください。</div>
       </div>
       <button class="btn-s" style="width:100%;margin-top:4px" onclick="goReset()">別の声を記録する</button>
       <div class="tagline">
@@ -409,6 +461,7 @@ button:focus-visible,a:focus-visible,summary:focus-visible{outline:1.5px solid v
 
   <div class="ftr">
     <p>科学 × アート × 教育 — 人の理解を深める新しいインターフェース<br>KOE-HYOHON® by nanoca</p>
+    <p style="margin-top:8px;font-size:9.5px;color:var(--ink4);letter-spacing:.04em">科学監修：林大輔 博士（声遊楽プロジェクト）</p>
   </div>
 </div>
 
@@ -421,11 +474,11 @@ button:focus-visible,a:focus-visible,summary:focus-visible{outline:1.5px solid v
 
 /* ─── 5つの視点 ─── */
 const VIEWPOINTS = [
-  {key:'core',  jp:'重心', en:'center',    css:'--v-core',  desc:'声の芯・存在感・どこに重みがあるか'},
-  {key:'dens',  jp:'密度', en:'density',   css:'--v-dens',  desc:'声の濃さ・情報量・きめの細かさ'},
-  {key:'flow',  jp:'流れ', en:'flow',      css:'--v-flow',  desc:'声のリズム・揺れ・抑揚・連続性'},
-  {key:'light', jp:'光',   en:'light',     css:'--v-light', desc:'声の通り・明るさ・間・抜け感'},
-  {key:'after', jp:'余韻', en:'resonance', css:'--v-after', desc:'声が残したあとに広がる印象・響き'},
+  {key:'core',  jp:'重心', en:'center',    css:'--v-core',  desc:'声の芯・存在感 — 低音の重み（基本周波数）'},
+  {key:'dens',  jp:'密度', en:'density',   css:'--v-dens',  desc:'声の濃さ・情報量 — 倍音の豊かさ・きめ'},
+  {key:'flow',  jp:'流れ', en:'flow',      css:'--v-flow',  desc:'リズム・揺れ・抑揚 — 話速と抑揚（パラ言語）'},
+  {key:'light', jp:'光',   en:'light',     css:'--v-light', desc:'明るさ・抜け感 — スペクトル重心'},
+  {key:'after', jp:'余韻', en:'resonance', css:'--v-after', desc:'響き・余韻 — かすれ（非周期性）と減衰'},
 ]
 
 const STEP_LBL = {
@@ -860,7 +913,7 @@ function renderFlowers(fl){
         <div class="fa"><span class="k">茎</span><span class="v">${f.stem}</span></div>
         <div class="fa"><span class="k">透明感</span><span class="v">${f.trans}%</span></div>
       </div>
-      <div class="fnote">${f.sp.note} — 「${f.vp.jp}」${Math.round(f.v*100)} の翻訳 ・ 蕾をひとつ添えて</div>
+      <div class="fnote">${f.sp.note} — 「${f.vp.jp}」${Math.round(f.v*100)} の翻訳</div>
     </div>`
   }).join('')
   const b=balanceText(metrics)
@@ -956,6 +1009,7 @@ function confirmDesign(){
   document.getElementById('cid-flowers').textContent=flowers.map(f=>f.sp.n).join(' ・ ')
   goTo('s-cpl')
   sendToAtelier()   // 印刷用データをアトリエへ自動送信（ユーザーには見せない）
+  setTimeout(fillSharePreview, 120)   // シェア画像プレビュー（アイキャッチ）を生成
 }
 
 /* ─── アトリエ設定（3Dプリンタ工程） ───────────────────────────
@@ -966,7 +1020,26 @@ function confirmDesign(){
 const ATELIER_EMAIL='shiho.oura0707@gmail.com'
 const WEB3FORMS_KEY='b0a94f5e-2acc-4060-ab25-1bda780548a7'
 
-/* ─── シェア（Instagram / Facebook / X） ─── */
+/* ─── 注文フォーム（Googleフォーム） ───────────────────────────
+   セットアップガイドの手順でGoogleフォームを作ったら、下の2つを貼り替えるだけ。
+   ORDER_FORM_URL … フォームの「viewform」URL（例 https://docs.google.com/forms/d/e/XXXX/viewform）
+   ORDER_FORM_SID_ENTRY … 「標本ID」設問の事前入力パラメータ（例 entry.123456789）
+   標本IDがフォームに自動で入り、この台帳の1行と設計データが同じIDで一致します。 */
+const ORDER_FORM_URL='https://docs.google.com/forms/d/e/1FAIpQLSdb49ktR9qFS1Y1i9ZvYt63U_40mEZjxoEZ_lWlDmZFyt2IQg/viewform'
+const ORDER_FORM_SID_ENTRY='entry.1482045848'
+function goOrder(){
+  const sid=design?design.sid:''
+  const hint=document.getElementById('order-hint')
+  if(!ORDER_FORM_URL){
+    if(hint) hint.textContent='ただいま注文受付の準備中です。標本ID「'+sid+'」を添えて nanoca までご連絡ください。'
+    return
+  }
+  let u=ORDER_FORM_URL
+  if(ORDER_FORM_SID_ENTRY && sid){ u+=(u.indexOf('?')>-1?'&':'?')+'usp=pp_url&'+ORDER_FORM_SID_ENTRY+'='+encodeURIComponent(sid) }
+  window.open(u,'_blank','noopener,noreferrer')
+}
+
+/* ─── シェア（Instagram / Facebook / X / LINE） ─── */
 const SHARE_URL='https://substation26.github.io/nanoca/'
 function shareCaption(){
   const names=flowers?flowers.map(f=>f.sp.n).join('・'):''
@@ -1004,40 +1077,55 @@ function saveImage(blob){
   setTimeout(()=>URL.revokeObjectURL(a.href),4000)
 }
 function shareHint(msg){const el=document.getElementById('share-hint');if(el)el.textContent=msg}
-async function shareNative(){
+const SNS_NAME={x:'X',instagram:'Instagram',tiktok:'TikTok',line:'LINE'}
+/* 各SNSへ、設計図「画像」を添付して共有する。
+   スマホ等：共有シートに画像ファイルが乗る（=どのSNSでも画像付きで投稿できる）
+   PC等：画像を保存してから各SNSを開く（保存画像を投稿に添付） */
+async function shareTo(p){
   const blob=await specimenImageBlob()
   const cap=shareCaption()
+  // 1) 画像ファイルを直接添付できる環境（主にスマホ）
   try{
     if(blob && navigator.canShare){
-      const file=new File([blob],'koe-hyohon.png',{type:'image/png'})
+      const file=new File([blob],(design?design.sid:'koe-hyohon')+'.png',{type:'image/png'})
       if(navigator.canShare({files:[file]})){
         await navigator.share({files:[file],text:cap,title:'声標本 KOE-HYOHON'})
+        shareHint('共有メニューから「'+SNS_NAME[p]+'」を選ぶと、設計図が画像付きで投稿できます。')
         return
       }
     }
-    if(navigator.share){ await navigator.share({text:cap,url:SHARE_URL,title:'声標本 KOE-HYOHON'}); return }
   }catch(e){ if(e&&e.name==='AbortError')return }
-  // 共有APIが使えない環境：画像を保存
-  if(blob){ saveImage(blob); shareHint('画像を保存しました。各SNSのアプリから投稿できます。') }
-  else shareHint('この環境では画像を取得できませんでした。設計図の画面から共有してください。')
+  // 2) 画像添付が使えない環境（主にPC）：画像を保存してから各SNSへ
+  if(blob) saveImage(blob)
+  if(p==='x'){
+    window.open('https://twitter.com/intent/tweet?text='+encodeURIComponent(cap),'_blank','noopener,noreferrer')
+    shareHint('設計図の画像を保存しました。Xの投稿画面で、その画像を添付してください。')
+  }else if(p==='line'){
+    window.open('https://social-plugins.line.me/lineit/share?url='+encodeURIComponent(SHARE_URL)+'&text='+encodeURIComponent(cap),'_blank','noopener,noreferrer')
+    shareHint('設計図の画像を保存しました。LINEのトークに、その画像を添付して送れます。')
+  }else if(p==='instagram'){
+    shareHint('設計図の画像を保存しました。Instagramアプリを開き、投稿にその画像を選んでください。')
+  }else if(p==='tiktok'){
+    shareHint('設計図の画像を保存しました。TikTokアプリを開き、投稿にその画像を選んでください。')
+  }
+  if(!blob) shareHint('この環境では画像を取得できませんでした。設計図の画面から再度お試しください。')
 }
-function shareX(){
-  window.open('https://twitter.com/intent/tweet?text='+encodeURIComponent(shareCaption())+'&url='+encodeURIComponent(SHARE_URL),'_blank','noopener,noreferrer')
-}
-function shareFB(){
-  window.open('https://www.facebook.com/sharer/sharer.php?u='+encodeURIComponent(SHARE_URL)+'&quote='+encodeURIComponent(shareCaption()),'_blank','noopener,noreferrer')
-}
-async function shareIG(){
-  // Instagramはリンク投稿に非対応。まず端末の共有シート（IGを選べる）、無ければ画像を保存
-  const blob=await specimenImageBlob()
+/* 完了画面で、シェアされる設計図画像のプレビューを表示（=アイキャッチの実物） */
+async function fillSharePreview(){
+  const box=document.getElementById('share-prev'); if(!box) return
   try{
-    if(blob && navigator.canShare){
-      const file=new File([blob],'koe-hyohon.png',{type:'image/png'})
-      if(navigator.canShare({files:[file]})){ await navigator.share({files:[file],text:shareCaption(),title:'声標本 KOE-HYOHON'}); return }
+    const blob=await specimenImageBlob()
+    if(!blob) return
+    const url=URL.createObjectURL(blob)
+    const img=new Image()
+    img.onload=()=>{
+      const ph=box.querySelector('.ph'); if(ph) ph.remove()
+      const old=box.querySelector('img'); if(old) old.remove()
+      box.insertBefore(img, box.firstChild)
     }
-  }catch(e){ if(e&&e.name==='AbortError')return }
-  if(blob){ saveImage(blob); shareHint('画像を保存しました。Instagramアプリを開き、投稿に選んでください。') }
-  else shareHint('この環境では画像を取得できませんでした。')
+    img.alt='あなたの声から生まれた設計図'
+    img.src=url
+  }catch(e){}
 }
 
 /* ─── 造形設計データ（3Dプリンタ工程への引き渡し） ─── */
@@ -1211,10 +1299,13 @@ function initSpecimen(cid,wid,num){
     ctx.fillStyle=gd;ctx.beginPath();ctx.arc(16,16,16,0,Math.PI*2);ctx.fill()
     return new THREE.CanvasTexture(cv)
   })()
-  // 背景の淡い光だまり（花束の後ろ）
-  const glow=new THREE.Sprite(new THREE.SpriteMaterial({map:whiteTex,color:0xfff2da,transparent:true,opacity:0.09,blending:THREE.AdditiveBlending,depthWrite:false}))
-  glow.scale.set(8.5,8.5,1);glow.position.set(0,2.0,-1.4)
+  // 背景の淡い光だまり（花束の後ろ）— 粒ではなく、やわらかな一枚の光で満たす
+  const glow=new THREE.Sprite(new THREE.SpriteMaterial({map:whiteTex,color:0xfff2da,transparent:true,opacity:0.13,blending:THREE.AdditiveBlending,depthWrite:false}))
+  glow.scale.set(11,11,1);glow.position.set(0,2.1,-1.6)
   scene.add(glow)
+  const glow2=new THREE.Sprite(new THREE.SpriteMaterial({map:whiteTex,color:0xc2c8d6,transparent:true,opacity:0.06,blending:THREE.AdditiveBlending,depthWrite:false}))
+  glow2.scale.set(7.5,7.5,1);glow2.position.set(0,0.6,-1.2)
+  scene.add(glow2)
 
   /* ── 割れた卵殻：白い線の設計図 ── */
   const EGG={rx:1.22,ryB:1.42,ryT:1.9,rz:1.06}
@@ -1478,7 +1569,7 @@ function initSpecimen(cid,wid,num){
 
   /* ── 光の粒子（加算発光）：花冠を纏い、螺旋で立ちのぼる ── */
   const flows=[]
-  const allCols=flowers.map(x=>new THREE.Color(x.color[1]).offsetHSL(0,0.35,0.04))
+  const allCols=flowers.map(x=>new THREE.Color(x.color[1]).offsetHSL(0,0.12,0.06))
   function makeFlow(cnt,size,op,gen){
     const P=new Float32Array(cnt*3),C=new Float32Array(cnt*3),prms=[]
     for(let i=0;i<cnt;i++)prms.push(gen(i))
@@ -1491,8 +1582,8 @@ function initSpecimen(cid,wid,num){
   function cloudGen(center,scale,ownHex){
     return ()=>({
       c:center,
-      col:new THREE.Color(ownHex).offsetHSL(0,0.5,0.06),   // その花の色は、纏う粒子の色そのもので表す（彩度高め）
-      r:scale*(0.30+Math.pow(srng(),0.85)*0.62),           // 花の近くに寄せ、どの花の色か分かるように
+      col:new THREE.Color(ownHex).offsetHSL(0,0.14,0.10),   // その花の色をやわらかく纏う（彩度は控えめ・淡い光に）
+      r:scale*(0.34+Math.pow(srng(),0.85)*0.72),            // 少し広く、ゆったりと散らす
       th0:srng()*Math.PI*2,
       om:(0.10+srng()*0.26)*(srng()<0.5?-1:1),
       y0:(srng()-0.5)*scale*1.4,
@@ -1503,7 +1594,7 @@ function initSpecimen(cid,wid,num){
         return [prm.c.x+prm.r*Math.cos(a),
                 prm.c.y+prm.y0+prm.bA*Math.sin(prm.bW*t+prm.bP),
                 prm.c.z+prm.r*Math.sin(a)*0.9,
-                0.35+0.65*(0.5+0.5*Math.sin(prm.fW*t+prm.fP))]
+                0.10+0.62*(0.5+0.5*Math.sin(prm.fW*t+prm.fP))]
       }
     })
   }
@@ -1603,12 +1694,12 @@ function initSpecimen(cid,wid,num){
       grow.add(bud)
     }
     // 纏う光の粒子
-    makeFlow(58+Math.round(f.v*30),0.062,0.55,cloudGen(p3,scale,f.color[1]))
-    makeFlow(16,0.125,0.30,cloudGen(p3,scale*1.0,f.color[1]))
+    makeFlow(18+Math.round(f.v*10),0.115,0.40,cloudGen(p3,scale,f.color[1]))
+    makeFlow(6,0.185,0.22,cloudGen(p3,scale*1.05,f.color[1]))
   })
   // 立ちのぼる光の螺旋流
-  makeFlow(150,0.058,0.5,streamGen())
-  makeFlow(40,0.125,0.3,streamGen())
+  makeFlow(46,0.095,0.30,streamGen())
+  makeFlow(12,0.165,0.20,streamGen())
 
   function updateFlows(t){
     flows.forEach(fl=>{
@@ -1627,25 +1718,30 @@ function initSpecimen(cid,wid,num){
   }
 
   /* ── 操作：ドラッグ回転＋自動回転＋粒子の流動 ── */
+  canvas.style.touchAction='none'          // スマホ：3Dの上でスワイプしてもページはスクロールさせない
   let dragging=false,lastX=0,lastY=0,vel=0,rotY=0,rotX=0,idleT=0
   const onDown=e=>{
     dragging=true
     lastX=(e.touches?e.touches[0].clientX:e.clientX)
     lastY=(e.touches?e.touches[0].clientY:e.clientY)
-    canvas.style.cursor='grabbing'
+    canvas.style.cursor='grabbing';idleT=0
+    try{canvas.setPointerCapture(e.pointerId)}catch(_){}
+    if(e.cancelable)e.preventDefault()
   }
   const onMove=e=>{
     if(!dragging)return
     const x=(e.touches?e.touches[0].clientX:e.clientX)
     const y=(e.touches?e.touches[0].clientY:e.clientY)
     vel=(x-lastX)*0.006;rotY+=vel
-    rotX=Math.max(-0.5,Math.min(0.85,rotX+(y-lastY)*0.005))   // 上下ドラッグ＝360度観察
+    rotX=Math.max(-0.65,Math.min(0.95,rotX+(y-lastY)*0.005))   // 上下ドラッグ＝上/下から覗ける
     lastX=x;lastY=y;idleT=0
+    if(e.cancelable)e.preventDefault()
   }
   const onUp=()=>{dragging=false;canvas.style.cursor='grab'}
   canvas.addEventListener('pointerdown',onDown)
   window.addEventListener('pointermove',onMove)
   window.addEventListener('pointerup',onUp)
+  canvas.addEventListener('touchmove',e=>{if(dragging&&e.cancelable)e.preventDefault()},{passive:false})
 
   const reduced=matchMedia('(prefers-reduced-motion: reduce)').matches
   const t0=(typeof performance!=='undefined'?performance.now():0)
@@ -1655,7 +1751,7 @@ function initSpecimen(cid,wid,num){
     aid=requestAnimationFrame(animate)
     if(!dragging){
       vel*=0.94;idleT++
-      rotY+=vel+(idleT>90&&!reduced?0.0045:0)
+      rotY+=vel+(!reduced?0.0040:0)   // 最初からゆっくり自動回転（＝回せることが直感で伝わる）
     }
     if(!reduced){
       const age=(performance.now()-t0)/1000
