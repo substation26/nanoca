@@ -993,7 +993,7 @@ function buildSaBox(){
     `${f.vp.jp} → ${f.sp.n}`,
     `${f.color[0]} / ${f.sp.style==='cluster'?'集積':f.petals+'枚'} / ${f.size}mm / 開き${f.openPct}% / 蕾${f.buds}`
   ])
-  rows.push(['全体のバランス',balanceText(metrics).t])
+  rows.push(['全体のバランス',metrics?balanceText(metrics).t:'—'])
   rows.push(['土台','透明レジン 約2〜3cm・根は見せない'])
   document.getElementById('sa-box').innerHTML=
     `<div class="lbl" style="margin-bottom:10px">造形設計データ — 5輪の構成</div>`+
@@ -1208,7 +1208,12 @@ function checkAtelier(){
   if(!/atelier/i.test(location.search+location.hash))return
   const t=document.getElementById('atelier-tools');if(t)t.style.display='flex'
   const st=document.getElementById('atelier-status')
-  if(atelierAutoLoad()){ if(st)st.textContent='メールのリンクから設計データを読み込みました（'+design.sid+'）。下のボタンでSTLを書き出せます。' }
+  if(atelierAutoLoad()){
+    try{ buildSaBox() }catch(_){}
+    goTo('s-det')                       // 設計図の確認画面へ移動（STL書き出しはこの画面にある）
+    if(t)t.style.display='flex'
+    if(st)st.textContent='メールのリンクから設計データを読み込みました（'+design.sid+'）。下の「3Dプリンタ用データ（.stl）を書き出す」から書き出せます。'
+  }
 }
 function loadDesignJSON(e){
   const f=e.target.files&&e.target.files[0];if(!f)return
@@ -1746,23 +1751,20 @@ function initSpecimen(cid,wid,num){
   const reduced=matchMedia('(prefers-reduced-motion: reduce)').matches
   const t0=(typeof performance!=='undefined'?performance.now():0)
   let aid
-  if(reduced)updateFlows(6)
   const animate=()=>{
     aid=requestAnimationFrame(animate)
     if(!dragging){
       vel*=0.94;idleT++
-      rotY+=vel+(!reduced?0.0040:0)   // 最初からゆっくり自動回転（＝回せることが直感で伝わる）
+      rotY+=vel+0.0040                 // スマホでも常にゆっくり自動回転（PCと統一）
     }
-    if(!reduced){
-      const age=(performance.now()-t0)/1000
-      // 誕生の演出：まず声の光が殻から立ちのぼり、遅れて骨格が殻の中から生まれる
-      const k=Math.min(1,Math.max(0,(age-0.55)/1.9))
-      const e2=1-Math.pow(1-k,3)
-      grow.scale.setScalar(0.02+0.98*e2)
-      grow.rotation.y=(1-e2)*0.7
-      updateFlows(age)
-      halo.rotation.y-=0.0012
-    }
+    // 粒子の流動と誕生の演出は常に動かす。止めると粒が固まって「静止した色の丸」に見え、気持ち悪くなるため。
+    const age=(performance.now()-t0)/1000
+    const k=Math.min(1,Math.max(0,(age-0.55)/1.9))
+    const e2=1-Math.pow(1-k,3)
+    grow.scale.setScalar(0.02+0.98*e2)
+    grow.rotation.y=(1-e2)*0.7
+    updateFlows(age)
+    halo.rotation.y-=0.0012
     pivot.rotation.y=rotY
     tilt.rotation.x=rotX
     renderer.render(scene,cam)
