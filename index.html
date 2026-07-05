@@ -189,6 +189,15 @@ button:focus-visible,a:focus-visible,summary:focus-visible{outline:1.5px solid v
 .cid .mn{font-family:var(--mincho);font-weight:500;font-size:13.5px}
 .tl-note{border-left:2px solid var(--teal3);padding:8px 13px;width:100%}
 .tl-note p{font-size:11px;color:var(--teal);line-height:1.9}
+/* シェア */
+.share{width:100%;border:0.5px solid var(--paper3);border-radius:3px;padding:14px 16px;display:flex;flex-direction:column;gap:9px;background:var(--paper2)}
+.share-lbl{font-size:10px;letter-spacing:.16em;color:var(--ink3);text-align:center}
+.share-main{width:100%;padding:13px;background:var(--teal);border:none;border-radius:3px;color:#fff;font-family:var(--mono);font-size:11px;letter-spacing:.12em;cursor:pointer}
+.share-main:hover{background:var(--teal2)}
+.share-row{display:flex;gap:8px}
+.share-sns{flex:1;padding:11px 0;border:0.5px solid var(--paper3);border-radius:3px;background:var(--paper);font-family:var(--mono);font-size:11px;letter-spacing:.04em;color:var(--ink2);cursor:pointer;transition:all .2s}
+.share-sns:hover{border-color:var(--ink3);color:var(--ink)}
+.share-hint{font-size:9.5px;color:var(--ink4);line-height:1.7;text-align:center}
 .cflow{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;padding:4px 0 0}
 .cflow span{font-size:9px;letter-spacing:.14em;color:var(--ink3)}
 .cflow .x{color:var(--ink4);font-size:8px}
@@ -343,8 +352,8 @@ button:focus-visible,a:focus-visible,summary:focus-visible{outline:1.5px solid v
       <div class="astep">
         <div class="no">STEP 4</div>
         <div class="bd">
-          <div class="tt">詩帆（nanoca）が仕上げる<small>art</small></div>
-          <div class="dd">科学やITが決めるのではなく、詩帆が「声を花へ翻訳する」工程です。最終的な作品の表情は、ここで初めて完成します。</div>
+          <div class="tt">nanoca のアトリエが仕上げる<small>art</small></div>
+          <div class="dd">科学やITが決めるのではなく、nanoca の作家が「声を花へ翻訳する」工程です。最終的な作品の表情は、ここで初めて完成します。</div>
           <div class="tags"><span class="tag">ディップ加工</span><span class="tag">着彩</span><span class="tag">透明感の調整</span><span class="tag">質感表現</span><span class="tag">花材の組み合わせ</span><span class="tag">最終デザイン監修</span></div>
         </div>
       </div>
@@ -352,6 +361,13 @@ button:focus-visible,a:focus-visible,summary:focus-visible{outline:1.5px solid v
     <div class="anote" id="anote-box"></div>
     <div class="note" style="border-left-color:var(--teal3)">
       <p style="color:var(--teal)">このシステムが決めるのは骨格までです<br>完成作品を自動決定することはありません</p>
+    </div>
+    <div id="atelier-tools" style="display:none;flex-direction:column;gap:8px;border:0.5px solid var(--paper3);border-radius:3px;padding:12px;background:var(--paper2)">
+      <div class="lbl" style="text-align:center;margin:0">アトリエ専用ツール</div>
+      <button class="btn-p" style="width:100%" onclick="exportSTL(this)">3Dプリンタ用データ（.stl）を書き出す</button>
+      <button class="btn-s" style="width:100%" onclick="exportDesignData()">造形設計データ（.json）を書き出す</button>
+      <label class="btn-s" style="width:100%;text-align:center;cursor:pointer">届いた設計データ(JSON)を読み込む<input type="file" accept="application/json,.json" style="display:none" onchange="loadDesignJSON(event)"></label>
+      <div id="atelier-status" style="font-size:9.5px;color:var(--ink4);text-align:center;line-height:1.6"></div>
     </div>
     <div class="row2">
       <button class="btn-s" onclick="goTo('s-map')">← 戻る</button>
@@ -364,14 +380,24 @@ button:focus-visible,a:focus-visible,summary:focus-visible{outline:1.5px solid v
     <div class="cpl">
       <div class="cpl-sym">✦</div>
       <div style="text-align:center">
-        <div class="h1" style="font-size:18px">設計図が、詩帆のアトリエへ<br>届けられました</div>
-        <div class="sub" style="max-width:290px;margin:6px auto 0">3Dプリンタによる骨格の生成を経て、あなただけの声標本が、詩帆の手によって完成します。</div>
+        <div class="h1" style="font-size:18px">設計図が、nanoca のアトリエへ<br>届けられました</div>
+        <div class="sub" style="max-width:290px;margin:6px auto 0">3Dプリンタによる骨格の生成を経て、あなただけの声標本が、nanoca の手によって完成します。</div>
       </div>
       <div class="cflow"><span>科学</span><span class="x">×</span><span>IT</span><span class="x">×</span><span>手仕事</span></div>
       <div class="cid"><span>標本 ID</span><strong id="cid-val">—</strong></div>
       <div class="cid"><span>5輪の構成</span><strong class="mn" id="cid-flowers">—</strong></div>
       <div class="cid"><span>完成予定</span><strong class="mn" style="font-size:12.5px">お知らせメールをお送りします</strong></div>
       <div class="tl-note"><p>完成した作品の底面にはQRコードが付きます。<br>声の再生だけでなく、現在の声・将来の変化・過去との比較を観察できる「生きた標本」の記録が、ここから育っていきます。</p></div>
+      <div class="share">
+        <div class="share-lbl">芽生えた設計図をシェアする</div>
+        <button class="share-main" onclick="shareNative()">画像で共有する</button>
+        <div class="share-row">
+          <button class="share-sns sx" onclick="shareX()">X</button>
+          <button class="share-sns sfb" onclick="shareFB()">Facebook</button>
+          <button class="share-sns sig" onclick="shareIG()">Instagram</button>
+        </div>
+        <div class="share-hint" id="share-hint">「画像で共有」から各SNSへ。Instagramは画像を保存して投稿できます。</div>
+      </div>
       <button class="btn-s" style="width:100%;margin-top:4px" onclick="goReset()">別の声を記録する</button>
       <div class="tagline">
         <p>声標本は、科学によって声を理解し、ITによって設計し、人の手によって完成する。</p>
@@ -921,14 +947,213 @@ function buildSaBox(){
     rows.map(([k,v])=>`<div class="sa-r"><div class="sa-k">${k}</div><div class="sa-v">${v}</div></div>`).join('')
   const hi=flowers.reduce((a,b)=>a.v>b.v?a:b)
   document.getElementById('anote-box').innerHTML=
-    `<div class="lbl" style="margin-bottom:10px">詩帆への申し送り</div>
+    `<div class="lbl" style="margin-bottom:10px">アトリエへの申し送り</div>
      <p>最も強く現れた視点は「${hi.vp.jp}」（${hi.sp.n}）。割れた殻から外へ向かって咲く構成で、${hi.facing}開くよう設計されています。</p>
-     <p style="margin-top:9px"><em>科学とITはここまで。最終的な作品の表情は、詩帆の手で初めて完成します。</em></p>`
+     <p style="margin-top:9px"><em>科学とITはここまで。最終的な作品の表情は、nanoca の手で初めて完成します。</em></p>`
 }
 
 function confirmDesign(){
   document.getElementById('cid-flowers').textContent=flowers.map(f=>f.sp.n).join(' ・ ')
   goTo('s-cpl')
+  sendToAtelier()   // 印刷用データをアトリエへ自動送信（ユーザーには見せない）
+}
+
+/* ─── アトリエ設定（3Dプリンタ工程） ───────────────────────────
+   設計図が確定すると、印刷用データを nanoca のアトリエ宛に自動送信します。
+   静的サイトから直接メールは送れないため、無料の「フォーム→メール」中継
+   （Web3Forms）を使います。web3forms.com で無料のAccess Keyを取得し、
+   下の 'YOUR-WEB3FORMS-ACCESS-KEY' を置き換えてください（コピペ1回だけ）。 */
+const ATELIER_EMAIL='shiho.oura0707@gmail.com'
+const WEB3FORMS_KEY='b0a94f5e-2acc-4060-ab25-1bda780548a7'
+
+/* ─── シェア（Instagram / Facebook / X） ─── */
+const SHARE_URL='https://substation26.github.io/nanoca/'
+function shareCaption(){
+  const names=flowers?flowers.map(f=>f.sp.n).join('・'):''
+  const id=design?design.sid:''
+  return `声から生まれた、わたしだけの花束「${names}」。\n声標本 KOE-HYOHON ${id}\n#声標本 #nanoca #KoeHyohon #声の花`
+}
+function specimenCanvas(){ return document.getElementById('mc2')||document.getElementById('mc') }
+/* 3Dの標本を、ブランドの帯を添えた1枚の画像に合成 */
+function specimenImageBlob(){
+  return new Promise(res=>{
+    const src=specimenCanvas()
+    if(!src||!src.width){res(null);return}
+    const W=src.width, H=src.height, pad=Math.round(H*0.14)
+    const cv=document.createElement('canvas');cv.width=W;cv.height=H+pad
+    const ctx=cv.getContext('2d')
+    ctx.fillStyle='#14161c';ctx.fillRect(0,0,cv.width,cv.height)
+    try{ctx.drawImage(src,0,0,W,H)}catch(e){}
+    ctx.textBaseline='middle'
+    ctx.textAlign='left'
+    ctx.fillStyle='rgba(233,229,216,0.92)'
+    ctx.font=`${Math.round(pad*0.34)}px 'Shippori Mincho','Hiragino Mincho ProN',serif`
+    ctx.fillText('声標本  KOE-HYOHON', Math.round(W*0.06), H+pad*0.5)
+    ctx.textAlign='right'
+    ctx.fillStyle='rgba(196,192,178,0.75)'
+    ctx.font=`${Math.round(pad*0.26)}px 'DM Mono',monospace`
+    ctx.fillText((design?design.sid+'   ':'')+'nanoca', Math.round(W*0.94), H+pad*0.5)
+    cv.toBlob(b=>res(b),'image/png')
+  })
+}
+function saveImage(blob){
+  const a=document.createElement('a')
+  a.href=URL.createObjectURL(blob)
+  a.download=(design?design.sid:'koe-hyohon')+'.png'
+  document.body.appendChild(a);a.click();a.remove()
+  setTimeout(()=>URL.revokeObjectURL(a.href),4000)
+}
+function shareHint(msg){const el=document.getElementById('share-hint');if(el)el.textContent=msg}
+async function shareNative(){
+  const blob=await specimenImageBlob()
+  const cap=shareCaption()
+  try{
+    if(blob && navigator.canShare){
+      const file=new File([blob],'koe-hyohon.png',{type:'image/png'})
+      if(navigator.canShare({files:[file]})){
+        await navigator.share({files:[file],text:cap,title:'声標本 KOE-HYOHON'})
+        return
+      }
+    }
+    if(navigator.share){ await navigator.share({text:cap,url:SHARE_URL,title:'声標本 KOE-HYOHON'}); return }
+  }catch(e){ if(e&&e.name==='AbortError')return }
+  // 共有APIが使えない環境：画像を保存
+  if(blob){ saveImage(blob); shareHint('画像を保存しました。各SNSのアプリから投稿できます。') }
+  else shareHint('この環境では画像を取得できませんでした。設計図の画面から共有してください。')
+}
+function shareX(){
+  window.open('https://twitter.com/intent/tweet?text='+encodeURIComponent(shareCaption())+'&url='+encodeURIComponent(SHARE_URL),'_blank','noopener,noreferrer')
+}
+function shareFB(){
+  window.open('https://www.facebook.com/sharer/sharer.php?u='+encodeURIComponent(SHARE_URL)+'&quote='+encodeURIComponent(shareCaption()),'_blank','noopener,noreferrer')
+}
+async function shareIG(){
+  // Instagramはリンク投稿に非対応。まず端末の共有シート（IGを選べる）、無ければ画像を保存
+  const blob=await specimenImageBlob()
+  try{
+    if(blob && navigator.canShare){
+      const file=new File([blob],'koe-hyohon.png',{type:'image/png'})
+      if(navigator.canShare({files:[file]})){ await navigator.share({files:[file],text:shareCaption(),title:'声標本 KOE-HYOHON'}); return }
+    }
+  }catch(e){ if(e&&e.name==='AbortError')return }
+  if(blob){ saveImage(blob); shareHint('画像を保存しました。Instagramアプリを開き、投稿に選んでください。') }
+  else shareHint('この環境では画像を取得できませんでした。')
+}
+
+/* ─── 造形設計データ（3Dプリンタ工程への引き渡し） ─── */
+function designDataObject(){
+  return {
+    schema:'nanoca.koe-hyohon.specimen/1',
+    brand:'nanoca', product:'KOE-HYOHON',
+    specimenId:design?design.sid:'',
+    seed:seed,                                  // STL を同一に再生成するための種
+    createdYear:new Date().getFullYear(),
+    metrics:metrics?Object.fromEntries(VIEWPOINTS.map(v=>[v.en,Math.round(metrics[v.key]*1000)/1000])):null,
+    vessel:{ type:'cracked-egg-shell', base:'clear-resin', baseHeightMm:[20,30], showRoots:false },
+    flowers:flowers.map(f=>({
+      viewpoint:f.vp.jp, viewpointKey:f.vp.key, v:Math.round(f.v*1000)/1000,
+      name:f.sp.n, reading:f.sp.r, habit:f.sp.style, habitNote:f.sp.note,
+      colorName:f.color[0], colorHex:f.color[1], colorHex3d:f.color[2],
+      petals:f.petals, sizeMm:f.size, openPercent:f.openPct, transparencyPercent:f.trans,
+      form:f.form, facing:f.facing, stemLength:Math.round(f.stemLen*100)/100,
+      angleDeg:Math.round(f.angle*180/Math.PI)
+    }))
+  }
+}
+function exportDesignData(){
+  if(!flowers||!design){return}
+  const blob=new Blob([JSON.stringify(designDataObject(),null,2)],{type:'application/json'})
+  const a=document.createElement('a')
+  a.href=URL.createObjectURL(blob)
+  a.download=(design.sid||'koe-hyohon')+'.json'
+  document.body.appendChild(a);a.click();a.remove()
+  setTimeout(()=>URL.revokeObjectURL(a.href),4000)
+}
+
+/* ─── 設計図を確定したら、印刷用データをアトリエ宛に自動送信 ───
+   ユーザーには何も見せません。Web3FormsのAccess Key設定時のみ動作します。 */
+async function sendToAtelier(){
+  if(!flowers||!design)return
+  if(!WEB3FORMS_KEY||WEB3FORMS_KEY.indexOf('YOUR-')===0)return   // キー未設定なら送信しない
+  try{
+    const dj=JSON.stringify(designDataObject())
+    let b64='';try{b64=btoa(unescape(encodeURIComponent(dj)))}catch(e){b64=''}
+    const link=SHARE_URL+'?atelier=1#data='+encodeURIComponent(b64)   // クリックでSTL準備が整うリンク
+    const payload={
+      access_key:WEB3FORMS_KEY,
+      subject:'【声標本 / nanoca】新しい設計図 '+design.sid,
+      from_name:'KOE-HYOHON',
+      '標本ID':design.sid,
+      '花の構成':flowers.map(f=>f.sp.n+'（'+f.color[0]+'）').join(' / '),
+      '全体のかたち':flowers.map(f=>f.sp.style).join(' / '),
+      'アトリエ手順':'下の「アトリエ用リンク」を開くと、3Dプリンタ用STLを書き出す画面がそのまま開きます（クリック→「3Dプリンタ用データ(.stl)を書き出す」）。',
+      'アトリエ用リンク':link,
+      '造形設計データ_JSON':dj
+    }
+    await fetch('https://api.web3forms.com/submit',{
+      method:'POST',
+      headers:{'Content-Type':'application/json',Accept:'application/json'},
+      body:JSON.stringify(payload)
+    })
+  }catch(e){}
+}
+
+/* ─── アトリエ専用ツール（?atelier=... でのみ表示） ─── */
+function applyDesignData(d){
+  seed=d.seed||seed
+  design={sid:d.specimenId||'KH'}
+  flowers=d.flowers.map(x=>({
+    vp:{jp:x.viewpoint,key:x.viewpointKey,css:''}, v:x.v!=null?x.v:0.5,
+    sp:{n:x.name,r:x.reading,style:x.habit,note:x.habitNote||''}, form:x.form,
+    petals:x.petals, size:x.sizeMm, openPct:x.openPercent, trans:x.transparencyPercent,
+    color:[x.colorName,x.colorHex,x.colorHex3d], facing:x.facing,
+    stemLen:x.stemLength, buds:1, angle:(x.angleDeg||0)*Math.PI/180
+  }))
+}
+function atelierAutoLoad(){
+  const mm=(location.hash||'').match(/data=([^&]+)/)
+  if(!mm)return false
+  try{ applyDesignData(JSON.parse(decodeURIComponent(escape(atob(decodeURIComponent(mm[1])))))); return true }
+  catch(e){ return false }
+}
+function checkAtelier(){
+  if(!/atelier/i.test(location.search+location.hash))return
+  const t=document.getElementById('atelier-tools');if(t)t.style.display='flex'
+  const st=document.getElementById('atelier-status')
+  if(atelierAutoLoad()){ if(st)st.textContent='メールのリンクから設計データを読み込みました（'+design.sid+'）。下のボタンでSTLを書き出せます。' }
+}
+function loadDesignJSON(e){
+  const f=e.target.files&&e.target.files[0];if(!f)return
+  const r=new FileReader()
+  r.onload=()=>{
+    try{ applyDesignData(JSON.parse(r.result)); const st=document.getElementById('atelier-status');if(st)st.textContent='読み込みました（'+design.sid+'）。STLを書き出せます。' }
+    catch(err){ const st=document.getElementById('atelier-status');if(st)st.textContent='JSONの読み込みに失敗しました' }
+  }
+  r.readAsText(f)
+}
+try{checkAtelier()}catch(e){}
+
+/* ─── 3Dプリンタ用データ（.stl）をボタンひとつで書き出す ─── */
+function exportSTL(btn){
+  const label=btn?btn.textContent:''
+  if(typeof buildSpecimenSTL!=='function'||typeof THREE==='undefined'){
+    if(btn){btn.textContent='3Dプレビュー表示後にお試しください';setTimeout(()=>{btn.textContent=label},3500)}
+    return
+  }
+  if(btn)btn.textContent='立体を生成しています…'
+  setTimeout(()=>{
+    let blob=null
+    try{blob=buildSpecimenSTL()}catch(e){blob=null}
+    if(blob){
+      const a=document.createElement('a')
+      a.href=URL.createObjectURL(blob)
+      a.download=(design?design.sid:'koe-hyohon')+'.stl'
+      document.body.appendChild(a);a.click();a.remove()
+      setTimeout(()=>URL.revokeObjectURL(a.href),4000)
+      if(btn)btn.textContent='✓ STLを書き出しました'
+    }else if(btn)btn.textContent='書き出しに失敗しました。もう一度お試しください'
+    if(btn)setTimeout(()=>{btn.textContent=label},4000)
+  },30)
 }
 
 function goReset(){
@@ -958,7 +1183,7 @@ function initSpecimen(cid,wid,num){
   if(num===2&&viz2){viz2.dispose();viz2=null}
 
   const scene=new THREE.Scene()
-  const renderer=new THREE.WebGLRenderer({canvas,antialias:true,alpha:false})
+  const renderer=new THREE.WebGLRenderer({canvas,antialias:true,alpha:false,preserveDrawingBuffer:true})
   renderer.setSize(W,H)
   renderer.setPixelRatio(Math.min(devicePixelRatio,2))
   renderer.setClearColor(0x14161c,1)
@@ -1456,6 +1681,111 @@ function initSpecimen(cid,wid,num){
     try{renderer.dispose()}catch(e){}
   }}
   if(num===1)viz1=handle;else viz2=handle
+}
+
+/* ═══════════════════════════════════════════
+   3Dプリンタ用 STL 書き出し（ボタンひとつ）
+   ・線画ではなく「印刷できる立体」を生成：茎＝チューブ / 花弁＝厚み付き / 束ね根＝台座
+   ・three.min.js だけで動作（追加ライブラリ不要）
+   ・スライサー（Chitubox/Lychee/Bambu/Cura等）が交差ソリッドを自動修復して印刷できる
+   ═══════════════════════════════════════════ */
+function buildSpecimenSTL(){
+  if(typeof THREE==='undefined'||!flowers) return null
+  const srng=mulberry32(seed)
+  const EGG={rx:1.22,ryB:1.42,ryT:1.9,rz:1.06}
+  const rimAt=th=>{const zig=(t,k)=>Math.abs(((t*k/(Math.PI*2))%1)-0.5)*2;return 0.34+0.46*zig(th+0.7,5)+0.24*zig(th+2.1,9)+0.10*Math.sin(th*3+1.3)}
+  const STEM=0.085, BRANCH=0.055, THK=0.11               // 単位空間での太さ（後で mm 換算）
+  function petalPts(len,wid,q){
+    q=q||{tip:0.3,frill:0.3,belly:0.5}
+    const N=13,ea=0.72+q.tip*0.42,eb=0.82-q.belly*0.14+q.tip*0.34
+    const wAt=t=>Math.pow(Math.sin(Math.PI*Math.pow(t,ea)),eb)
+    const frillF=2.2+q.frill*1.6,frillA=0.03+q.frill*0.11,round=0.16*(1-q.tip),tCap=1-Math.max(0.04,round)
+    const side=t=>(wAt(t)+frillA*Math.sin(frillF*Math.PI*t)*Math.sin(Math.PI*t))*wid,pts=[]
+    for(let i=0;i<=N;i++){const t=i/N*tCap;pts.push([side(t),t*len])}
+    if(round>0.05){const wc=side(tCap);for(let a=1;a<6;a++){const ang=a/6*Math.PI;pts.push([Math.cos(ang)*wc,tCap*len+Math.sin(ang)*round*len])}}
+    else pts.push([0,len])
+    for(let i=N;i>=0;i--){const t=i/N*tCap;pts.push([-side(t),t*len])}
+    return pts
+  }
+  function petalSolid(len,wid,q,bendMul){
+    const raw=petalPts(len,wid,q)
+    const shp=new THREE.Shape();shp.moveTo(raw[0][0],raw[0][1]);for(let i=1;i<raw.length;i++)shp.lineTo(raw[i][0],raw[i][1])
+    const geo=new THREE.ExtrudeGeometry(shp,{depth:THK,bevelEnabled:false,steps:1,curveSegments:1})
+    const bend=len*0.42*(bendMul==null?1:bendMul),pos=geo.attributes.position
+    for(let i=0;i<pos.count;i++){const x=pos.getX(i),y=pos.getY(i),t=Math.max(0,Math.min(1,y/len));pos.setZ(i,pos.getZ(i)-THK/2+bend*((x*x)/(wid*wid)*0.35-Math.pow(t,1.8)))}
+    return geo
+  }
+  const root=new THREE.Group()
+  const put=(parent,geo,tilt,yaw,y)=>{const m=new THREE.Mesh(geo);m.rotation.x=tilt;const h=new THREE.Group();h.add(m);h.rotation.y=yaw;if(y)h.position.y=y;parent.add(h)}
+  function orient(obj,pos,th,lift){obj.position.copy(pos);const target=pos.clone().add(new THREE.Vector3(Math.cos(th)*(1-lift),lift*1.6,Math.sin(th)*(1-lift)));obj.up.set(0,0,1);obj.lookAt(target);obj.rotateX(Math.PI/2)}
+  function bloom(f,scale){
+    const fm=f.form,q={tip:fm.tip,frill:fm.frill,belly:fm.width},g=new THREE.Group()
+    if(f.sp.style==='cluster'){
+      const cnt=7+Math.round(f.v*2),GA=Math.PI*(3-Math.sqrt(5))
+      for(let i=0;i<cnt;i++){const t=(i+0.5)/cnt,phi=Math.acos(1-t*0.95),th=i*GA,dir=new THREE.Vector3(Math.sin(phi)*Math.cos(th),Math.cos(phi)*0.85+0.15,Math.sin(phi)*Math.sin(th)).normalize(),R=scale*(0.6+srng()*0.28),p=dir.clone().multiplyScalar(R)
+        const cv=new THREE.CatmullRomCurve3([new THREE.Vector3(0,0,0),p.clone().multiplyScalar(0.55),p]);g.add(new THREE.Mesh(new THREE.TubeGeometry(cv,6,BRANCH*0.7,6)))
+        const fg=new THREE.Group();for(let k=0;k<5;k++)put(fg,petalSolid(scale*0.34,scale*0.20,q,0.7),-Math.PI/2*0.6,k/5*Math.PI*2)
+        fg.position.copy(p);fg.up.set(0,0,1);fg.lookAt(p.clone().add(dir));fg.rotateX(Math.PI/2);g.add(fg)}
+    }else if(f.sp.style==='raceme'){
+      const droop=1.05+(fm.droop||0.5)*0.65,cnt=6,cv=new THREE.CatmullRomCurve3([new THREE.Vector3(0,0,0),new THREE.Vector3(scale*0.55,-scale*droop*0.5,0),new THREE.Vector3(scale*0.78,-scale*droop*1.2,0)])
+      g.add(new THREE.Mesh(new THREE.TubeGeometry(cv,14,BRANCH,6)))
+      const pn=Math.min(fm.petals,5)
+      for(let i=0;i<cnt;i++){const t=(i+1)/(cnt+1),p=cv.getPoint(t),sz=scale*0.48*(1-t*0.35),fg=new THREE.Group();for(let k=0;k<pn;k++)put(fg,petalSolid(sz,sz*0.62,q,0.8),-Math.PI/2*0.5,k/pn*Math.PI*2);fg.position.copy(p);fg.rotation.x=Math.PI*0.85;g.add(fg)}
+    }else if(f.sp.style==='wrap'){
+      for(let k=0;k<3;k++)put(g,petalSolid(scale*1.25,scale*0.9,q,-0.5),-Math.PI/2*0.12,k/3*Math.PI*2)
+    }else{
+      const cnt=Math.max(4,Math.min(fm.petals,7)),len=scale*(1.02+fm.width*0.28),wid=scale*(0.46+fm.width*0.34),tilt=-(Math.PI/2)*(0.14+fm.open*0.72),bend=0.5+fm.open*0.5
+      for(let i=0;i<cnt;i++)put(g,petalSolid(len,wid,q,bend),tilt,i/cnt*Math.PI*2)
+      if(fm.whorl2)for(let i=0;i<cnt-1;i++)put(g,petalSolid(len*0.62,wid*0.78,q,bend*0.8),tilt*0.55,i/(cnt-1)*Math.PI*2+Math.PI/cnt,scale*0.07)
+    }
+    return g
+  }
+  const hMul=[1.05,0.78,1.18,0.85,0.98]
+  flowers.forEach((f,i)=>{
+    const th=f.angle,rim=rimAt(th),scale=(0.38+(f.size-16)/30*0.46)*2
+    const p0=new THREE.Vector3(Math.cos(th)*0.05,-0.98,Math.sin(th)*0.05)
+    const outR=1.02+f.stemLen*0.44,topY=rim+(0.55+f.stemLen*0.50)*hMul[i]
+    const p3=new THREE.Vector3(Math.cos(th)*outR*0.92,topY,Math.sin(th)*outR*0.85),p1=new THREE.Vector3(Math.cos(th)*0.30,rim*0.5,Math.sin(th)*0.27),p2=new THREE.Vector3(Math.cos(th)*outR*0.72,rim+(topY-rim)*0.55,Math.sin(th)*outR*0.66)
+    const cv=new THREE.CatmullRomCurve3([p0,p1,p2,p3])
+    root.add(new THREE.Mesh(new THREE.TubeGeometry(cv,26,STEM,8)))
+    ;[0.5,0.72].forEach((tt,k)=>{const lp=cv.getPoint(tt);const m=new THREE.Mesh(petalSolid(0.55,0.24,{tip:0.3,frill:0.3,belly:0.5},0.6));m.position.copy(lp);m.rotation.set(-0.5+k*0.3,th+k*1.8,0.9);root.add(m)})
+    const bl=bloom(f,scale),lift=f.facing==='空へ向かって'?0.95:(f.facing==='外へ向かって'?0.45:0.05)
+    if(f.sp.style!=='raceme')orient(bl,p3,th,lift);else{bl.position.copy(p3);bl.rotation.y=th}
+    root.add(bl)
+    const bp=cv.getPoint(0.62),dir=th+Math.PI*0.55,bp3=new THREE.Vector3(bp.x+Math.cos(dir)*0.36,bp.y+0.5,bp.z+Math.sin(dir)*0.34),bcv=new THREE.CatmullRomCurve3([bp,new THREE.Vector3((bp.x+bp3.x)/2,(bp.y+bp3.y)/2+0.06,(bp.z+bp3.z)/2),bp3])
+    root.add(new THREE.Mesh(new THREE.TubeGeometry(bcv,10,BRANCH,6)))
+    const budGeo=new THREE.SphereGeometry(scale*0.14,10,8);budGeo.scale(0.7,1.5,0.7);const bm=new THREE.Mesh(budGeo);bm.position.copy(bp3);root.add(bm)
+  })
+  // 束ね根の台座（印刷の土台）
+  const base=new THREE.Mesh(new THREE.CylinderGeometry(0.30,0.40,0.6,24));base.position.y=-1.10;root.add(base)
+
+  root.updateMatrixWorld(true)
+  const tris=[]
+  root.traverse(o=>{ if(!o.isMesh)return; const geo=o.geometry.index?o.geometry.toNonIndexed():o.geometry; const p=geo.attributes.position,m=o.matrixWorld
+    for(let i=0;i<p.count;i+=3){
+      const a=new THREE.Vector3().fromBufferAttribute(p,i).applyMatrix4(m)
+      const b=new THREE.Vector3().fromBufferAttribute(p,i+1).applyMatrix4(m)
+      const c=new THREE.Vector3().fromBufferAttribute(p,i+2).applyMatrix4(m)
+      tris.push([a,b,c])
+    }})
+  // 単位→mm、Three(Y-up)→STL(Z-up)、底面を z=0 へ
+  const MM=12
+  const conv=v=>({x:v.x*MM,y:-v.z*MM,z:v.y*MM})
+  const out=tris.map(t=>t.map(conv))
+  let minz=Infinity;out.forEach(t=>t.forEach(p=>{if(p.z<minz)minz=p.z}))
+  out.forEach(t=>t.forEach(p=>{p.z-=minz}))
+  const n=out.length,buf=new ArrayBuffer(84+n*50),dv=new DataView(buf)
+  const lab='nanoca koe-hyohon specimen';for(let i=0;i<lab.length;i++)dv.setUint8(i,lab.charCodeAt(i))
+  dv.setUint32(80,n,true);let o=84
+  for(const t of out){const a=t[0],b=t[1],c=t[2]
+    const ux=b.x-a.x,uy=b.y-a.y,uz=b.z-a.z,vx=c.x-a.x,vy=c.y-a.y,vz=c.z-a.z
+    let nx=uy*vz-uz*vy,ny=uz*vx-ux*vz,nz=ux*vy-uy*vx;const L=Math.hypot(nx,ny,nz)||1
+    dv.setFloat32(o,nx/L,true);dv.setFloat32(o+4,ny/L,true);dv.setFloat32(o+8,nz/L,true)
+    dv.setFloat32(o+12,a.x,true);dv.setFloat32(o+16,a.y,true);dv.setFloat32(o+20,a.z,true)
+    dv.setFloat32(o+24,b.x,true);dv.setFloat32(o+28,b.y,true);dv.setFloat32(o+32,b.z,true)
+    dv.setFloat32(o+36,c.x,true);dv.setFloat32(o+40,c.y,true);dv.setFloat32(o+44,c.z,true)
+    dv.setUint16(o+48,0,true);o+=50}
+  return new Blob([buf],{type:'model/stl'})
 }
 
 </script>
