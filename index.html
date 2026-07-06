@@ -240,6 +240,10 @@ button:focus-visible,a:focus-visible,summary:focus-visible{outline:1.5px solid v
 /* 没入の披露（リビール）：設計図がまず画面いっぱいに広がり、誕生が起こる */
 .egg-wrap.reveal{position:fixed;inset:0;z-index:90;width:100vw;height:100vh!important;aspect-ratio:auto;border:none;border-radius:0;margin:0;animation:revealIn .9s ease}
 @keyframes revealIn{from{opacity:0}to{opacity:1}}
+.egg-wrap.reveal.reveal-out{animation:revealOut .72s ease forwards}   /* 没入の終わりは、暗転ではなく溶暗 */
+@keyframes revealOut{to{opacity:0}}
+.egg-wrap.reveal-settle{animation:settleIn .9s ease}                  /* ページの席で、そっと息を吹き返す */
+@keyframes settleIn{from{opacity:0}to{opacity:1}}
 .reveal-exit{display:none}
 .egg-wrap.reveal .reveal-exit{display:block;position:absolute;bottom:calc(26px + env(safe-area-inset-bottom,0px));left:50%;transform:translateX(-50%);z-index:95;
   background:rgba(20,22,28,.55);border:0.5px solid rgba(233,229,216,.35);border-radius:3px;color:rgba(233,229,216,.9);
@@ -513,7 +517,15 @@ const STEP_NO = {'s-rec':0,'s-ana':1,'s-sci':1,'s-map':2,'s-det':2,'s-cpl':3}
 let isRec=false, recSecs=0, recTimer=null, hasAudio=false, wAnim=null
 let mediaRec=null, recChunks=[], audioBlob=null, audioBuf=null, audioURL=null
 let analyser=null, acx=null
+const BUILD='2026.07-f2'   // ビルド刻印：画面左下に表示。デプロイ確認はこの番号で（キャッシュ事故の根絶）
 let metrics=null, flowers=null, design=null, seed=1, voicePitch=null
+document.addEventListener('DOMContentLoaded',()=>{
+  const b=document.createElement('div')
+  b.textContent='KOE-HYOHON '+BUILD
+  b.style.cssText='position:fixed;left:10px;bottom:8px;z-index:59;font-family:monospace;font-size:8px;letter-spacing:.08em;color:rgba(90,88,80,.4);pointer-events:none'
+  document.body.appendChild(b)
+  console.log('KOE-HYOHON build '+BUILD)
+})
 let viz1=null, viz2=null
 
 /* ─── 画面遷移 ─── */
@@ -1295,9 +1307,16 @@ function enterReveal(){
 function exitReveal(){
   const w=document.getElementById('mapwrap');if(!w)return
   clearTimeout(revealTimer)
-  w.classList.remove('reveal')
-  document.body.style.overflow=''
-  window.dispatchEvent(new Event('resize'))                // 大きさをページの寸法へ戻す
+  if(!w.classList.contains('reveal')){document.body.style.overflow='';return}
+  if(w.classList.contains('reveal-out'))return             // 二重呼び出しを防ぐ
+  w.classList.add('reveal-out')                            // まず、光が静かに引いていく（0.72秒）
+  setTimeout(()=>{
+    w.classList.remove('reveal');w.classList.remove('reveal-out')
+    w.classList.add('reveal-settle')                       // ページの席で、そっと現れ直す
+    document.body.style.overflow=''
+    window.dispatchEvent(new Event('resize'))
+    setTimeout(()=>w.classList.remove('reveal-settle'),950)
+  },720)
 }
 function replayReveal(){                                    // もういちど、咲くところを見る
   try{
@@ -1454,14 +1473,14 @@ function voiceNotes(){
 }
 function melodyBus(ac){                                     // 残響バス（固定シード＝毎回同じ余韻。決定論）
   if(melodyBusN&&melodyBusN.ac===ac)return melodyBusN
-  const dry=ac.createGain();dry.gain.value=0.85;dry.connect(ac.destination)
-  const wet=ac.createGain();wet.gain.value=0.32
+  const dry=ac.createGain();dry.gain.value=0.78;dry.connect(ac.destination)
+  const wet=ac.createGain();wet.gain.value=0.50                 // 残響を深く＝ドビュッシーを聴く夜のように
   let convRef=null
   try{
     const conv=ac.createConvolver()
-    const sr=ac.sampleRate,len=Math.floor(sr*1.8),ir=ac.createBuffer(2,len,sr)
+    const sr=ac.sampleRate,len=Math.floor(sr*2.6),ir=ac.createBuffer(2,len,sr)   // 尾を長く（1.8s→2.6s）
     const r=mulberry32(20260707)
-    for(let ch=0;ch<2;ch++){const d=ir.getChannelData(ch);for(let i=0;i<len;i++){const t=i/len;d[i]=(r()*2-1)*Math.pow(1-t,2.6)*0.5}}
+    for(let ch=0;ch<2;ch++){const d=ir.getChannelData(ch);for(let i=0;i<len;i++){const t=i/len;d[i]=(r()*2-1)*Math.pow(1-t,2.2)*0.5}}
     conv.buffer=ir;wet.connect(conv);conv.connect(ac.destination);convRef=conv
   }catch(e){wet.gain.value=0}
   melodyBusN={ac,dry,wet,conv:convRef}
@@ -1562,7 +1581,8 @@ function voiceLoopToggle(btn){
     if(voiceLoop.on){voiceLoopStop();return}
     const seq=voiceNoteSeq();if(!seq||!seq.length)return
     voiceLoop.on=true;voiceLoop.seq=seq;voiceLoop.idx=0;voiceLoop.btn=btn||null
-    voiceLoop.nextT=melodyAC.currentTime+0.10
+    voiceLoop.grid0=melodyAC.currentTime+0.12                // 旋律と伴奏が共有する、ひとつの時計
+    voiceLoop.melSlot=0;voiceLoop.accMeas=0
     ambientDuck(0.35,0.6)                            // 声の音が主役、空気は一歩さがる
     if(btn){btn.setAttribute('data-o',btn.getAttribute('data-o')||btn.textContent);btn.textContent='♪ ながれています — もう一度タップで止める';btn.classList.add('on')}
     voiceLoopPump()
@@ -1589,29 +1609,38 @@ function bassTone(ac,freq,t0,dur,mul,pan){           // コントラバスの根
 function voiceLoopPump(){
   if(!voiceLoop.on||!melodyAC)return
   const ac=melodyAC
-  while(voiceLoop.nextT<ac.currentTime+0.9){         // 0.9秒先まで積んでおく＝途切れないループ
+  const BEAT=0.78, HALF=BEAT/2                       // ワルツの時計：1小節=3拍=6半拍
+  /* 旋律：声の音の並びを、伴奏と同じグリッドに乗せる
+     音の長さは声由来（長く保った音ほど長い音価）、置き場所は半拍に吸着＝ひとつの曲になる。
+     一巡して最初に戻るときは、必ず小節の頭（1拍目）で帰る */
+  while(voiceLoop.grid0+voiceLoop.melSlot*HALF<ac.currentTime+0.9){
     const pos=voiceLoop.idx%voiceLoop.seq.length
+    if(pos===0&&voiceLoop.idx>0)voiceLoop.melSlot=Math.ceil(voiceLoop.melSlot/6)*6   // 小節頭へ帰る
+    const t=voiceLoop.grid0+voiceLoop.melSlot*HALF
     const s=voiceLoop.seq[pos]
-    const step=0.62+Math.min(s.len,10)*0.05          // 声で長く保たれた音ほど、ゆっくり
-    const pan=(((voiceLoop.idx*3)%7)-3)*0.09         // 淡い定位のゆらぎ（indexから決定論的に）
-    /* 和声：ドビュッシー「月の光」を意識した、解決しきらない9thの色（決定論：一巡ごとに一つ進む）
-       Cmaj9 → Am9 → Fmaj9 → G9sus … どの和音もCペンタトニックの旋律と溶け、涙腺にそっと触れる浮遊感を持つ */
-    if(pos===0){
-      const DEB=[[130.81,196.00,293.66,329.63],   // Cmaj9 ：C3 G3 D4 E4
-                 [110.00,164.81,246.94,261.63],   // Am9   ：A2 E3 B3 C4
-                 [ 87.31,130.81,220.00,329.63],   // Fmaj9 ：F2 C3 A3 E4
-                 [ 98.00,146.83,220.00,261.63]]   // G9sus ：G2 D3 A3 C4
-      const ch=DEB[Math.floor(voiceLoop.idx/voiceLoop.seq.length)%DEB.length]
-      bassTone(ac,ch[0],voiceLoop.nextT,5.0,0.40,0)                                  // 根音は弓のように
-      for(let k=1;k<ch.length;k++)                                                    // 上声は左手の分散和音のように
-        pianoTone(ac,ch[k],voiceLoop.nextT+0.32*k,3.6,0.17,(k%2?-0.18:0.18))
-    }
-    pianoTone(ac,PENTA[s.n],voiceLoop.nextT,2.1,0.42,pan)
-    voiceLoop.nextT+=step
+    const slots=1+Math.min(3,Math.round(s.len/5))    // 声で長く保たれた音ほど、長い音価（半拍〜2拍）
+    const pan=(((voiceLoop.idx*3)%7)-3)*0.09
+    pianoTone(ac,PENTA[s.n],t,2.1,0.42,pan)
+    voiceLoop.melSlot+=slots
     voiceLoop.idx++
+  }
+  /* 伴奏：3拍子のワルツ（同じ時計の上で）1拍目=根音／2拍目=和音／3拍目=上の色。
+     和音は2小節ごとに進む——「月の光」を意識した、解決しきらない9thの浮遊（すべて決定論） */
+  while(voiceLoop.grid0+voiceLoop.accMeas*BEAT*3<ac.currentTime+0.9){
+    const meas=voiceLoop.accMeas, t=voiceLoop.grid0+meas*BEAT*3
+    const ch=DEB_CHORDS[Math.floor(meas/2)%DEB_CHORDS.length]
+    bassTone(ac,ch[0],t,2.5,0.38,0)                                     // 1拍目：根音（弓のように）
+    pianoTone(ac,ch[1],t+BEAT,1.7,0.14,-0.16)                           // 2拍目：和音の胸
+    pianoTone(ac,ch[2],t+BEAT,1.7,0.12,0.16)
+    pianoTone(ac,ch[3],t+BEAT*2,2.0,0.13,0.08)                          // 3拍目：上の色がひらく
+    voiceLoop.accMeas=meas+1
   }
   voiceLoop.timer=setTimeout(voiceLoopPump,240)
 }
+const DEB_CHORDS=[[130.81,196.00,293.66,329.63],   // Cmaj9 ：C3 G3 D4 E4
+                  [110.00,164.81,246.94,261.63],   // Am9   ：A2 E3 B3 C4
+                  [ 87.31,130.81,220.00,329.63],   // Fmaj9 ：F2 C3 A3 E4
+                  [ 98.00,146.83,220.00,261.63]]   // G9sus ：G2 D3 A3 C4
 function voiceLoopStop(){
   if(!voiceLoop.on)return
   voiceLoop.on=false;clearTimeout(voiceLoop.timer)
@@ -2323,7 +2352,7 @@ function initSpecimen(cid,wid,num){
   function cloudGen(center,scale,ownHex){
     return ()=>({
       c:center,
-      col:new THREE.Color(ownHex).offsetHSL(0,-0.30,0.22),  // ほぼ白い光に、その花の色のほのかな気配だけ
+      col:new THREE.Color(ownHex).lerp(new THREE.Color(0xffffff),0.85),  // 85%白に溶かす＝色はもう「気配」しか残れない
       r:scale*(0.34+Math.pow(srng(),0.85)*0.72),            // 少し広く、ゆったりと散らす
       th0:srng()*Math.PI*2,
       om:(0.10+srng()*0.26)*(srng()<0.5?-1:1),
@@ -2342,7 +2371,7 @@ function initSpecimen(cid,wid,num){
   function streamGen(){
     return i=>({
       p:srng(),sp:0.04+srng()*0.045,a0:srng()*Math.PI*2,rj:0.85+srng()*0.4,
-      col:allCols[i%allCols.length].clone().offsetHSL(0,-0.26,0.16),   // 立ちのぼる光も、ほぼ白へ
+      col:allCols[i%allCols.length].clone().lerp(new THREE.Color(0xffffff),0.82),   // 立ちのぼる光も、82%白へ
       upd(prm,t){
         const p=(prm.p+prm.sp*t)%1
         const y=0.85+p*2.9
@@ -2520,6 +2549,9 @@ function initSpecimen(cid,wid,num){
   const SM=k=>k*k*(3-2*k)                                 // なめらかな入り抜き
   const SIO=k=>k<0.5?2*k*k:1-Math.pow(-2*k+2,3)/2         // 柔らかいS字：そっと立ち上がり、静かに収まる
   const CRACK0=0.30,CRACK1=1.15,RELEASE=1.05
+  // 生まれる瞬間の、微かな脈（Android等のみ。iOS SafariはWebに振動を開放していない）
+  const buzz=ms=>{try{if(navigator.vibrate)navigator.vibrate(ms)}catch(e){}}
+  let crackBuzzed=false
   const animate=()=>{
     aid=requestAnimationFrame(animate)
     if(!dragging){
@@ -2532,6 +2564,7 @@ function initSpecimen(cid,wid,num){
     rimGeo.setDrawRange(0,Math.floor(cp*rimClosed.length))
     rimMat.opacity=0.15+0.72*SM(cp)
     // 殻の胎動：割れるまで微かに震え、割れた瞬間に小さくひらく
+    if(!crackBuzzed&&age>=RELEASE){crackBuzzed=true;buzz(16)}          // 殻がひらく——手のひらに、微かな脈
     const tr=Math.max(0,1-age/1.25)
     const kick=Math.exp(-Math.pow((age-RELEASE)*6,2))*0.012
     shellG.rotation.z=Math.sin(age*34)*0.006*tr*tr
@@ -2548,6 +2581,7 @@ function initSpecimen(cid,wid,num){
       const fa=flowerAnims[n]
       const tRise=RELEASE+0.08+n*stag                                 // 一輪ずつの間：順にほどける余韻
       const rk=CK((age-tRise)/1.7,0,1), rise=SIO(rk)                  // 伸びる：柔らかなS字で、ゆっくりしなやかに
+      if(!fa.buzzed&&rk>0){fa.buzzed=true;buzz(8)}                    // 一輪が生まれる——ごく微かに
       fa.fg.scale.set(0.92+0.08*rise,Math.max(rise,0.001),0.92+0.08*rise)
       fa.fg.rotation.y=(1-rise)*0.4*(n%2?1:-1)                        // ほどける向きは交互に
       const tOpen=tRise+1.0
